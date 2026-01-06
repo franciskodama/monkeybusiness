@@ -22,36 +22,51 @@ export default async function Login() {
       }}
     >
       <div className="flex flex-col sm:flex-row items-center">
-        <div className="flex flex-col p-4 sm:p-12 border-red-500bg bg-white sm:mr-12 mb-8 sm:mb-0 sm:w-[90ch] border border-primary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+        <div className="flex flex-col p-4 sm:p-12 bg-white sm:mr-12 mb-8 sm:mb-0 sm:w-[90ch] border border-primary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <Image
             className="mb-6 sm:mb-12 w-20 h-20 sm:w-32 sm:h-32"
-            src="/logos/HandyForMe_Cog200x200.png"
-            alt="HandyFor.Me Logo"
+            src="/logo/logo-icon-140x140.png"
+            alt="Monkey Business Logo"
             width={150}
             height={150}
           />
-          <div className="flex flex-col uppercase w-full">
-            <p className="text-4xl sm:text-8xl font-extrabold sm:leading-[5.5rem]">
-              Goodbye 👋 overwhelm!
+          <div className="flex flex-col w-full">
+            <p className="text-4xl uppercase sm:text-8xl font-extrabold sm:leading-[5.5rem]">
+              Family 🤖 Finance on Auto-Pilot.
             </p>
-            <div className="flex w-full sm:justify-end text-base font-semibold sm:text-2xl sm:text-right opacity-50 sm:leading-10 mt-6">
-              <p className="w-[20ch]">
-                Your personal hub for organizing daily tasks is just one click
-                away!
+            <div className="flex w-full sm:justify-end uppercase text-base font-semibold sm:text-2xl sm:text-right opacity-50 sm:leading-10 my-8">
+              <p className="w-[40%]">
+                Stop managing your money. Let me do it for you.
               </p>
             </div>
+            <p className="font-thin text-right text-lg w-[60%]">
+              <span className="font-semibold text-base mr-2 uppercase bg-yellow-300 p-1">
+                Spend minutes, not hours, on your finances.
+              </span>
+              <br />
+              Log in to access a system designed for speed. Our automated
+              trackers and one-click batch uploads do the work of a professional
+              accountant, right in your pocket.
+              <br />
+              Get the "real vs. planned" insights you need to make decisions
+              fast, so you can get back to what matters.
+            </p>
           </div>
         </div>
 
         <Card className="flex flex-col justify-center w-full max-w-sm border border-primary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <CardHeader>
-            <CardTitle className="text-4xl text-black">Login</CardTitle>
+            <CardTitle className="text-4xl text-black font-bold uppercase">
+              Login
+            </CardTitle>
             <CardDescription>
-              Life’s better when it’s handy – Let’s sign in!
+              <div className="text-black text-base w-[30ch]">
+                Ready to turn financial chaos into automated clarity?
+              </div>
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center my-2 sm:my-[3em]">
-            <form
+            {/* <form
               action={async () => {
                 'use server';
                 await signIn('google', {
@@ -68,7 +83,7 @@ export default async function Login() {
                 <LogoGoogle />
                 <p>Sign in with Google</p>
               </Button>
-            </form>
+            </form> */}
             <form
               action={async () => {
                 'use server';
@@ -93,20 +108,20 @@ export default async function Login() {
             </div> */}
           </CardContent>
 
-          {/* <CardFooter className="text-sm">
+          <CardFooter className="text-sm">
             <div>
               <p className="font-semibold">Not a member yet?</p>
-              Don’t worry, life gets better from here!
+              You don't know what you are missing. 😅
               <span>
-                <Link
+                {/* <Link
                   href="/login/signup"
                   className="underline underline-offset-4 ml-2"
                 >
                   Sign up
-                </Link>
+                </Link> */}
               </span>
             </div>
-          </CardFooter> */}
+          </CardFooter>
         </Card>
       </div>
     </div>
