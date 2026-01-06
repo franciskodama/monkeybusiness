@@ -1,6 +1,5 @@
 'use client';
 
-import { kumbh_sans } from 'app/ui/fonts';
 import Image from 'next/image';
 import { useEffect } from 'react';
 
@@ -16,9 +15,7 @@ export default function Error({
   return (
     <main className='p-4 md:p-6'>
       <div className='mb-8 space-y-4'>
-        <h1 className={`${kumbh_sans.className} font-bold text-3xl mb-2`}>
-          Ops...
-        </h1>
+        <h1 className='font-bold text-3xl mb-2'>Ops...</h1>
         {error && (
           <pre className='my-4 px-3 py-6 bg-black text-white max-w-2xl overflow-scroll flex text-wrap'>
             {`${error} `}{' '}

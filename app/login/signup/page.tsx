@@ -1,4 +1,4 @@
-// import { kumbh_sans } from 'app/ui/fonts';
+// import { geistSans } from 'app/ui/fonts';
 
 import {
   Card,
@@ -8,10 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { signIn } from '@/lib/auth';
+// import { signIn } from '@/lib/auth';
 import Image from 'next/image';
-import { LogoGitHub, LogoGoogle } from '@/lib/svgs';
-import SignUp from './sign-up';
+// import { LogoGitHub, LogoGoogle } from '@/lib/svgs';
+// import SignUp from './sign-up';
 import Link from 'next/link';
 
 export default async function SignUpPage() {
@@ -34,9 +34,7 @@ export default async function SignUpPage() {
             height={150}
           />
           <div className='flex flex-col'>
-            <p
-              className={`${kumbh_sans.className} uppercase text-2xl sm:text-8xl font-extrabold sm:leading-[5.5rem]`}
-            >
+            <p className='uppercase text-2xl sm:text-8xl font-extrabold'>
               Welcome aboard! 🥳
             </p>
             <div className='flex w-full sm:justify-end sm:text-2xl sm:text-right sm:leading-10 my-2'>
@@ -57,7 +55,7 @@ export default async function SignUpPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className='flex flex-col items-center my-2 sm:my-[3em]'>
-          <SignUp />
+          {/* <SignUp /> */}
         </CardContent>
 
         <CardFooter className='text-sm'>
