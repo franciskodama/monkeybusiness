@@ -1,5 +1,3 @@
-// import { geistSans } from 'app/ui/fonts';
-
 import {
   Card,
   CardContent,
