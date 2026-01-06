@@ -1,16 +1,6 @@
-import './globals.css';
+import { barlow } from '@/lib/fonts';
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
-});
+import './globals.css';
 
 export const metadata: Metadata = {
   icons: {
@@ -29,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${barlow.className} antialiased flex min-h-screen w-full flex-col`}
       >
         {children}
       </body>
