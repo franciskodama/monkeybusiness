@@ -12,7 +12,9 @@ import {
 } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserNameEmailImage } from '@/lib/types';
-import Help from '@/components/help';
+import CardUser from './card-user';
+import CardEmpty from './card-empty';
+import Help from '@/components/Help';
 
 export default function In({ user }: { user: UserNameEmailImage | undefined }) {
   const [openAction, setOpenAction] = useState(false);
@@ -55,6 +57,8 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
                 <TabsTrigger value="fun-fact">Fun Fact</TabsTrigger>
               </TabsList>
               <TabsContent value="weather">
+                <div>Weather?</div>
+
                 {/* {weather && location ? (
                   <CardWeather location={location} weather={weather} />
                 ) : (
@@ -62,10 +66,12 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
                 )} */}
               </TabsContent>
               <TabsContent value="fun-fact">
+                <div>Card Fun Fact</div>
+
                 {/* <CardFunFact /> */}
               </TabsContent>
               <TabsContent value="user">
-                {/* {user && <CardUser user={user} />} */}
+                {user && <CardUser user={user} />}
               </TabsContent>
             </Tabs>
 
@@ -73,6 +79,10 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
               <div className="sm:w-1/3">{user && <div>test</div>}</div>
               <div className="sm:w-1/3">{/* <CardFunFact /> */}</div>
               <div className="sm:w-1/3">
+                <CardEmpty
+                  title="Weather"
+                  description="Ops... Weather data is out of reach. 👻 Check back soon!"
+                />
                 {/* {weather && location ? (
                   <CardWeather location={location} weather={weather} />
                 ) : (
@@ -89,6 +99,7 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
 
           <div className="flex flex-col sm:flex-row w-full gap-24 sm:gap-8 my-12">
             <div className="flex justify-center sm:w-1/3">
+              <div>Vision board?</div>
               {/* {visionBoardItems.length > 0 ? (
                 <CardVisionBoard visionBoardItems={visionBoardItems} />
               ) : (

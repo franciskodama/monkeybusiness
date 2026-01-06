@@ -48,9 +48,10 @@ export default async function Login() {
               trackers and one-click batch uploads do the work of a professional
               accountant, right in your pocket.
               <br />
+              <br />
               {'Get the "real vs. planned" insights you need to make decisions'}
-              <span className="font-semibold">in seconds</span>. Our system is
-              fast, so you can get back to what matters.
+              in seconds. Our system is fast, so you can get back to what
+              matters.
             </p>
           </div>
         </div>
@@ -95,7 +96,7 @@ export default async function Login() {
               className="w-full"
             >
               <Button
-                size={'lg'}
+                size={'xl'}
                 type="submit"
                 className="flex items-center gap-4 w-full text-base font-normal"
               >
@@ -104,13 +105,19 @@ export default async function Login() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter className="text-sm">
-            <div>
-              <p className="font-semibold">
-                Stop monkeying around with spreadsheets.
-              </p>
-              The fastest way to finish your finances is right at the top. 🚀 Go
-              on, click it.
+          <CardFooter className="text-sm text-right">
+            <div className="">
+              Stop monkeying around with spreadsheets.
+              <br />
+              <div className="ml-24">
+                The fastest way to finish your finances is right at the top.
+                <br />
+                <br />
+                <p className="text-base font-semibold">
+                  <span className="mx-2">🚀</span>
+                  Go on, click it!
+                </p>
+              </div>
             </div>
           </CardFooter>
         </Card>
