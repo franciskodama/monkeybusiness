@@ -30,8 +30,7 @@ export const LogoGoogle = () => {
 export const LogoGitHub = () => {
   return (
     <svg
-      width="35px"
-      height="35px"
+      className="w-8 h-8"
       viewBox="0 0 48 48"
       id="Layer_2"
       data-name="Layer 2"
