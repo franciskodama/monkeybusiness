@@ -73,6 +73,7 @@
     "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1"
   },
   "devDependencies": {
-    "@types/pg": "^8.16.0"
+    "@types/pg": "^8.16.0",
+    "eslint": "^9.39.2"
   }
 }

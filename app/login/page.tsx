@@ -8,7 +8,7 @@ import {
   CardTitle
 } from '@/components/ui/card';
 import { signIn } from '@/lib/auth';
-import { LogoGitHub, LogoGoogle } from '@/lib/svgs';
+import { LogoGitHub } from '@/lib/svgs';
 import Image from 'next/image';
 
 export default async function Login() {
@@ -48,7 +48,8 @@ export default async function Login() {
               trackers and one-click batch uploads do the work of a professional
               accountant, right in your pocket.
               <br />
-              Get the "real vs. planned" insights you need to make decisions
+              {'Get the "real vs. planned" insights you need to make decisions'}
+              <span className="font-semibold">in seconds</span>. Our system is
               fast, so you can get back to what matters.
             </p>
           </div>
@@ -88,7 +89,7 @@ export default async function Login() {
               action={async () => {
                 'use server';
                 await signIn('github', {
-                  redirectTo: '/'
+                  redirectTo: '/in'
                 });
               }}
               className="w-full"
