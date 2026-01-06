@@ -40,7 +40,7 @@ export default async function Login() {
               </p>
             </div>
             <p className="font-thin text-right text-lg w-[60%]">
-              <span className="font-semibold text-base mr-2 uppercase bg-yellow-300 p-1">
+              <span className="font-semibold text-base mr-2 uppercase w-full bg-yellow-300 p-1">
                 Spend minutes, not hours, on your finances.
               </span>
               <br />
@@ -88,7 +88,7 @@ export default async function Login() {
               action={async () => {
                 'use server';
                 await signIn('github', {
-                  redirectTo: '/'
+                  redirectTo: '/in'
                 });
               }}
               className="w-full"

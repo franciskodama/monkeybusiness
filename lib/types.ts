@@ -1,5 +1,5 @@
 export type UserNameEmailImage = {
   name?: string | null;
-  email?: string | null;
+  uid?: string | null;
   image?: string | null;
 };
