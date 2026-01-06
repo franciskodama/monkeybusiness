@@ -1,15 +1,22 @@
 import { auth } from '@/lib/auth';
-import In from './in';
 
-import SignIn from '@/components/SignIn';
+import Login from '@/app/login/page';
+import In from './in';
 
 export default async function InPage() {
   const session = await auth();
-  const user = session?.user;
+  console.log('---  🚀 ---> | session:', session);
+  // const user = session?.user;
+  // console.log('---  🚀 ---> | user:', user);
 
-  if (!session) {
-    return <SignIn />;
-  }
+  // if (!session) {
+  //   return <Login />;
+  // }
 
-  return <In user={user} />;
+  return (
+    <>
+      {/* <In user={user} />; */}
+      <div className="text-8xl font-bold">Hello World!</div>
+    </>
+  );
 }

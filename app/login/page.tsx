@@ -88,7 +88,7 @@ export default async function Login() {
               action={async () => {
                 'use server';
                 await signIn('github', {
-                  redirectTo: '/in'
+                  redirectTo: '/'
                 });
               }}
               className="w-full"
@@ -102,24 +102,14 @@ export default async function Login() {
                 <p>Sign in with GitHub</p>
               </Button>
             </form>
-            {/* <p className="my-4 text-sm">or</p>
-            <div className="w-full">
-              <SignIn />
-            </div> */}
           </CardContent>
-
           <CardFooter className="text-sm">
             <div>
-              <p className="font-semibold">Not a member yet?</p>
-              You don't know what you are missing. 😅
-              <span>
-                {/* <Link
-                  href="/login/signup"
-                  className="underline underline-offset-4 ml-2"
-                >
-                  Sign up
-                </Link> */}
-              </span>
+              <p className="font-semibold">
+                Stop monkeying around with spreadsheets.
+              </p>
+              The fastest way to finish your finances is right at the top. 🚀 Go
+              on, click it.
             </div>
           </CardFooter>
         </Card>

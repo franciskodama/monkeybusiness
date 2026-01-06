@@ -1,7 +1,7 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
 import { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import {
   Card,
@@ -10,8 +10,8 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { UserNameEmailImage } from '@/lib/types';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { UserNameEmailImage } from '@/lib/types';
 
 export default function In({ user }: { user: UserNameEmailImage | undefined }) {
   const [openAction, setOpenAction] = useState(false);
