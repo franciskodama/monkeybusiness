@@ -1,4 +1,4 @@
-import { signIn, signOut } from '@/auth';
+import { signIn, signOut } from '@/lib/auth';
 
 export function SignIn({
   provider,
@@ -23,9 +23,9 @@ export function SignOut(props: React.ComponentPropsWithRef<'button'>) {
         'use server';
         await signOut();
       }}
-      className='w-full'
+      className="w-full"
     >
-      <button {...props} className='w-full text-left'>
+      <button {...props} className="w-full text-left">
         Sign Out
       </button>
     </form>
