@@ -73,22 +73,3 @@ export async function getUser(email: string) {
     return null;
   }
 }
-
-// export async function getUser(email: string) {
-//   const cleanEmail = email.toLowerCase().trim(); // Clean it up
-//   try {
-//     const user = await prisma.user.findFirst({
-//       where: {
-//         email: {
-//           equals: cleanEmail,
-//           mode: 'insensitive' // This ignores capitalization!
-//         }
-//       }
-//     });
-
-//     return user;
-//   } catch (error: any) {
-//     console.error('Error retrieving user:', error.message || error);
-//     return null;
-//   }
-// }
