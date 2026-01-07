@@ -64,7 +64,7 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
 
           {/* ----------------------- Spreadsheet ----------------------- */}
 
-          <div className="flex w-full h-[30em]">Spreadsheet</div>
+          <div className="flex w-full h-[30em]">Charts here in this row</div>
         </div>
       </CardContent>
     </Card>

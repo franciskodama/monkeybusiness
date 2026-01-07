@@ -19,7 +19,7 @@ export default function CardUser({
           />
           <p className="text-2xl font-bold">
             Hi,
-            <span className="text-red-500 text-4xl mx-2">
+            <span className="text-yellow-500 text-4xl mx-2">
               {user.name?.split(' ')[0]}
             </span>
             {`:)`}
