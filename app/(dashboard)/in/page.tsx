@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 
 import In from './in';
 import { auth } from '@/lib/auth';
-import { getFk, getUser } from '@/lib/actions';
+import { getUser } from '@/lib/actions';
 
 export default async function InPage() {
   const session = await auth();
