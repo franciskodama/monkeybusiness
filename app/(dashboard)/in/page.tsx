@@ -17,8 +17,5 @@ export default async function InPage() {
   const userName = await getUser(user?.email || '');
   console.log('---  🚀 ---> | userName:', userName);
 
-  const fk = await getFk();
-  console.log('---  🚀 ---> | fk:', fk);
-
   return <In user={user} />;
 }
