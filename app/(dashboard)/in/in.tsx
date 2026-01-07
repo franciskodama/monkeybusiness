@@ -24,7 +24,7 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
       <CardHeader className="sm:mb-12">
         <CardTitle className="flex justify-between items-center gap-2">
           <p>Dashboard</p>
-          {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+          {/* {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />} */}
         </CardTitle>
         <CardDescription>
           Everything you need, right at your fingertips.

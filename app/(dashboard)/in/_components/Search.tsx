@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import { Spinner } from '@/lib/Icons';
+import { Spinner } from '@/lib/icons';
 
 export function SearchInput() {
   const router = useRouter();

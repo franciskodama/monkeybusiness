@@ -1,4 +1,5 @@
-import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+
 import {
   Card,
   CardContent,
@@ -7,9 +8,9 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { signIn } from '@/lib/auth';
 import { LogoGitHub } from '@/lib/svgs';
-import Image from 'next/image';
 
 export default async function Login() {
   return (
@@ -68,24 +69,6 @@ export default async function Login() {
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center my-2 sm:my-[3em]">
-            {/* <form
-              action={async () => {
-                'use server';
-                await signIn('google', {
-                  redirectTo: '/'
-                });
-              }}
-              className="w-full"
-            >
-              <Button
-                size={'lg'}
-                type="submit"
-                className="flex items-center gap-4 w-full text-base font-normal mb-4"
-              >
-                <LogoGoogle />
-                <p>Sign in with Google</p>
-              </Button>
-            </form> */}
             <form
               action={async () => {
                 'use server';
