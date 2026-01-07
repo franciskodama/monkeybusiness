@@ -64,7 +64,9 @@ export function CardMessage() {
             Show Another Fun Fact
           </Button>
         </div>
-        <div className={tagClass}>Message</div>
+        <div className={tagClass}>
+          <span className="mr-2">✉️</span>Message
+        </div>
       </div>
     </>
   );

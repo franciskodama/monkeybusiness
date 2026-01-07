@@ -10,9 +10,7 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserNameEmailImage } from '@/lib/types';
-import Help from '@/components/Help';
 import ExplanationIn from './explanation-in';
 import { CardMessage } from './_components/CardMessage';
 import CardUser from './_components/CardUser';
@@ -26,7 +24,7 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
       <CardHeader className="sm:mb-12">
         <CardTitle className="flex justify-between items-center gap-2">
           <p>Dashboard</p>
-          {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+          {/* {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />} */}
         </CardTitle>
         <CardDescription>Let's Budget it!</CardDescription>
       </CardHeader>
@@ -57,14 +55,14 @@ export default function In({ user }: { user: UserNameEmailImage | undefined }) {
               </div>
               <div className="sm:w-1/3">
                 <CardEmpty
-                  title="Blah Blah"
+                  title={`🚨 Alerts`}
                   description="Ops...  Data is out of reach. 👻 Check back soon!"
                 />
               </div>
             </div>
           </>
 
-          {/* ----------------------- Second Row ----------------------- */}
+          {/* ----------------------- Spreadsheet ----------------------- */}
 
           <div className="flex w-full h-[30em]">Spreadsheet</div>
         </div>
