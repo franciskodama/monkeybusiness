@@ -5,6 +5,7 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 model User {
   uid          String        @id @default(uuid()) @db.VarChar(255)
   name         String?
@@ -23,6 +24,7 @@ model Category {
   uid         String
   user        User         @relation(fields: [uid], references: [uid])
   budgetItems BudgetItem[]
+  @@unique([name, uid]) // Prevents duplicate "Housing" categories for the same user
 }
 
 model BudgetItem {
@@ -37,6 +39,7 @@ model BudgetItem {
   user         User          @relation(fields: [uid], references: [uid])
   category     Category      @relation(fields: [categoryId], references: [id])
   transactions Transaction[] // Links individual card swipes to this bucket
+  @@unique([name, month, year, uid]) // Ensures you only have one "Netflix" bucket per month
 }
 
 model Transaction {

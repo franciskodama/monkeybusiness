@@ -82,10 +82,9 @@ export async function seedSection(
   categoryName: string,
   items: { name: string; amount: number }[]
 ) {
-  // 1. Ensure the Category exists
+  // 1. Ensure the Category exists (using the new @@unique([name, uid]))
   const category = await prisma.category.upsert({
     where: {
-      // Instead of name_uid, we target the fields explicitly
       name_uid: {
         name: categoryName,
         uid: uid
@@ -98,23 +97,29 @@ export async function seedSection(
     }
   });
 
-  // 2. Seed the items
+  // 2. Seed the items (using the new @@unique([name, month, year, uid]))
   for (const item of items) {
     for (let month = 1; month <= 12; month++) {
       await prisma.budgetItem.upsert({
-        where: { id: `${uid}-${item.name}-${month}-2026` },
+        where: {
+          name_month_year_uid: {
+            name: item.name,
+            month: month,
+            year: 2026,
+            uid: uid
+          }
+        },
         update: {
           amount: item.amount,
-          categoryId: category.id // Direct assignment
+          categoryId: category.id
         },
         create: {
-          id: `${uid}-${item.name}-${month}-2026`,
           name: item.name,
           amount: item.amount,
           month: month,
           year: 2026,
           uid: uid,
-          categoryId: category.id // Direct assignment instead of { connect }
+          categoryId: category.id
         }
       });
     }
