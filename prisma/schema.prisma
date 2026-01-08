@@ -11,7 +11,9 @@ model User {
   name         String?
   email        String        @unique
   image        String?
+  householdId  String?       @default("MONKEY_HOUSEHOLD_1") 
   createdAt    DateTime      @default(now()) @db.Timestamp(6)
+  
   categories   Category[]
   budgetItems  BudgetItem[]
   transactions Transaction[]
@@ -19,37 +21,55 @@ model User {
 
 model Category {
   id          String       @id @default(uuid())
-  name        String       // e.g., "Housing", "Car", "Baby"
-  color       String?      // Optional: Store a hex code for UI charts
-  uid         String
-  user        User         @relation(fields: [uid], references: [uid])
+  name        String       
+  color       ColorEnum    @default(GRAY)
+  householdId String
+  
+  user        User         @relation(fields: [householdId], references: [uid]) 
   budgetItems BudgetItem[]
-  @@unique([name, uid]) // Prevents duplicate "Housing" categories for the same user
+  @@unique([name, householdId]) 
+}
+// In the schema above, I kept the @relation pointing to User.uid for now to avoid creating a new Household table yet. It's a "pseudo-household" setup that works perfectly for your MVP.
+
+enum ColorEnum {
+  BLUE
+  GREEN
+  RED
+  YELLOW
+  PURPLE
+  ORANGE
+  PINK
+  TEAL
+  GRAY
+  BROWN
+  BLACK
 }
 
 model BudgetItem {
   id          String        @id @default(uuid())
-  name        String        // e.g., "Rent", "Gas", "Netflix"
-  amount      Float         // This is the "Target" or "Forecast" amount
-  month       Int           // 1-12
+  name        String        
+  amount      Float         
+  month       Int           
   year        Int
-  createdAt   DateTime      @default(now())
-  uid         String
+  householdId String       
   categoryId  String
-  user         User          @relation(fields: [uid], references: [uid])
+  
+  user         User          @relation(fields: [householdId], references: [uid])
   category     Category      @relation(fields: [categoryId], references: [id])
-  transactions Transaction[] // Links individual card swipes to this bucket
-  @@unique([name, month, year, uid]) // Ensures you only have one "Netflix" bucket per month
+  transactions Transaction[] 
+
+  @@unique([name, month, year, householdId])
 }
 
 model Transaction {
   id            String      @id @default(uuid())
-  description   String      // Raw text from bank statement (e.g., "WALMART #1234")
+  description   String      
   amount        Float
   date          DateTime
-  source        String      // "My Card", "Wife's Card", or "Family Card"
-  uid           String
-  budgetItemId  String?     // Optional: AI/User sets this during categorization
-  user          User        @relation(fields: [uid], references: [uid])
+  source        String      
+  householdId   String      
+  
+  budgetItemId  String?     
+  user          User        @relation(fields: [householdId], references: [uid])
   budgetItem    BudgetItem? @relation(fields: [budgetItemId], references: [id])
 }
