@@ -7,10 +7,49 @@ datasource db {
 }
 
 model User {
-  id             String   @id @default(uuid()) @db.VarChar(255)
-  name           String?
-  hashedPassword String?
-  createdAt      DateTime @default(now()) @db.Timestamp(6)
-  email          String   @unique
-  image          String?
+  uid          String        @id @default(uuid()) @db.VarChar(255)
+  name         String?
+  email        String        @unique
+  image        String?
+  createdAt    DateTime      @default(now()) @db.Timestamp(6)
+  categories   Category[]
+  budgetItems  BudgetItem[]
+  transactions Transaction[]
+}
+
+model Category {
+  id          String       @id @default(uuid())
+  name        String       // e.g., "Housing", "Car", "Baby"
+  color       String?      // Optional: Store a hex code for UI charts
+  uid         String
+  user        User         @relation(fields: [uid], references: [uid])
+  budgetItems BudgetItem[]
+  @@unique([name, uid]) // Prevents duplicate "Housing" categories for the same user
+}
+
+model BudgetItem {
+  id          String        @id @default(uuid())
+  name        String        // e.g., "Rent", "Gas", "Netflix"
+  amount      Float         // This is the "Target" or "Forecast" amount
+  month       Int           // 1-12
+  year        Int
+  createdAt   DateTime      @default(now())
+  uid         String
+  categoryId  String
+  user         User          @relation(fields: [uid], references: [uid])
+  category     Category      @relation(fields: [categoryId], references: [id])
+  transactions Transaction[] // Links individual card swipes to this bucket
+  @@unique([name, month, year, uid]) // Ensures you only have one "Netflix" bucket per month
+}
+
+model Transaction {
+  id            String      @id @default(uuid())
+  description   String      // Raw text from bank statement (e.g., "WALMART #1234")
+  amount        Float
+  date          DateTime
+  source        String      // "My Card", "Wife's Card", or "Family Card"
+  uid           String
+  budgetItemId  String?     // Optional: AI/User sets this during categorization
+  user          User        @relation(fields: [uid], references: [uid])
+  budgetItem    BudgetItem? @relation(fields: [budgetItemId], references: [id])
 }

@@ -6,19 +6,19 @@ import {
   CardTitle
 } from '@/components/ui/card';
 
-export default async function ChartPage() {
+export default async function TablePage() {
   return (
     <Card className="relative">
       <CardHeader className="sm:mb-12">
         <CardTitle className="flex justify-between items-center gap-2">
-          <p>Charts</p>
+          <p>Table</p>
         </CardTitle>
-        <CardDescription>Visualize your budget</CardDescription>
+        <CardDescription>Nitty gritty</CardDescription>
       </CardHeader>
       <CardContent>
         <>
           <div className="flex flex-col w-full h-[32em] justify-center items-center">
-            Charts! But nothing here! Xuuuupaaaa...
+            Table! But nothing here! Xuuuupaaaa...
           </div>
         </>
       </CardContent>

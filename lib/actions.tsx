@@ -2,6 +2,8 @@
 
 import prisma from './prisma';
 
+// TEST --------------------------------------------------------------------
+
 export async function getTotalUsersAndTest() {
   try {
     const allUsers = await prisma.user.findMany({ take: 1 });
@@ -14,7 +16,7 @@ export async function getTotalUsersAndTest() {
   }
 }
 
-// --------------------------------------------------------------------
+// USER --------------------------------------------------------------------
 
 export async function addUser(email: string, name: string, image: string) {
   try {
@@ -39,27 +41,6 @@ export async function addUser(email: string, name: string, image: string) {
   }
 }
 
-// export async function createUser({
-//   email,
-//   password,
-//   name
-// }: {
-//   email: string;
-//   password: string;
-//   name: string;
-// }) {
-//   const hashedPassword = await saltAndHashPassword(password);
-//   const user = await prisma.user.create({
-//     data: {
-//       uid: email,
-//       name,
-//       hashedPassword
-//     }
-//   });
-
-//   return user;
-// }
-
 export async function getUser(email: string) {
   const normalizedEmail = email.toLowerCase().trim();
   try {
@@ -74,21 +55,73 @@ export async function getUser(email: string) {
   }
 }
 
-// export async function getUser(email: string) {
-//   const cleanEmail = email.toLowerCase().trim(); // Clean it up
-//   try {
-//     const user = await prisma.user.findFirst({
-//       where: {
-//         email: {
-//           equals: cleanEmail,
-//           mode: 'insensitive' // This ignores capitalization!
-//         }
-//       }
-//     });
+// CARD TOTALS --------------------------------------------------------------------
 
-//     return user;
-//   } catch (error: any) {
-//     console.error('Error retrieving user:', error.message || error);
-//     return null;
-//   }
-// }
+export async function getCardTotals(uid: string, month: number, year: number) {
+  const totals = await prisma.transaction.groupBy({
+    by: ['source'],
+    where: {
+      uid: uid,
+      date: {
+        gte: new Date(year, month - 1, 1),
+        lt: new Date(year, month, 1)
+      }
+    },
+    _sum: {
+      amount: true
+    }
+  });
+
+  return totals; // Returns: [{ source: "My Card", _sum: { amount: 1200 } }, ...]
+}
+
+// SEEDS --------------------------------------------------------------------
+
+export async function seedSection(
+  uid: string,
+  categoryName: string,
+  items: { name: string; amount: number }[]
+) {
+  // 1. Ensure the Category exists (using the new @@unique([name, uid]))
+  const category = await prisma.category.upsert({
+    where: {
+      name_uid: {
+        name: categoryName,
+        uid: uid
+      }
+    },
+    update: {},
+    create: {
+      name: categoryName,
+      uid: uid
+    }
+  });
+
+  // 2. Seed the items (using the new @@unique([name, month, year, uid]))
+  for (const item of items) {
+    for (let month = 1; month <= 12; month++) {
+      await prisma.budgetItem.upsert({
+        where: {
+          name_month_year_uid: {
+            name: item.name,
+            month: month,
+            year: 2026,
+            uid: uid
+          }
+        },
+        update: {
+          amount: item.amount,
+          categoryId: category.id
+        },
+        create: {
+          name: item.name,
+          amount: item.amount,
+          month: month,
+          year: 2026,
+          uid: uid,
+          categoryId: category.id
+        }
+      });
+    }
+  }
+}
