@@ -81,7 +81,7 @@ export default function Table({
         );
       }
       toast('budgetItem gone!', {
-        description: `The ${budgetItem.budgetItem} has been successfully deleted.`
+        description: `The ${budgetItem.name} has been successfully deleted.`
       });
     } catch (error) {
       console.error(error);
@@ -245,7 +245,7 @@ export default function Table({
                           <AlertDialogDescription className="py-4">
                             This will permanently delete the vision
                             <span className="font-bold mx-1">
-                              {budgetItem.budgetItem}
+                              {budgetItem.name}
                             </span>
                             from our servers.
                           </AlertDialogDescription>
