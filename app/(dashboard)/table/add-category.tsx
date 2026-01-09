@@ -48,10 +48,12 @@ type FormErrors = {
 
 export function AddCategory({
   user,
+  householdId,
   currentCategories,
   setCurrentCategoriesAction
 }: {
   user: User;
+  householdId: string;
   currentCategories: Category[];
   setCurrentCategoriesAction: React.Dispatch<React.SetStateAction<Category[]>>;
 }) {
@@ -93,9 +95,9 @@ export function AddCategory({
       }
 
       const shortcutCategory = await addCategory({
-        householdId: user.householdId,
-        category,
-        colorUppperCase
+        householdId,
+        name: category,
+        color: colorUppperCase
       });
 
       if (!shortcutCategory) {

@@ -25,10 +25,12 @@ type FormErrors = {
 };
 
 export function AddBudgetItem({
+  householdId,
   user,
   currentCategories,
   setCurrentbudgetItemsAction
 }: {
+  householdId: string;
   user: User;
   currentCategories: Category[];
   setCurrentbudgetItemsAction: React.Dispatch<React.SetStateAction<Category[]>>;
@@ -192,7 +194,7 @@ export function AddBudgetItem({
           <Input
             id="uid"
             name="uid"
-            value={user?.householdId}
+            value={householdId}
             readOnly
             className="hidden"
           />
