@@ -7,10 +7,15 @@ import { auth } from '@/lib/auth';
 
 export default async function InPage() {
   const session = await auth();
+  const user = session?.user;
 
   if (!session) {
     redirect('/login');
   }
 
-  return <In user={session?.user} />;
+  return (
+    <>
+      <div>{user ? <In user={user} /> : <div>loading...</div>}</div>
+    </>
+  );
 }

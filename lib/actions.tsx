@@ -1,13 +1,18 @@
 'use server';
 
-import { BudgetItem, color_enum } from '@prisma/client';
+import { BudgetItem, ColorEnum } from '@prisma/client';
 import prisma from './prisma';
 import { randomUUID } from 'crypto';
 import { v4 } from 'uuid';
 
 // USER --------------------------------------------------------------------
 
-export async function addUser(email: string, name: string, image: string) {
+export async function addUser(
+  email: string,
+  name: string,
+  image: string,
+  householdId: string
+) {
   try {
     const user = await prisma.user.upsert({
       where: { email },
@@ -19,14 +24,15 @@ export async function addUser(email: string, name: string, image: string) {
         email,
         name,
         image,
+        householdId,
         createdAt: new Date()
       }
     });
 
     return user;
   } catch (error) {
-    console.error('Error in addUser action:', error);
-    throw new Error('Failed to sync user data');
+    console.error('--- ❌ Error in addUser action:', error);
+    throw new Error('--- ❌ Failed to sync user data');
   }
 }
 
@@ -47,17 +53,20 @@ export async function getUser(email: string) {
 // CARD TOTALS --------------------------------------------------------------------
 
 export async function getCreditCardTotals(
-  uid: string,
+  householdId: string,
   month: number,
   year: number
 ) {
+  const startDate = new Date(year, month - 1, 1);
+  const endDate = new Date(year, month, 1);
+
   const totals = await prisma.transaction.groupBy({
     by: ['source'],
     where: {
-      uid: uid,
+      householdId: householdId,
       date: {
-        gte: new Date(year, month - 1, 1),
-        lt: new Date(year, month, 1)
+        gte: startDate,
+        lt: endDate
       }
     },
     _sum: {
@@ -65,7 +74,10 @@ export async function getCreditCardTotals(
     }
   });
 
-  return totals; // Returns: [{ source: "My Card", _sum: { amount: 1200 } }, ...]
+  return totals.map((item) => ({
+    source: item.source,
+    total: item._sum.amount || 0
+  }));
 }
 
 // SEEDS --------------------------------------------------------------------
@@ -119,28 +131,28 @@ export async function getCreditCardTotals(
 
 // CATEGORY --------------------------------------------------------------------
 
-export const getCategories = async (uid: string) => {
+export const getCategories = async (householdId: string) => {
   try {
     const categories = await prisma.category.findMany({
       where: {
-        uid
+        householdId
       }
     });
     return categories;
   } catch (error) {
     console.log(error);
-    throw new Error('🚨 Failed to get Categories');
+    throw new Error('--- ❌ Failed to get Categories');
   }
 };
 
 export async function addCategory({
-  uid,
+  householdId,
   name,
   color
 }: {
-  uid: string;
+  householdId: string;
   name: string;
-  color: color_enum;
+  color: ColorEnum;
 }) {
   try {
     await prisma.category.create({
@@ -154,7 +166,7 @@ export async function addCategory({
     return true;
   } catch (error) {
     console.log(error);
-    throw new Error('🚨 Failed to add Category');
+    throw new Error('--- ❌ Failed to add Category');
   }
 }
 
@@ -168,7 +180,7 @@ export async function deleteCategory(id: string) {
     return true;
   } catch (error) {
     console.log(error);
-    throw new Error('🚨 Failed to delete Category');
+    throw new Error('--- ❌ Failed to delete Category');
   }
 }
 
@@ -222,6 +234,6 @@ export async function deleteBudgetItem(id: string) {
     return true;
   } catch (error) {
     console.log(error);
-    throw new Error('🚨 Failed to delete Budget Item');
+    throw new Error('--- ❌ Failed to delete Budget Item');
   }
 }

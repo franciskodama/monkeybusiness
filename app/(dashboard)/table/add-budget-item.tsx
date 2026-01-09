@@ -13,7 +13,8 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Category } from '@prisma/client';
+import { Category, User } from '@prisma/client';
+import { addBudgetItem, getBudgetItems } from '@/lib/actions';
 
 type FormErrors = {
   name?: string;
@@ -24,13 +25,11 @@ type FormErrors = {
 };
 
 export function AddBudgetItem({
-  uid,
-  householdId,
+  user,
   currentCategories,
   setCurrentbudgetItemsAction
 }: {
-  uid: string;
-  householdId: string;
+  user: User;
   currentCategories: Category[];
   setCurrentbudgetItemsAction: React.Dispatch<React.SetStateAction<Category[]>>;
 }) {
@@ -70,7 +69,7 @@ export function AddBudgetItem({
         return;
       }
 
-      const newbudgetItem = await addbudgetItem({
+      const newbudgetItem = await addBudgetItem({
         uid,
         budgetItem,
         url,
@@ -90,7 +89,7 @@ export function AddBudgetItem({
         description: 'Your new budgetItem is ready to use!'
       });
 
-      const _currentbudgetItems = await getbudgetItems(uid);
+      const _currentbudgetItems = await getBudgetItems(uid);
 
       return {
         _currentbudgetItems
@@ -110,7 +109,7 @@ export function AddBudgetItem({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild className="w-full">
-        <Button>Add budgetItem</Button>
+        <Button>Add new item</Button>
       </SheetTrigger>
       <SheetContent side="right" className="sm:max-w-xs mt-8 gap-8">
         <div className="flex flex-col gap-2 my-8">
@@ -125,14 +124,14 @@ export function AddBudgetItem({
         >
           <div className="flex flex-col gap-1 w-full">
             <Input
-              className={formErrors.budgetItem ? 'border-2 border-red-500' : ''}
-              placeholder="budgetItem Name"
-              id="budgetItem"
-              name="budgetItem"
+              className={formErrors.name ? 'border-2 border-red-500' : ''}
+              placeholder="Name"
+              id="name"
+              name="name"
             />
-            {formErrors.budgetItem ? (
+            {formErrors.name ? (
               <p className="text-xs font-bold text-red-500 ml-4 mt-1">
-                {formErrors.budgetItem}
+                {formErrors.name}
               </p>
             ) : (
               <p className="text-xs ml-4 mt-1">
@@ -141,25 +140,25 @@ export function AddBudgetItem({
             )}
           </div>
 
-          <div className="flex flex-col gap-1 w-full">
+          {/* <div className="flex flex-col gap-1 w-full">
             <Input
               className={
-                formErrors.description ? 'border-2 border-red-500' : ''
+                formErrors.name ? 'border-2 border-red-500' : ''
               }
-              placeholder="Description"
-              id="description"
-              name="description"
+              placeholder="Name"
+              id="name"
+              name="name"
             />
-            {formErrors.description ? (
+            {formErrors.name ? (
               <p className="text-xs font-bold text-red-500 ml-4 mt-1">
-                {formErrors.description}
+                {formErrors.name}
               </p>
             ) : (
               <p className="text-xs ml-4 mt-1">
                 Add a quick reminder for this site.
               </p>
             )}
-          </div>
+          </div> */}
 
           <div className="flex flex-col gap-1 w-full">
             <Select name="category">
@@ -180,7 +179,7 @@ export function AddBudgetItem({
                             className="w-4 h-4 rounded-full"
                             style={{ backgroundColor: category.color }}
                           />
-                          <p className="capitalize">{category.category}</p>
+                          <p className="capitalize">{category.name}</p>
                         </div>
                       </SelectItem>
                     )}
@@ -190,7 +189,13 @@ export function AddBudgetItem({
             </Select>
             <p className="text-xs ml-4 mt-1">Choose a Category</p>
           </div>
-          <Input id="uid" name="uid" value={uid} readOnly className="hidden" />
+          <Input
+            id="uid"
+            name="uid"
+            value={user?.householdId}
+            readOnly
+            className="hidden"
+          />
           <Button type="submit" disabled={isPending}>
             {isPending ? 'Adding...' : 'Add'}
           </Button>

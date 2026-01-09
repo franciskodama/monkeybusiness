@@ -33,7 +33,7 @@ import { toast } from 'sonner';
 
 import { addCategory, deleteCategory, getCategories } from '@/lib/actions';
 import { colors } from '@/lib/utils';
-import { Category, color_enum } from '@prisma/client';
+import { Category, ColorEnum, User } from '@prisma/client';
 
 type Color = {
   name: string;
@@ -46,18 +46,15 @@ type FormErrors = {
   color?: string;
 };
 
-export function AddCategory() {
-  //     {
-  //   uid,
-  //   currentCategories,
-  //   setCurrentCategoriesAction
-  // }: {
-  //   uid: string;
-  //   currentCategories: ShortcutCategory[];
-  //   setCurrentCategoriesAction: React.Dispatch<
-  //     React.SetStateAction<ShortcutCategory[]>
-  //   >;
-  // }
+export function AddCategory({
+  user,
+  currentCategories,
+  setCurrentCategoriesAction
+}: {
+  user: User;
+  currentCategories: Category[];
+  setCurrentCategoriesAction: React.Dispatch<React.SetStateAction<Category[]>>;
+}) {
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
@@ -74,8 +71,8 @@ export function AddCategory() {
       const category = formData.get('category') as string;
       const color = formData.get('color');
       const colorUppperCase =
-        (typeof color === 'string' && (color.toUpperCase() as color_enum)) ||
-        ('GREY' as color_enum);
+        (typeof color === 'string' && (color.toUpperCase() as ColorEnum)) ||
+        ('GREY' as ColorEnum);
       const uid = formData.get('uid') as string;
 
       const errors: FormErrors = {};
@@ -96,7 +93,7 @@ export function AddCategory() {
       }
 
       const shortcutCategory = await addCategory({
-        uid,
+        householdId: user.householdId,
         category,
         colorUppperCase
       });
@@ -139,7 +136,7 @@ export function AddCategory() {
         );
       }
       toast('Category gone!', {
-        description: `The ${category.category} has been successfully deleted.`
+        description: `The ${category.name} has been successfully deleted.`
       });
     } catch (error) {
       console.error(error);
@@ -222,7 +219,13 @@ export function AddCategory() {
             )}
           </div>
 
-          <Input id="uid" name="uid" value={uid} readOnly className="hidden" />
+          <Input
+            id="uid"
+            name="uid"
+            value={user?.householdId}
+            readOnly
+            className="hidden"
+          />
           <Button type="submit" disabled={isPending}>
             {isPending ? 'Adding...' : 'Add'}
           </Button>
@@ -250,7 +253,7 @@ export function AddCategory() {
                     }}
                   />
                   <p className="text-center text-sm capitalize">
-                    {category.category}
+                    {category.name}
                   </p>
                 </div>
                 <AlertDialog>
@@ -265,9 +268,7 @@ export function AddCategory() {
                       </AlertDialogTitle>
                       <AlertDialogDescription className="py-4">
                         This will permanently delete this Category
-                        <span className="font-bold mx-1">
-                          {category.category}
-                        </span>
+                        <span className="font-bold mx-1">{category.name}</span>
                         from our servers.
                       </AlertDialogDescription>
                     </AlertDialogHeader>

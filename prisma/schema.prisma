@@ -13,7 +13,6 @@ model User {
   image        String?
   householdId  String?       @default("MONKEY_HOUSEHOLD_1") 
   createdAt    DateTime      @default(now()) @db.Timestamp(6)
-  
   categories   Category[]
   budgetItems  BudgetItem[]
   transactions Transaction[]
@@ -24,7 +23,6 @@ model Category {
   name        String       
   color       ColorEnum    @default(GRAY)
   householdId String
-  
   user        User         @relation(fields: [householdId], references: [uid]) 
   budgetItems BudgetItem[]
   @@unique([name, householdId]) 

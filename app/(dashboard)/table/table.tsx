@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useState } from 'react';
 import {
   ArrowDownWideNarrow,
@@ -25,15 +24,14 @@ import {
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
 import Help from '@/components/Help';
-// import ExplanationbudgetItems from './explanation-budgetItems';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
 import { getColorCode } from '@/lib/utils';
-import { BudgetItem, Category } from '@prisma/client';
+import { BudgetItem, Category, User } from '@prisma/client';
 import { toast } from 'sonner';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { AddBudgetItem } from './add-budget-item';
-// import MessageEmpty from '@/components/MessageEmpty';
+import { deleteBudgetItem } from '@/lib/actions';
 
 export type CategoryInput = {
   category: string;
@@ -41,12 +39,12 @@ export type CategoryInput = {
 };
 
 export default function Table({
-  uid,
+  user,
   householdId,
   categories,
   budgetItems
 }: {
-  uid: string;
+  user: User;
   householdId: string;
   categories: Category[];
   budgetItems: BudgetItem[];
@@ -111,7 +109,7 @@ export default function Table({
         <CardTitle className="flex flex-col sm:flex-row sm:justify-between items-start mb-0">
           <div className="flex flex-col">
             <div className="flex items-center justify-between">
-              <p>budgetItems</p>
+              <p>Table</p>
               <div className="block sm:hidden">
                 {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
               </div>
@@ -119,24 +117,25 @@ export default function Table({
             <p
               className={`${barlow.className} text-sm font-normal lowercase mt-2`}
             >
-              <span className="uppercase">Y</span>our go-to place for quick
-              access to your favorite sites.
+              <span className="uppercase">Y</span>our go-to place for money!
             </p>
           </div>
           <div
             className={`${barlow.className} flex gap-4 capitalize mt-8 sm:mt-0 w-full sm:w-[18ch]`}
           >
             <div className="flex gap-4 w-full">
-              <div className="w-1/2">
+              <div>
                 <AddCategory
-                  uid={uid}
+                  user={user}
+                  householdId={householdId}
                   currentCategories={currentCategories}
                   setCurrentCategoriesAction={setCurrentCategoriesAction}
                 />
               </div>
-              <div className="w-1/2">
+              <div>
                 <AddBudgetItem
-                  uid={uid}
+                  user={user}
+                  householdId={householdId}
                   currentCategories={currentCategories}
                   setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
                 />

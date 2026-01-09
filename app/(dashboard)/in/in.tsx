@@ -10,13 +10,13 @@ import {
   CardHeader,
   CardTitle
 } from '@/components/ui/card';
-import { UserNameEmailImage } from '@/lib/types';
 import ExplanationIn from './explanation-in';
 import { CardMessage } from './_components/CardMessage';
 import CardUser from './_components/CardUser';
 import CardEmpty from './_components/CardEmpty';
+import { User } from '@prisma/client';
 
-export default function In({ user }: { user: UserNameEmailImage | undefined }) {
+export default function In({ user }: { user: User | null }) {
   const [openAction, setOpenAction] = useState(false);
 
   return (
