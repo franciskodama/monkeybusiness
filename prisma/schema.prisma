@@ -46,9 +46,9 @@ enum ColorEnum {
 model BudgetItem {
   id          String        @id @default(uuid())
   name        String        
-  amount      Float         
-  month       Int           
-  year        Int
+  amount      Float?         
+  month       Int?           
+  year        Int?
   householdId String       
   categoryId  String
   

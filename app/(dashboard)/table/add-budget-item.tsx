@@ -18,9 +18,6 @@ import { addBudgetItem, getBudgetItems } from '@/lib/actions';
 
 type FormErrors = {
   name?: string;
-  amount?: string;
-  month?: string;
-  year?: string;
   category?: string;
 };
 
@@ -49,15 +46,13 @@ export function AddBudgetItem({
       setFormErrors({});
 
       const budgetItem = formData.get('budgetItem') as string;
-      const url = formData.get('url') as string;
       const categoryId = formData.get('category') as string;
-      const description = (formData.get('description') || '') as string;
       const householdId = formData.get('householdId') as string;
 
       const errors: FormErrors = {};
 
       if (!budgetItem) {
-        errors.budgetItem = 'Enter a name for your Item.';
+        errors.name = 'Enter a name for your Item.';
       } else if (budgetItem.length > 20) {
         errors.category = 'Item name should be 20 characters or fewer';
       }
@@ -73,9 +68,7 @@ export function AddBudgetItem({
 
       const newbudgetItem = await addBudgetItem({
         householdId,
-        budgetItem,
-        url,
-        description,
+        name,
         categoryId
       });
 
@@ -102,11 +95,11 @@ export function AddBudgetItem({
 
   const [data, action, isPending] = useActionState(handleSubmit, undefined);
 
-  useEffect(() => {
-    if (data?._currentbudgetItems && Array.isArray(data._currentbudgetItems)) {
-      setCurrentbudgetItemsAction(data._currentbudgetItems);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data?._currentbudgetItems && Array.isArray(data._currentbudgetItems)) {
+  //     setCurrentbudgetItemsAction(data._currentbudgetItems);
+  //   }
+  // }, [data]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -137,7 +130,7 @@ export function AddBudgetItem({
               </p>
             ) : (
               <p className="text-xs ml-4 mt-1">
-                Give your budgetItem a memorable name.
+                Give your Budget Item a memorable name.
               </p>
             )}
           </div>

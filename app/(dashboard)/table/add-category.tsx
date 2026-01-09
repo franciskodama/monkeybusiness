@@ -151,7 +151,7 @@ export function AddCategory({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild className="w-full">
+      <SheetTrigger asChild className="w-full border">
         <Button variant="outline">Add Category</Button>
       </SheetTrigger>
       <SheetContent side="right" className="sm:max-w-xs mt-8 gap-8">

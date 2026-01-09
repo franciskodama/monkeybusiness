@@ -25,7 +25,7 @@ export default async function TablePage() {
 
   return (
     <>
-      {user ? (
+      {householdId ? (
         <Table
           user={user}
           householdId={householdId}
