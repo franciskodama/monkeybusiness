@@ -75,7 +75,7 @@ export function AddCategory({
       const colorUppperCase =
         (typeof color === 'string' && (color.toUpperCase() as ColorEnum)) ||
         ('GREY' as ColorEnum);
-      const uid = formData.get('uid') as string;
+      const householdId = formData.get('householdId') as string;
 
       const errors: FormErrors = {};
 
@@ -112,7 +112,7 @@ export function AddCategory({
         description: 'You have one more Category to manage your shortcuts.'
       });
 
-      const _currentCategories = await getCategories(uid);
+      const _currentCategories = await getCategories(householdId);
 
       return {
         _currentCategories
@@ -222,9 +222,9 @@ export function AddCategory({
           </div>
 
           <Input
-            id="uid"
-            name="uid"
-            value={user?.householdId}
+            id="householdId"
+            name="householdId"
+            value={householdId}
             readOnly
             className="hidden"
           />

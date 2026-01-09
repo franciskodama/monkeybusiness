@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { BudgetItem, Category } from '@prisma/client';
 import { addUser, getBudgetItems, getCategories, getUser } from '@/lib/actions';
 import Table from './table';
+import { Spinner } from '@/lib/icons';
 
 export default async function TablePage() {
   const session = await auth();
@@ -21,12 +22,19 @@ export default async function TablePage() {
   if (Array.isArray(fetchedBudgetItems)) {
     budgetItems = fetchedBudgetItems;
   }
+
   return (
-    <Table
-      user={user}
-      householdId={householdId ?? ''}
-      categories={categories}
-      budgetItems={budgetItems}
-    />
+    <>
+      {user ? (
+        <Table
+          user={user}
+          householdId={householdId}
+          categories={categories}
+          budgetItems={budgetItems}
+        />
+      ) : (
+        <Spinner />
+      )}
+    </>
   );
 }

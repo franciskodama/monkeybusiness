@@ -27,13 +27,13 @@ type FormErrors = {
 export function AddBudgetItem({
   householdId,
   user,
-  currentCategories,
-  setCurrentbudgetItemsAction
+  currentCategories
+  // setCurrentbudgetItemsAction
 }: {
   householdId: string;
   user: User;
   currentCategories: Category[];
-  setCurrentbudgetItemsAction: React.Dispatch<React.SetStateAction<Category[]>>;
+  // setCurrentbudgetItemsAction: React.Dispatch<React.SetStateAction<Category[]>>;
 }) {
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -52,7 +52,7 @@ export function AddBudgetItem({
       const url = formData.get('url') as string;
       const categoryId = formData.get('category') as string;
       const description = (formData.get('description') || '') as string;
-      const uid = formData.get('uid') as string;
+      const householdId = formData.get('householdId') as string;
 
       const errors: FormErrors = {};
 
@@ -72,7 +72,7 @@ export function AddBudgetItem({
       }
 
       const newbudgetItem = await addBudgetItem({
-        uid,
+        householdId,
         budgetItem,
         url,
         description,
@@ -91,7 +91,7 @@ export function AddBudgetItem({
         description: 'Your new budgetItem is ready to use!'
       });
 
-      const _currentbudgetItems = await getBudgetItems(uid);
+      const _currentbudgetItems = await getBudgetItems(householdId);
 
       return {
         _currentbudgetItems
@@ -192,8 +192,8 @@ export function AddBudgetItem({
             <p className="text-xs ml-4 mt-1">Choose a Category</p>
           </div>
           <Input
-            id="uid"
-            name="uid"
+            id="householdId"
+            name="householdId"
             value={householdId}
             readOnly
             className="hidden"
