@@ -113,7 +113,7 @@ export function AddBudgetItem({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild className="w-full">
-        <Button>Add new item</Button>
+        <Button>Add Item</Button>
       </SheetTrigger>
       <SheetContent side="right" className="sm:max-w-xs mt-8 gap-8">
         <SheetHeader>

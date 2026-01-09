@@ -236,16 +236,17 @@ export async function addBudgetItem({
   }
 }
 
-export async function deleteBudgetItem(id: string) {
+export async function deleteBudgetItem(id: string, householdId: string) {
   try {
     await prisma.budgetItem.delete({
       where: {
-        id
+        id: id,
+        householdId: householdId // Safety check
       }
     });
-    return true;
+    return { success: true };
   } catch (error) {
-    console.log(error);
-    throw new Error('--- ❌ Failed to delete Budget Item');
+    console.error('Database Error:', error);
+    return { success: false, error: 'Failed to delete budget item.' };
   }
 }

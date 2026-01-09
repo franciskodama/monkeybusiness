@@ -76,7 +76,7 @@ export function AddCategory({
       const color = formData.get('color');
       const colorUppperCase =
         (typeof color === 'string' && (color.toUpperCase() as ColorEnum)) ||
-        ('GREY' as ColorEnum);
+        ('GRAY' as ColorEnum);
       const householdId = formData.get('householdId') as string;
 
       const errors: FormErrors = {};
@@ -110,7 +110,7 @@ export function AddCategory({
       }
 
       setOpen(false);
-      toast('URL added successfully! 🎉', {
+      toast('Category added successfully! 🎉', {
         description: 'You have one more Category to manage your shortcuts.'
       });
 

@@ -20,10 +20,12 @@ export const colors = [
 ];
 
 export const getColorCode = (colorName: string) => {
-  const color = colors.find((c) => c.name.toUpperCase() === colorName);
-  const result = {
-    color: color?.foreground,
-    backgroundColor: color?.code
+  const color = colors.find(
+    (c) => c.name.toUpperCase() === colorName.toUpperCase()
+  );
+
+  return {
+    color: color?.foreground || '#FFFFFF',
+    backgroundColor: color?.code || '#808080'
   };
-  return result;
 };
