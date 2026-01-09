@@ -202,9 +202,21 @@ export const getBudgetItems = async (householdId: string) => {
   }
 };
 
-export async function addBudgetItem(formData: BudgetItem) {
-  const { householdId, name, amount, month, year, categoryId } = formData;
-
+export async function addBudgetItem({
+  householdId,
+  name,
+  amount,
+  month,
+  year,
+  categoryId
+}: {
+  householdId: string;
+  name: string;
+  amount?: number;
+  month?: number;
+  year?: number;
+  categoryId: string;
+}) {
   try {
     await prisma.budgetItem.create({
       data: {

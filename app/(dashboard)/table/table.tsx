@@ -89,7 +89,7 @@ export default function Table({
                   user={user}
                   householdId={householdId}
                   currentCategories={currentCategories}
-                  // setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
+                  setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
                 />
               </div>
             </div>

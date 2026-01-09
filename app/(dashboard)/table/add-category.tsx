@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
   Sheet,
-  SheetClose,
   SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
   SheetTrigger
 } from '@/components/ui/sheet';
 import {
@@ -155,12 +157,16 @@ export function AddCategory({
         <Button variant="outline">Add Category</Button>
       </SheetTrigger>
       <SheetContent side="right" className="sm:max-w-xs mt-8 gap-8">
-        <div className="flex flex-col gap-2 my-8">
-          <h2 className="text-lg uppercase font-bold">Add Category</h2>
-          <p className="text-sm font-normal lowercase">
-            Organize your content with categories.
-          </p>
-        </div>
+        <SheetHeader>
+          <div className="flex flex-col gap-2 my-8">
+            <SheetTitle className="text-lg uppercase font-bold text-left">
+              Add Category
+            </SheetTitle>
+            <SheetDescription className="text-sm font-normal lowercase text-left">
+              Organize your content with categories.
+            </SheetDescription>
+          </div>
+        </SheetHeader>
         <form
           action={action}
           className="flex flex-col items-start gap-8 font-normal"

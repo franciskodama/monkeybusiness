@@ -4,7 +4,14 @@ import { useActionState, useCallback, useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger
+} from '@/components/ui/sheet';
 import {
   Select,
   SelectContent,
@@ -13,7 +20,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Category, User } from '@prisma/client';
+import { BudgetItem, Category, User } from '@prisma/client';
 import { addBudgetItem, getBudgetItems } from '@/lib/actions';
 
 type FormErrors = {
@@ -24,13 +31,15 @@ type FormErrors = {
 export function AddBudgetItem({
   householdId,
   user,
-  currentCategories
-  // setCurrentbudgetItemsAction
+  currentCategories,
+  setCurrentBudgetItemsAction
 }: {
   householdId: string;
   user: User;
   currentCategories: Category[];
-  // setCurrentbudgetItemsAction: React.Dispatch<React.SetStateAction<Category[]>>;
+  setCurrentBudgetItemsAction: React.Dispatch<
+    React.SetStateAction<BudgetItem[]>
+  >;
 }) {
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -45,16 +54,16 @@ export function AddBudgetItem({
     async (previousState: unknown, formData: FormData) => {
       setFormErrors({});
 
-      const budgetItem = formData.get('budgetItem') as string;
+      const name = formData.get('name') as string;
       const categoryId = formData.get('category') as string;
       const householdId = formData.get('householdId') as string;
 
       const errors: FormErrors = {};
 
-      if (!budgetItem) {
+      if (!name) {
         errors.name = 'Enter a name for your Item.';
-      } else if (budgetItem.length > 20) {
-        errors.category = 'Item name should be 20 characters or fewer';
+      } else if (name.length > 20) {
+        errors.name = 'Item name should be 20 characters or fewer';
       }
 
       if (!categoryId) {
@@ -95,11 +104,11 @@ export function AddBudgetItem({
 
   const [data, action, isPending] = useActionState(handleSubmit, undefined);
 
-  // useEffect(() => {
-  //   if (data?._currentbudgetItems && Array.isArray(data._currentbudgetItems)) {
-  //     setCurrentbudgetItemsAction(data._currentbudgetItems);
-  //   }
-  // }, [data]);
+  useEffect(() => {
+    if (data?._currentbudgetItems && Array.isArray(data._currentbudgetItems)) {
+      setCurrentBudgetItemsAction(data._currentbudgetItems);
+    }
+  }, [data, setCurrentBudgetItemsAction]);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -107,12 +116,17 @@ export function AddBudgetItem({
         <Button>Add new item</Button>
       </SheetTrigger>
       <SheetContent side="right" className="sm:max-w-xs mt-8 gap-8">
-        <div className="flex flex-col gap-2 my-8">
-          <h2 className="text-lg uppercase font-bold">Add Your Item</h2>
-          <p className="text-sm font-normal lowercase">
-            Store your go-to websites and categorize them with a personal touch.
-          </p>
-        </div>
+        <SheetHeader>
+          <div className="flex flex-col gap-2 my-8">
+            <SheetTitle className="text-lg uppercase font-bold text-left">
+              Add Your Item
+            </SheetTitle>
+            <SheetDescription className="text-sm font-normal lowercase text-left">
+              Store your go-to websites and categorize them with a personal
+              touch.
+            </SheetDescription>
+          </div>
+        </SheetHeader>
         <form
           action={action}
           className="flex flex-col items-start gap-8 font-normal"
