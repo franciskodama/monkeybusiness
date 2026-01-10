@@ -19,7 +19,9 @@ export async function addUser(user: {
 
     if (existingUser) return existingUser;
 
-    // For now, we use our 'MONKEY_HOUSEHOLD_1' shortcut
+    // For now, we use our 'MONKEY_HOUSEHOLD_1' shortcut -
+    // TODO: WE NEED TO CHANGE THAT IF OTHER PEOPLE JOIN
+
     const household = await prisma.household.upsert({
       where: { id: 'MONKEY_HOUSEHOLD_1' },
       update: {},
@@ -272,6 +274,35 @@ export async function deleteBudgetItem(
     }
     return { success: true };
   } catch (error) {
+    return { success: false };
+  }
+}
+
+// TRANSACTIONS --------------------------------------------------------------------
+
+export async function addTransaction(data: {
+  description: string;
+  amount: number;
+  date: Date;
+  householdId: string;
+  budgetItemId: string;
+}) {
+  try {
+    const transaction = await prisma.transaction.create({
+      data: {
+        description: data.description,
+        amount: data.amount,
+        date: data.date,
+        householdId: data.householdId,
+        budgetItemId: data.budgetItemId,
+        source: 'Manual'
+      }
+    });
+
+    const updatedItems = await getBudgetItems(data.householdId);
+    return { success: true, updatedItems };
+  } catch (error) {
+    console.error('Transaction Error:', error);
     return { success: false };
   }
 }
