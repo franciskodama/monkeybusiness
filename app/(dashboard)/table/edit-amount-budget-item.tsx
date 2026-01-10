@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { updateBudgetItemAmount } from '@/lib/actions';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
 
 export function EditableAmount({
   id,
@@ -15,7 +14,6 @@ export function EditableAmount({
   initialAmount: number;
   onUpdateSuccess: (amount: number, updateFuture: boolean) => void;
 }) {
-  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [amount, setAmount] = useState(initialAmount);
 

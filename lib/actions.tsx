@@ -19,7 +19,9 @@ export async function addUser(user: {
 
     if (existingUser) return existingUser;
 
-    // For now, we use our 'MONKEY_HOUSEHOLD_1' shortcut
+    // For now, we use our 'MONKEY_HOUSEHOLD_1' shortcut -
+    // TODO: WE NEED TO CHANGE THAT IF OTHER PEOPLE JOIN
+
     const household = await prisma.household.upsert({
       where: { id: 'MONKEY_HOUSEHOLD_1' },
       update: {},
@@ -98,55 +100,6 @@ export async function getCreditCardTotals(
   }));
 }
 
-// SEEDS --------------------------------------------------------------------
-
-// export async function seedSection(
-//   uid: string,
-//   categoryName: string,
-//   items: { name: string; amount: number }[]
-// ) {
-//   const category = await prisma.category.upsert({
-//     where: {
-//       name_householdId: {
-//         name: categoryName,
-//         householdId
-//       }
-//     },
-//     update: {},
-//     create: {
-//       name: categoryName,
-//       uid: uid
-//     }
-//   });
-
-//   for (const item of items) {
-//     for (let month = 1; month <= 12; month++) {
-//       await prisma.budgetItem.upsert({
-//         where: {
-//           name_month_year_uid: {
-//             name: item.name,
-//             month: month,
-//             year: 2026,
-//             uid: uid
-//           }
-//         },
-//         update: {
-//           amount: item.amount,
-//           categoryId: category.id
-//         },
-//         create: {
-//           name: item.name,
-//           amount: item.amount,
-//           month: month,
-//           year: 2026,
-//           uid: uid,
-//           categoryId: category.id
-//         }
-//       });
-//     }
-//   }
-// }
-
 // CATEGORY --------------------------------------------------------------------
 
 export const getCategories = async (householdId: string) => {
@@ -214,16 +167,13 @@ export async function deleteCategory(id: string) {
 export const getBudgetItems = async (householdId: string) => {
   try {
     const budgetItems = await prisma.budgetItem.findMany({
-      where: {
-        householdId
-      },
-      include: {
-        category: true
-      }
+      where: { householdId },
+      include: { category: true, transactions: true }
     });
-    return budgetItems;
+    return budgetItems || [];
   } catch (error) {
-    return false;
+    console.error(error);
+    return [];
   }
 };
 
@@ -298,27 +248,110 @@ export async function updateBudgetItemAmount(
 export async function deleteBudgetItem(
   id: string,
   householdId: string,
-  deleteAllMonths: boolean = false
+  mode: 'SINGLE' | 'FUTURE' | 'ALL'
 ) {
   try {
-    if (deleteAllMonths) {
-      const itemToDelete = await prisma.budgetItem.findUnique({
-        where: { id }
-      });
-      if (itemToDelete) {
-        await prisma.budgetItem.deleteMany({
-          where: {
-            name: itemToDelete.name,
-            householdId: householdId,
-            year: itemToDelete.year
-          }
-        });
-      }
-    } else {
+    const item = await prisma.budgetItem.findUnique({ where: { id } });
+    if (!item) return { success: false };
+
+    if (mode === 'SINGLE') {
       await prisma.budgetItem.delete({ where: { id, householdId } });
+    } else if (mode === 'FUTURE') {
+      // Delete from CURRENT month to 12
+      await prisma.budgetItem.deleteMany({
+        where: {
+          name: item.name,
+          householdId,
+          year: item.year,
+          month: { gte: item.month }
+        }
+      });
+    } else if (mode === 'ALL') {
+      // Delete months 1 through 12
+      await prisma.budgetItem.deleteMany({
+        where: { name: item.name, householdId, year: item.year }
+      });
     }
     return { success: true };
   } catch (error) {
     return { success: false };
   }
 }
+
+// TRANSACTIONS --------------------------------------------------------------------
+
+export async function addTransaction(data: {
+  description: string;
+  amount: number;
+  date: Date;
+  householdId: string;
+  budgetItemId: string;
+}) {
+  try {
+    const transaction = await prisma.transaction.create({
+      data: {
+        description: data.description,
+        amount: data.amount,
+        date: data.date,
+        householdId: data.householdId,
+        budgetItemId: data.budgetItemId,
+        source: 'Manual'
+      }
+    });
+
+    const updatedItems = await getBudgetItems(data.householdId);
+    return { success: true, updatedItems };
+  } catch (error) {
+    console.error('Transaction Error:', error);
+    return { success: false };
+  }
+}
+
+// SEEDS --------------------------------------------------------------------
+
+// export async function seedSection(
+//   uid: string,
+//   categoryName: string,
+//   items: { name: string; amount: number }[]
+// ) {
+//   const category = await prisma.category.upsert({
+//     where: {
+//       name_householdId: {
+//         name: categoryName,
+//         householdId
+//       }
+//     },
+//     update: {},
+//     create: {
+//       name: categoryName,
+//       uid: uid
+//     }
+//   });
+
+//   for (const item of items) {
+//     for (let month = 1; month <= 12; month++) {
+//       await prisma.budgetItem.upsert({
+//         where: {
+//           name_month_year_uid: {
+//             name: item.name,
+//             month: month,
+//             year: 2026,
+//             uid: uid
+//           }
+//         },
+//         update: {
+//           amount: item.amount,
+//           categoryId: category.id
+//         },
+//         create: {
+//           name: item.name,
+//           amount: item.amount,
+//           month: month,
+//           year: 2026,
+//           uid: uid,
+//           categoryId: category.id
+//         }
+//       });
+//     }
+//   }
+// }
