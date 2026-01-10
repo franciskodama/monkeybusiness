@@ -29,3 +29,18 @@ export const getColorCode = (colorName: string) => {
     backgroundColor: color?.code || '#808080'
   };
 };
+
+export const months = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December'
+];

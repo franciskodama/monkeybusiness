@@ -7,27 +7,67 @@ datasource db {
 }
 
 model User {
-  uid          String        @id @default(uuid()) @db.VarChar(255)
-  name         String?
-  email        String        @unique
-  image        String?
-  householdId  String?       @default("MONKEY_HOUSEHOLD_1") 
-  createdAt    DateTime      @default(now()) @db.Timestamp(6)
+  uid         String     @id
+  email       String     @unique
+  name        String?
+  image       String?
+  householdId String?    // Foreign key to Household
+  household   Household? @relation(fields: [householdId], references: [id])
+}
+model Household {
+  id           String        @id @default(uuid())
+  name         String
+  users        User[]
   categories   Category[]
   budgetItems  BudgetItem[]
-  transactions Transaction[]
+  transactions Transaction[] // Add this line
 }
 
 model Category {
-  id          String       @id @default(uuid())
-  name        String       
-  color       ColorEnum    @default(GRAY)
-  householdId String
-  user        User         @relation(fields: [householdId], references: [uid]) 
-  budgetItems BudgetItem[]
-  @@unique([name, householdId]) 
+  id           String        @id @default(uuid())
+  name         String
+  color        ColorEnum
+  householdId  String
+  household    Household     @relation(fields: [householdId], references: [id])
+  budgetItems  BudgetItem[]
 }
-// In the schema above, I kept the @relation pointing to User.uid for now to avoid creating a new Household table yet. It's a "pseudo-household" setup that works perfectly for your MVP.
+
+model BudgetItem {
+  id           String    @id @default(uuid())
+  name         String
+  amount       Float?    @default(0)
+  month        Int
+  year         Int
+  
+  categoryId   String
+  category     Category  @relation(fields: [categoryId], references: [id])
+  
+  householdId  String
+  household    Household @relation(fields: [householdId], references: [id])
+
+  transactions Transaction[] // Add this line
+  
+  @@unique([name, month, year, householdId])
+}
+
+model Transaction {
+  id           String      @id @default(uuid())
+  description  String      // e.g., "Amazon.com"
+  amount       Float       // e.g., 45.99
+  date         DateTime
+  categoryName String?     // Raw category from the bank
+  source       String     // Raw category from the bank
+  
+  // Relationships
+  householdId  String
+  household    Household   @relation(fields: [householdId], references: [id])
+
+  // Optional: Link to a specific budget goal
+  budgetItemId String?
+  budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id])
+
+  createdAt    DateTime    @default(now())
+}
 
 enum ColorEnum {
   BLUE
@@ -41,33 +81,4 @@ enum ColorEnum {
   GRAY
   BROWN
   BLACK
-}
-
-model BudgetItem {
-  id          String        @id @default(uuid())
-  name        String        
-  amount      Float?         
-  month       Int?           
-  year        Int?
-  householdId String       
-  categoryId  String
-  
-  user         User          @relation(fields: [householdId], references: [uid])
-  category     Category      @relation(fields: [categoryId], references: [id])
-  transactions Transaction[] 
-
-  @@unique([name, month, year, householdId])
-}
-
-model Transaction {
-  id            String      @id @default(uuid())
-  description   String      
-  amount        Float
-  date          DateTime
-  source        String      
-  householdId   String      
-  
-  budgetItemId  String?     
-  user          User        @relation(fields: [householdId], references: [uid])
-  budgetItem    BudgetItem? @relation(fields: [budgetItemId], references: [id])
 }

@@ -22,6 +22,7 @@ import {
 import { toast } from 'sonner';
 import { BudgetItem, Category, User } from '@prisma/client';
 import { addBudgetItem, getBudgetItems } from '@/lib/actions';
+import { getColorCode } from '@/lib/utils';
 
 type FormErrors = {
   name?: string;
@@ -32,7 +33,8 @@ export function AddBudgetItem({
   householdId,
   user,
   currentCategories,
-  setCurrentBudgetItemsAction
+  setCurrentBudgetItemsAction,
+  defaultCategoryId // New prop
 }: {
   householdId: string;
   user: User;
@@ -40,15 +42,22 @@ export function AddBudgetItem({
   setCurrentBudgetItemsAction: React.Dispatch<
     React.SetStateAction<BudgetItem[]>
   >;
+  defaultCategoryId?: string; // Make it optional
 }) {
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
+  // Set the initial selected category
+  const [selectedCategory, setSelectedCategory] = useState(
+    defaultCategoryId || ''
+  );
+
+  // Update selection if the prop changes or sheet opens
   useEffect(() => {
-    if (!open) {
-      setFormErrors({});
+    if (open && defaultCategoryId) {
+      setSelectedCategory(defaultCategoryId);
     }
-  }, [open]);
+  }, [open, defaultCategoryId]);
 
   const handleSubmit = useCallback(
     async (previousState: unknown, formData: FormData) => {
@@ -57,6 +66,7 @@ export function AddBudgetItem({
       const name = formData.get('name') as string;
       const categoryId = formData.get('category') as string;
       const householdId = formData.get('householdId') as string;
+      const amount = Number(formData.get('amount')) || 0;
 
       const errors: FormErrors = {};
 
@@ -78,7 +88,8 @@ export function AddBudgetItem({
       const newbudgetItem = await addBudgetItem({
         householdId,
         name,
-        categoryId
+        categoryId,
+        amount
       });
 
       if (!newbudgetItem) {
@@ -149,55 +160,50 @@ export function AddBudgetItem({
             )}
           </div>
 
-          {/* <div className="flex flex-col gap-1 w-full">
-            <Input
-              className={
-                formErrors.name ? 'border-2 border-red-500' : ''
-              }
-              placeholder="Name"
-              id="name"
-              name="name"
-            />
-            {formErrors.name ? (
-              <p className="text-xs font-bold text-red-500 ml-4 mt-1">
-                {formErrors.name}
-              </p>
-            ) : (
-              <p className="text-xs ml-4 mt-1">
-                Add a quick reminder for this site.
-              </p>
-            )}
-          </div> */}
-
           <div className="flex flex-col gap-1 w-full">
-            <Select name="category">
+            <Select
+              name="category"
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+            >
               <SelectTrigger
-                className={
-                  formErrors.category ? 'w-full border-2 border-red-500' : ''
-                }
+                className={formErrors.category ? 'border-2 border-red-500' : ''}
               >
                 <SelectValue placeholder="Category" id="category" />
               </SelectTrigger>
               <SelectContent>
-                {currentCategories.map((category: Category) => (
-                  <div key={category.id}>
-                    {category && (
-                      <SelectItem value={category.id}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: category.color }}
-                          />
-                          <p className="capitalize">{category.name}</p>
-                        </div>
-                      </SelectItem>
-                    )}
-                  </div>
+                {currentCategories.map((category) => (
+                  <SelectItem key={category.id} value={category.id}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{
+                          backgroundColor: getColorCode(category.color)
+                            .backgroundColor
+                        }}
+                      />
+                      <p className="capitalize">{category.name}</p>
+                    </div>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs ml-4 mt-1">Choose a Category</p>
           </div>
+
+          <div className="flex flex-col gap-1 w-full">
+            <Input
+              type="number"
+              step="0.01" // Allows for cents like $341.32
+              placeholder="Monthly Amount (e.g. 150.00)"
+              id="amount"
+              name="amount"
+              required
+            />
+            <p className="text-xs ml-4 mt-1">
+              This amount will be applied to all months in 2026.
+            </p>
+          </div>
+
           <Input
             id="householdId"
             name="householdId"

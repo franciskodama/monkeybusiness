@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth';
 
-import { BudgetItem, Category } from '@prisma/client';
-import { addUser, getBudgetItems, getCategories, getUser } from '@/lib/actions';
+import { getBudgetItems, getCategories, getUser } from '@/lib/actions';
 import Table from './table';
 import { Spinner } from '@/lib/icons';
 
@@ -10,22 +9,16 @@ export default async function TablePage() {
   const user = await getUser(session?.user?.email ?? '');
   const householdId = user?.householdId;
 
-  let categories: Category[] = [];
-  let budgetItems: BudgetItem[] = [];
-
-  const fetchedCategories = await getCategories(householdId ?? '');
-  if (Array.isArray(fetchedCategories)) {
-    categories = fetchedCategories;
+  if (!householdId) {
+    return <div>Please contact support to set up your household.</div>;
   }
 
-  const fetchedBudgetItems = await getBudgetItems(householdId ?? '');
-  if (Array.isArray(fetchedBudgetItems)) {
-    budgetItems = fetchedBudgetItems;
-  }
+  const categories = await getCategories(householdId);
+  const budgetItems = await getBudgetItems(householdId);
 
   return (
     <>
-      {householdId ? (
+      {user.householdId && categories && budgetItems ? (
         <Table
           user={user}
           householdId={householdId}

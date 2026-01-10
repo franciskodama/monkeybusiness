@@ -1,37 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  ArrowDownWideNarrow,
-  ArrowUpWideNarrow,
-  Bomb,
-  Ghost,
-  MessageCircleX,
-  Trash2
-} from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger
-} from '@/components/ui/alert-dialog';
 import Help from '@/components/Help';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
-import { getColorCode } from '@/lib/utils';
+import { getColorCode, months } from '@/lib/utils';
 import { BudgetItem, Category, User } from '@prisma/client';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { AddBudgetItem } from './add-budget-item';
 import { deleteBudgetItem } from '@/lib/actions';
 import { toast } from 'sonner';
+import { EditableAmount } from './edit-amount-budget-item';
 
 export type CategoryInput = {
   category: string;
@@ -54,6 +36,31 @@ export default function Table({
     useState<BudgetItem[]>(budgetItems);
   const [currentCategories, setCurrentCategoriesAction] =
     useState<Category[]>(categories);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1); // Defaults to current month (1-12)
+
+  const handleUpdateAmount = (
+    itemId: string,
+    newAmount: number,
+    updateFuture: boolean
+  ) => {
+    setCurrentBudgetItemsAction((prev) =>
+      prev.map((item) => {
+        // Find the specific item we just edited
+        const isTargetItem = item.id === itemId;
+
+        // If 'updateFuture' is true, also find items with same name in future months
+        const isFutureMatch =
+          updateFuture &&
+          item.name === prev.find((i) => i.id === itemId)?.name &&
+          item.month >= (prev.find((i) => i.id === itemId)?.month ?? 0);
+
+        if (isTargetItem || isFutureMatch) {
+          return { ...item, amount: newAmount };
+        }
+        return item;
+      })
+    );
+  };
 
   const handleDeleteItem = async (itemId: string) => {
     const result = await deleteBudgetItem(itemId, householdId);
@@ -86,17 +93,16 @@ export default function Table({
               <span className="uppercase">Y</span>our go-to place for money!
             </p>
           </div>
+
           <div
             className={`${barlow.className} flex gap-4 capitalize mt-8 sm:mt-0 w-full sm:w-[18ch]`}
           >
-            <div className="flex gap-4 w-full">
-              <AddCategory
-                user={user}
-                householdId={householdId}
-                currentCategories={currentCategories}
-                setCurrentCategoriesAction={setCurrentCategoriesAction}
-              />
-            </div>
+            <AddCategory
+              user={user}
+              householdId={householdId}
+              currentCategories={currentCategories}
+              setCurrentCategoriesAction={setCurrentCategoriesAction}
+            />
           </div>
           <div className="hidden sm:block">
             {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
@@ -111,38 +117,32 @@ export default function Table({
               initial={{ opacity: 0, y: 50, scale: 0.3 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-            >
-              {/* <div className="mb-12">
-                <ExplanationbudgetItems setOpenAction={setOpenAction} />
-              </div> */}
-            </motion.div>
+            ></motion.div>
           ) : null}
         </AnimatePresence>
 
-        {/* {board.length < 1 && (
-          <div className="mt-8">
-            <MessageEmpty
-              image={'/budgetItem-empty.webp'}
-              objectPosition={'50% 10%'}
-              alt={'Looking for something'}
-              icon={<Ghost size={32} strokeWidth={1.6} />}
-              titleOne={'Oops...'}
-              titleTwo={'budgetItem Not Found'}
-              subtitle={
-                'Start by adding a category for easy organization, then save your first budgetItem here. Get ready to access your favorites in a click!'
-              }
-              setOpenAction={setOpenAction}
-              buttonCopy={'Learn More'}
-              hasButton={true}
-            />
-          </div>
-        )} */}
+        <div className="flex justify-between overflow-x-auto pb-4 no-scrollbar border-b mb-6">
+          {months.map((monthName, index) => (
+            <Button
+              key={monthName}
+              variant={selectedMonth === index + 1 ? 'default' : 'ghost'}
+              className="px-6"
+              size="xs"
+              onClick={() => setSelectedMonth(index + 1)}
+            >
+              {monthName}
+            </Button>
+          ))}
+        </div>
 
         <div className="flex flex-col w-full gap-8 mt-4">
           {currentCategories.map((category) => {
             // Filter items belonging to this specific category
             const itemsInThisCategory = currentBudgetItems.filter(
-              (item) => item.categoryId === category.id
+              (item) =>
+                item.categoryId === category.id &&
+                item.month === selectedMonth &&
+                item.year === 2026 // Ensuring we stay in the correct budget year
             );
 
             return (
@@ -181,24 +181,45 @@ export default function Table({
                       >
                         <span className="text-sm font-medium">{item.name}</span>
                         <div className="flex items-center gap-4">
-                          {/* Amount placeholder - we'll make this editable later */}
+                          <span className="text-sm font-mono font-bold">
+                            {new Intl.NumberFormat('en-US', {
+                              style: 'currency',
+                              currency: 'USD'
+                            }).format(item.amount ?? 0)}{' '}
+                            {/* Added ?? 0 to handle nulls */}
+                          </span>
                           <span className="text-sm font-mono text-muted-foreground">
                             $ 0.00
                           </span>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-destructive/50 hover:text-destructive"
-                          >
+
+                          <div className="flex items-center gap-4">
+                            <EditableAmount
+                              key={`${item.id}-${selectedMonth}`} // React resets the component when the month changes
+                              id={item.id}
+                              initialAmount={item.amount ?? 0}
+                              onUpdateSuccess={(amount, updateFuture) =>
+                                handleUpdateAmount(
+                                  item.id,
+                                  amount,
+                                  updateFuture
+                                )
+                              }
+                            />
+
+                            <span className="text-sm font-mono text-muted-foreground">
+                              $ 0.00{' '}
+                              {/* This will eventually be the 'Actual' column */}
+                            </span>
+
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 text-destructive/50 hover:text-destructive"
-                              onClick={() => handleDeleteItem(item.id)} // Trigger deletion
+                              className="h-8 w-8 text-destructive/50 hover:text-destructive text-red-600"
+                              onClick={() => handleDeleteItem(item.id)}
                             >
                               <Trash2 size={14} />
                             </Button>
-                          </Button>
+                          </div>
                         </div>
                       </div>
                     ))
@@ -208,22 +229,18 @@ export default function Table({
                     </div>
                   )}
 
-                  <div>
-                    <AddBudgetItem
-                      user={user}
-                      householdId={householdId}
-                      currentCategories={currentCategories}
-                      setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
-                    />
-                  </div>
                   <div className="p-2 bg-secondary/10 flex justify-center">
-                    <AddBudgetItem
-                      user={user}
-                      householdId={householdId}
-                      // Important: Pass the specific category context
-                      currentCategories={[category]}
-                      setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
-                    />
+                    <div className="p-2 bg-secondary/10 flex justify-center">
+                      <AddBudgetItem
+                        user={user}
+                        householdId={householdId}
+                        currentCategories={currentCategories}
+                        setCurrentBudgetItemsAction={
+                          setCurrentBudgetItemsAction
+                        }
+                        defaultCategoryId={category.id}
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>

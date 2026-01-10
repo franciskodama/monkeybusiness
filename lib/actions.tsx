@@ -1,51 +1,69 @@
 'use server';
 
-import { BudgetItem, ColorEnum } from '@prisma/client';
+import { ColorEnum } from '@prisma/client';
 import prisma from './prisma';
-import { randomUUID } from 'crypto';
-import { v4 } from 'uuid';
 
 // USER --------------------------------------------------------------------
 
-export async function addUser(
-  email: string,
-  name: string,
-  image: string,
-  householdId: string
-) {
+export async function addUser(user: {
+  uid: string;
+  email: string;
+  name?: string;
+  image?: string;
+}) {
   try {
-    const user = await prisma.user.upsert({
-      where: { email },
-      update: {
-        name,
-        image
-      },
+    const existingUser = await prisma.user.findUnique({
+      where: { uid: user.uid },
+      include: { household: true }
+    });
+
+    if (existingUser) return existingUser;
+
+    // For now, we use our 'MONKEY_HOUSEHOLD_1' shortcut
+    const household = await prisma.household.upsert({
+      where: { id: 'MONKEY_HOUSEHOLD_1' },
+      update: {},
       create: {
-        email,
-        name,
-        image,
-        householdId,
-        createdAt: new Date()
+        id: 'MONKEY_HOUSEHOLD_1',
+        name: 'Kodama Family Household'
+      }
+    });
+
+    const newUser = await prisma.user.create({
+      data: {
+        uid: user.uid,
+        email: user.email,
+        name: user.name,
+        image: user.image,
+        householdId: household.id
+      }
+    });
+
+    return newUser;
+  } catch (error) {
+    console.error('Error in addUser:', error);
+    return null;
+  }
+}
+
+export async function getUser(email: string) {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email
+      },
+      select: {
+        uid: true,
+        email: true,
+        name: true,
+        image: true,
+        householdId: true
       }
     });
 
     return user;
   } catch (error) {
-    console.error('--- ❌ Error in addUser action:', error);
-    throw new Error('--- ❌ Failed to sync user data');
-  }
-}
-
-export async function getUser(email: string) {
-  const normalizedEmail = email.toLowerCase().trim();
-  try {
-    const user = await prisma.user.findUnique({
-      where: { email: normalizedEmail }
-    });
-
-    return user;
-  } catch (error: any) {
-    console.error('--- ❌ DATABASE ERROR:', error.message || error);
+    console.error('--- ❌ Error fetching user:', error);
     return null;
   }
 }
@@ -141,7 +159,7 @@ export const getCategories = async (householdId: string) => {
     return categories;
   } catch (error) {
     console.log(error);
-    throw new Error('--- ❌ Failed to get Categories');
+    return null;
   }
 };
 
@@ -155,18 +173,25 @@ export async function addCategory({
   color: ColorEnum;
 }) {
   try {
-    await prisma.category.create({
+    const newCategory = await prisma.category.create({
       data: {
-        householdId,
-        id: randomUUID(),
         name,
-        color
+        color,
+        householdId
       }
     });
-    return true;
-  } catch (error) {
-    console.log(error);
-    throw new Error('--- ❌ Failed to add Category');
+
+    console.log('--- ✅ Category Created:', newCategory.name);
+    return newCategory;
+  } catch (error: any) {
+    console.error('--- ❌ PRISMA ERROR DETAILS:', error.message);
+
+    if (error.code === 'P2003') {
+      console.error(
+        '--- ❌ ERROR: The householdId does not exist in the User table.'
+      );
+    }
+    return null;
   }
 }
 
@@ -205,48 +230,95 @@ export const getBudgetItems = async (householdId: string) => {
 export async function addBudgetItem({
   householdId,
   name,
-  amount,
-  month,
-  year,
-  categoryId
+  categoryId,
+  amount
 }: {
   householdId: string;
   name: string;
-  amount?: number;
-  month?: number;
-  year?: number;
   categoryId: string;
+  amount: number;
 }) {
   try {
-    await prisma.budgetItem.create({
-      data: {
-        householdId,
-        id: v4(),
+    const year = 2026;
+    const items = [];
+    for (let month = 1; month <= 12; month++) {
+      items.push({
         name,
         amount,
         month,
         year,
+        householdId,
         categoryId
-      }
+      });
+    }
+    await prisma.budgetItem.createMany({
+      data: items
     });
-    return true;
+
+    const updatedItems = await getBudgetItems(householdId);
+    return { success: true, updatedItems };
   } catch (error) {
-    console.log(error);
-    return false;
+    console.error('Error creating budget items:', error);
+    return null;
   }
 }
 
-export async function deleteBudgetItem(id: string, householdId: string) {
+export async function updateBudgetItemAmount(
+  id: string,
+  amount: number,
+  updateFutureMonths: boolean = false
+) {
   try {
-    await prisma.budgetItem.delete({
-      where: {
-        id: id,
-        householdId: householdId // Safety check
-      }
-    });
+    const currentItem = await prisma.budgetItem.findUnique({ where: { id } });
+    if (!currentItem) return { success: false };
+
+    if (updateFutureMonths) {
+      await prisma.budgetItem.updateMany({
+        where: {
+          name: currentItem.name,
+          householdId: currentItem.householdId,
+          year: currentItem.year,
+          month: { gte: currentItem.month }
+        },
+        data: { amount }
+      });
+    } else {
+      await prisma.budgetItem.update({
+        where: { id },
+        data: { amount }
+      });
+    }
     return { success: true };
   } catch (error) {
-    console.error('Database Error:', error);
-    return { success: false, error: 'Failed to delete budget item.' };
+    console.error('Failed to update:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteBudgetItem(
+  id: string,
+  householdId: string,
+  deleteAllMonths: boolean = false
+) {
+  try {
+    if (deleteAllMonths) {
+      const itemToDelete = await prisma.budgetItem.findUnique({
+        where: { id }
+      });
+      if (itemToDelete) {
+        await prisma.budgetItem.deleteMany({
+          where: {
+            name: itemToDelete.name,
+            householdId: householdId,
+            year: itemToDelete.year
+          }
+        });
+      }
+    } else {
+      await prisma.budgetItem.delete({ where: { id, householdId } });
+    }
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
 }

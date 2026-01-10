@@ -34,7 +34,7 @@ import {
 import { toast } from 'sonner';
 
 import { addCategory, deleteCategory, getCategories } from '@/lib/actions';
-import { colors } from '@/lib/utils';
+import { colors, getColorCode } from '@/lib/utils';
 import { Category, ColorEnum, User } from '@prisma/client';
 
 type Color = {
@@ -62,129 +62,114 @@ export function AddCategory({
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
+  // Reset errors when sheet closes
   useEffect(() => {
     if (!open) {
       setFormErrors({});
     }
   }, [open]);
 
-  const handleSubmit = useCallback(
-    async (previousState: unknown, formData: FormData) => {
-      setFormErrors({});
+  const handleSubmit = async (previousState: any, formData: FormData) => {
+    const categoryName = formData.get('category') as string;
+    const color = formData.get('color') as string;
+    const householdId = formData.get('householdId') as string;
 
-      const category = formData.get('category') as string;
-      const color = formData.get('color');
-      const colorUppperCase =
-        (typeof color === 'string' && (color.toUpperCase() as ColorEnum)) ||
-        ('GRAY' as ColorEnum);
-      const householdId = formData.get('householdId') as string;
+    const errors: FormErrors = {};
+    if (!categoryName) errors.category = 'Category name is required';
+    if (!color) errors.color = 'Please pick a color';
 
-      const errors: FormErrors = {};
-
-      if (!category) {
-        errors.category = 'Category name is required';
-      } else if (category.length > 20) {
-        errors.category = 'Category name should be 20 characters or fewer';
-      }
-
-      if (!color) {
-        errors.color = 'Please pick a color';
-      }
-
-      if (Object.keys(errors).length > 0) {
-        setFormErrors(errors);
-        return;
-      }
-
-      const shortcutCategory = await addCategory({
-        householdId,
-        name: category,
-        color: colorUppperCase
-      });
-
-      if (!shortcutCategory) {
-        toast('Ops...', {
-          description: 'Something got wrong. 🚨 Try again.'
-        });
-        return;
-      }
-
-      setOpen(false);
-      toast('Category added successfully! 🎉', {
-        description: 'You have one more Category to manage your shortcuts.'
-      });
-
-      const _currentCategories = await getCategories(householdId);
-
-      return {
-        _currentCategories
-      };
-    },
-    []
-  );
-
-  const [data, action, isPending] = useActionState(handleSubmit, undefined);
-
-  useEffect(() => {
-    if (data?._currentCategories && Array.isArray(data._currentCategories)) {
-      setCurrentCategoriesAction(data._currentCategories);
+    if (Object.keys(errors).length > 0) {
+      return { errors };
     }
-  }, [data]);
+
+    const colorEnum = color.toUpperCase() as ColorEnum;
+
+    const result = await addCategory({
+      householdId,
+      name: categoryName,
+      color: colorEnum
+    });
+
+    if (!result) {
+      return { serverError: 'Failed to create category in database.' };
+    }
+
+    // Fetch fresh list
+    const _currentCategories = await getCategories(householdId);
+
+    return {
+      success: true,
+      _currentCategories,
+      newCategoryName: categoryName
+    };
+  };
+
+  const [data, action, isPending] = useActionState(handleSubmit, null);
+
+  // 2. Handle UI Side-Effects (Toast/Close) after action completes
+  useEffect(() => {
+    if (data?.success && data._currentCategories) {
+      setCurrentCategoriesAction(data._currentCategories);
+      setOpen(false); // Close sheet
+      toast.success(`Category "${data.newCategoryName}" added! 🎉`);
+    }
+
+    if (data?.errors) {
+      setFormErrors(data.errors);
+    }
+
+    if (data?.serverError) {
+      toast.error(data.serverError);
+    }
+  }, [data, setCurrentCategoriesAction]);
 
   const handleDeleteCategory = async (category: Category) => {
     try {
       const success = await deleteCategory(category.id);
       if (success) {
-        setCurrentCategoriesAction(
-          currentCategories.filter((el) => el.id !== category.id)
+        setCurrentCategoriesAction((prev) =>
+          prev.filter((el) => el.id !== category.id)
         );
+        toast.success(`The ${category.name} has been deleted.`);
       }
-      toast('Category gone!', {
-        description: `The ${category.name} has been successfully deleted.`
-      });
     } catch (error) {
-      console.error(error);
-      toast('Error deleting Category! 🚨', {
-        description:
-          'Please remove all items from this Category first, then try again.'
-      });
+      toast.error('Error deleting Category! Ensure it is empty first.');
     }
   };
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild className="w-full border">
-        <Button variant="outline">Add Category</Button>
+      <SheetTrigger asChild>
+        <Button variant="outline" className="w-full">
+          Add Category
+        </Button>
       </SheetTrigger>
-      <SheetContent side="right" className="sm:max-w-xs mt-8 gap-8">
+      <SheetContent
+        side="right"
+        className="sm:max-w-xs mt-8 gap-8 overflow-y-auto"
+      >
         <SheetHeader>
           <div className="flex flex-col gap-2 my-8">
             <SheetTitle className="text-lg uppercase font-bold text-left">
               Add Category
             </SheetTitle>
-            <SheetDescription className="text-sm font-normal lowercase text-left">
-              Organize your content with categories.
+            <SheetDescription className="text-sm font-normal text-left italic">
+              Create a new bucket for your budget.
             </SheetDescription>
           </div>
         </SheetHeader>
-        <form
-          action={action}
-          className="flex flex-col items-start gap-8 font-normal"
-        >
+
+        <form action={action} className="flex flex-col items-start gap-8">
           <div className="flex flex-col gap-1 w-full">
             <Input
-              placeholder="Category Name"
+              placeholder="Category Name (e.g. Housing)"
               id="category"
               name="category"
               className={formErrors.category ? 'border-2 border-red-500' : ''}
             />
-            {formErrors.category ? (
-              <p className="text-xs font-bold text-red-500 ml-4 mt-1">
+            {formErrors.category && (
+              <p className="text-xs font-bold text-red-500 ml-1 mt-1">
                 {formErrors.category}
-              </p>
-            ) : (
-              <p className="text-xs ml-4 mt-1">
-                Name your category in one word
               </p>
             )}
           </div>
@@ -192,108 +177,86 @@ export function AddCategory({
           <div className="flex flex-col gap-1 w-full">
             <Select name="color">
               <SelectTrigger
-                className={
-                  formErrors.color ? 'w-full border-2 border-red-500' : ''
-                }
+                className={formErrors.color ? 'border-2 border-red-500' : ''}
               >
-                <SelectValue placeholder="Category Color" id="color" />
+                <SelectValue placeholder="Pick a Color" />
               </SelectTrigger>
               <SelectContent>
                 {colors.map((color: Color) => (
-                  <div key={color.code}>
-                    {color && (
-                      <SelectItem value={color.name}>
-                        <div className="flex items-center gap-2">
-                          <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: color.code }}
-                          />
-                          <p className="capitalize">{color.name}</p>
-                        </div>
-                      </SelectItem>
-                    )}
-                  </div>
+                  <SelectItem key={color.code} value={color.name}>
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: color.code }}
+                      />
+                      <p className="capitalize">{color.name.toLowerCase()}</p>
+                    </div>
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {formErrors.color ? (
-              <p className="text-xs font-bold text-red-500 ml-4 mt-1">
+            {formErrors.color && (
+              <p className="text-xs font-bold text-red-500 ml-1 mt-1">
                 {formErrors.color}
-              </p>
-            ) : (
-              <p className="text-xs ml-4 mt-1">
-                Name your category in one word
               </p>
             )}
           </div>
 
-          <Input
-            id="householdId"
-            name="householdId"
-            value={householdId}
-            readOnly
-            className="hidden"
-          />
-          <Button type="submit" disabled={isPending}>
-            {isPending ? 'Adding...' : 'Add'}
+          <input type="hidden" name="householdId" value={householdId} />
+
+          <Button type="submit" disabled={isPending} className="w-full">
+            {isPending ? 'Saving...' : 'Create Category'}
           </Button>
         </form>
 
         <div className="flex flex-col gap-2 my-12">
-          <p className="text-sm font-semibold capitalize mb-2">
-            Current Categories:
-          </p>
+          <p className="text-sm font-semibold mb-4">Current Categories:</p>
           {currentCategories.length > 0 ? (
-            currentCategories.map((category: Category) => (
+            currentCategories.map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between border border-primary px-4 py-2"
+                className="flex items-center justify-between border p-3 rounded-md mb-2"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   <div
                     className="w-4 h-4 rounded-full"
                     style={{
-                      backgroundColor: category.color,
-                      border:
-                        category.color === 'YELLOW'
-                          ? `1px solid lightgrey`
-                          : `1px solid ${category.color}`
+                      backgroundColor: getColorCode(category.color)
+                        .backgroundColor
                     }}
                   />
-                  <p className="text-center text-sm capitalize">
-                    {category.name}
+                  <p className="text-sm font-medium capitalize">
+                    {category.name.toLowerCase()}
                   </p>
                 </div>
+
                 <AlertDialog>
-                  <AlertDialogTrigger>
-                    <Trash2 size={18} strokeWidth={1.8} color="black" />
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
                   </AlertDialogTrigger>
-                  <AlertDialogContent className="w-[calc(100%-35px)]">
+                  <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle className="flex items-center gap-2">
-                        <Bomb size={24} strokeWidth={1.8} />
-                        Are you absolutely sure?
+                        <Bomb size={20} /> Are you sure?
                       </AlertDialogTitle>
-                      <AlertDialogDescription className="py-4">
-                        This will permanently delete this Category
-                        <span className="font-bold mx-1">{category.name}</span>
-                        from our servers.
+                      <AlertDialogDescription>
+                        Deleting{' '}
+                        <span className="font-bold">{category.name}</span> will
+                        remove it from your budget view.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel
-                        onClick={() => {
-                          toast('Operation Cancelled! ❌', {
-                            description: `Phew! 😮‍💨 Crisis averted. You successfully cancelled the operation.`
-                          });
-                        }}
-                      >
-                        Cancel
-                      </AlertDialogCancel>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction
                         onClick={() => handleDeleteCategory(category)}
                       >
-                        Continue
+                        Delete
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -301,9 +264,9 @@ export function AddCategory({
               </div>
             ))
           ) : (
-            <div className="flex items-center gap-2 mt-2">
-              <Inbox size={24} strokeWidth={1.8} />
-              <p className="text-sm capitalize">No categories yet</p>
+            <div className="flex items-center gap-2 opacity-50 italic">
+              <Inbox size={18} />{' '}
+              <p className="text-xs">No categories added yet.</p>
             </div>
           )}
         </div>
