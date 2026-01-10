@@ -11,7 +11,7 @@ model User {
   email       String     @unique
   name        String
   image       String
-  householdId String?    // Foreign key to Household
+  householdId String?  
   household   Household? @relation(fields: [householdId], references: [id])
 }
 model Household {
@@ -20,7 +20,7 @@ model Household {
   users        User[]
   categories   Category[]
   budgetItems  BudgetItem[]
-  transactions Transaction[] // Add this line
+  transactions Transaction[] 
 }
 
 model Category {
@@ -38,30 +38,24 @@ model BudgetItem {
   amount       Float?    @default(0)
   month        Int
   year         Int
-  
   categoryId   String
   category     Category  @relation(fields: [categoryId], references: [id])
-  
   householdId  String
   household    Household @relation(fields: [householdId], references: [id])
-
-  transactions Transaction[] // Add this line
+  transactions Transaction[] 
   
   @@unique([name, month, year, householdId])
 }
 
 model Transaction {
   id           String      @id @default(uuid())
-  description  String      // e.g., "Amazon.com"
-  amount       Float       // e.g., 45.99
+  description  String     
+  amount       Float     
   date         DateTime
-  categoryName String?     // Raw category from the bank
-  source       String     // Raw category from the bank
-  
-  // Relationships
+  categoryName String?     
+  source       String     
   householdId  String
   household    Household   @relation(fields: [householdId], references: [id])
-
   // Optional: Link to a specific budget goal
   budgetItemId String?
   budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id])

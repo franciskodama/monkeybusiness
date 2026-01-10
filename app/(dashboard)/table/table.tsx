@@ -3,8 +3,6 @@
 import { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Help from '@/components/Help';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
 import { getColorCode, months } from '@/lib/utils';
@@ -12,9 +10,23 @@ import { BudgetItem, Category, User } from '@prisma/client';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { AddBudgetItem } from './add-budget-item';
 import { deleteBudgetItem } from '@/lib/actions';
-import { toast } from 'sonner';
 import { EditableAmount } from './edit-amount-budget-item';
+import { toast } from 'sonner';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger
+} from '@/components/ui/alert-dialog';
 
+import Help from '@/components/Help';
+import ExplanationTable from './explanation-table';
 export type CategoryInput = {
   category: string;
   color: string;
@@ -31,7 +43,6 @@ export default function Table({
   categories: Category[];
   budgetItems: BudgetItem[];
 }) {
-  console.log('---  🚀 ---> | user:', user);
   const [openAction, setOpenAction] = useState(false);
   const [currentBudgetItems, setCurrentBudgetItemsAction] =
     useState<BudgetItem[]>(budgetItems);
@@ -46,10 +57,8 @@ export default function Table({
   ) => {
     setCurrentBudgetItemsAction((prev) =>
       prev.map((item) => {
-        // Find the specific item we just edited
         const isTargetItem = item.id === itemId;
 
-        // If 'updateFuture' is true, also find items with same name in future months
         const isFutureMatch =
           updateFuture &&
           item.name === prev.find((i) => i.id === itemId)?.name &&
@@ -63,15 +72,39 @@ export default function Table({
     );
   };
 
-  const handleDeleteItem = async (itemId: string) => {
-    const result = await deleteBudgetItem(itemId, householdId);
+  const handleDeleteItem = async (
+    itemId: string,
+    mode: 'SINGLE' | 'FUTURE' | 'ALL'
+  ) => {
+    const result = await deleteBudgetItem(itemId, householdId, mode);
 
     if (result.success) {
-      // Update local state to remove the item from the UI immediately
+      const itemToDelete = currentBudgetItems.find((i) => i.id === itemId);
+      if (!itemToDelete) return;
+
       setCurrentBudgetItemsAction((prev) =>
-        prev.filter((item) => item.id !== itemId)
+        prev.filter((item) => {
+          if (item.name !== itemToDelete.name) return true;
+
+          if (mode === 'SINGLE') {
+            return item.id !== itemId;
+          }
+          if (mode === 'FUTURE') {
+            return item.month < itemToDelete.month;
+          }
+          if (mode === 'ALL') {
+            return false;
+          }
+          return true;
+        })
       );
-      toast.success('Item removed');
+      const message =
+        mode === 'SINGLE'
+          ? 'Removed for this month'
+          : mode === 'FUTURE'
+            ? 'Removed from this month onwards'
+            : 'Removed for the entire year';
+      toast.success(message);
     } else {
       toast.error('Could not delete item');
     }
@@ -118,7 +151,11 @@ export default function Table({
               initial={{ opacity: 0, y: 50, scale: 0.3 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
-            ></motion.div>
+            >
+              <div className="mb-12">
+                <ExplanationTable setOpenAction={setOpenAction} />
+              </div>
+            </motion.div>
           ) : null}
         </AnimatePresence>
 
@@ -192,7 +229,6 @@ export default function Table({
                           <span className="text-sm font-mono text-muted-foreground">
                             $ 0.00
                           </span>
-
                           <div className="flex items-center gap-4">
                             <EditableAmount
                               key={`${item.id}-${selectedMonth}`} // React resets the component when the month changes
@@ -206,20 +242,62 @@ export default function Table({
                                 )
                               }
                             />
-
-                            <span className="text-sm font-mono text-muted-foreground">
-                              $ 0.00{' '}
-                              {/* This will eventually be the 'Actual' column */}
-                            </span>
-
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-destructive/50 hover:text-destructive text-red-600"
-                              onClick={() => handleDeleteItem(item.id)}
-                            >
-                              <Trash2 size={14} />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-destructive/50 hover:text-destructive"
+                                >
+                                  <Trash2 size={14} />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Delete Budget Item
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    How would you like to delete{' '}
+                                    <span className="font-bold text-foreground">
+                                      "{item.name}"
+                                    </span>
+                                    ? This action cannot be undone.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="flex-col gap-2">
+                                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
+                                    <Button
+                                      variant="outline"
+                                      onClick={() =>
+                                        handleDeleteItem(item.id, 'SINGLE')
+                                      }
+                                    >
+                                      Only {months[selectedMonth - 1]}
+                                    </Button>
+                                    <Button
+                                      variant="outline"
+                                      onClick={() =>
+                                        handleDeleteItem(item.id, 'FUTURE')
+                                      }
+                                    >
+                                      From {months[selectedMonth - 1]} onwards
+                                    </Button>
+                                    <AlertDialogAction
+                                      className="bg-destructive"
+                                      onClick={() =>
+                                        handleDeleteItem(item.id, 'ALL')
+                                      }
+                                    >
+                                      The Whole Year
+                                    </AlertDialogAction>
+                                    <AlertDialogCancel>
+                                      Cancel
+                                    </AlertDialogCancel>
+                                  </div>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           </div>
                         </div>
                       </div>
