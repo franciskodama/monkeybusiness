@@ -8,8 +8,8 @@ import prisma from './prisma';
 export async function addUser(user: {
   uid: string;
   email: string;
-  name?: string;
-  image?: string;
+  name: string;
+  image: string;
 }) {
   try {
     const existingUser = await prisma.user.findUnique({

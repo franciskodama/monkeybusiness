@@ -6,11 +6,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user }) {
       if (user.email) {
-        await addUser(
-          user.email.toLowerCase().trim(),
-          user.name ?? '',
-          user.image ?? ''
-        );
+        await addUser({
+          uid: user.email.toLowerCase().trim(),
+          email: user.email.toLowerCase().trim(),
+          name: user.name ?? '',
+          image: user.image ?? ''
+        });
       }
       return true;
     }

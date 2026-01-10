@@ -9,8 +9,8 @@ datasource db {
 model User {
   uid         String     @id
   email       String     @unique
-  name        String?
-  image       String?
+  name        String
+  image       String
   householdId String?    // Foreign key to Household
   household   Household? @relation(fields: [householdId], references: [id])
 }
