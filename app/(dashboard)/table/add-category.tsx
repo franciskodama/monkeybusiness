@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useCallback, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { Bomb, Inbox, Trash2 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';

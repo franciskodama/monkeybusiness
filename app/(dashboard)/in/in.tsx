@@ -16,7 +16,7 @@ import CardUser from './_components/CardUser';
 import CardEmpty from './_components/CardEmpty';
 import { User } from '@prisma/client';
 
-export default function In({ user }: { user: User | null }) {
+export default function In({ user }: { user: User }) {
   const [openAction, setOpenAction] = useState(false);
 
   return (

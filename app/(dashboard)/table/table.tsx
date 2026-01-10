@@ -31,6 +31,7 @@ export default function Table({
   categories: Category[];
   budgetItems: BudgetItem[];
 }) {
+  console.log('---  🚀 ---> | user:', user);
   const [openAction, setOpenAction] = useState(false);
   const [currentBudgetItems, setCurrentBudgetItemsAction] =
     useState<BudgetItem[]>(budgetItems);
