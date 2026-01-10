@@ -1,27 +1,33 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
+import { auth } from '@/lib/auth';
+
+import { getBudgetItems, getCategories, getUser } from '@/lib/actions';
+import Table from './table';
+import { Spinner } from '@/lib/icons';
 
 export default async function TablePage() {
+  const session = await auth();
+  const user = await getUser(session?.user?.email ?? '');
+  const householdId = user?.householdId;
+
+  if (!householdId) {
+    return <div>Please contact support to set up your household.</div>;
+  }
+
+  const categories = await getCategories(householdId);
+  const budgetItems = await getBudgetItems(householdId);
+
   return (
-    <Card className="relative">
-      <CardHeader className="sm:mb-12">
-        <CardTitle className="flex justify-between items-center gap-2">
-          <p>Table</p>
-        </CardTitle>
-        <CardDescription>Nitty gritty</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <>
-          <div className="flex flex-col w-full h-[32em] justify-center items-center">
-            Table! But nothing here! Xuuuupaaaa...
-          </div>
-        </>
-      </CardContent>
-    </Card>
+    <>
+      {user.householdId && categories && budgetItems ? (
+        <Table
+          user={user}
+          householdId={householdId}
+          categories={categories}
+          budgetItems={budgetItems}
+        />
+      ) : (
+        <Spinner />
+      )}
+    </>
   );
 }

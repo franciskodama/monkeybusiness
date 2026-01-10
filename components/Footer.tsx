@@ -52,11 +52,11 @@ export default function Footer() {
 
         <div className="flex justify-end sm:w-1/5">
           <Image
-            src={'/logo/logo-icon-140x140.png'}
+            src={'/logo/banana-png-100x150.png'}
             width={36}
             height={36}
             alt="Logo of Monkey Business"
-            className="w-[5em] sm:mr-4 sm:mt-4"
+            className="w-[3em] sm:mr-4 sm:mt-4"
           />
         </div>
       </CardContent>

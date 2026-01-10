@@ -28,8 +28,8 @@ export default async function Login() {
             className="mb-6 sm:mb-12 w-20 h-20 sm:w-32 sm:h-32"
             src="/logo/logo-icon-140x140.png"
             alt="Monkey Business Logo"
-            width={150}
-            height={150}
+            width={140}
+            height={140}
           />
           <div className="flex flex-col w-full">
             <p className="text-4xl uppercase sm:text-8xl font-extrabold sm:leading-[5.5rem]">

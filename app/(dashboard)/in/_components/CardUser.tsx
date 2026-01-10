@@ -1,11 +1,7 @@
-import { UserNameEmailImage } from '@/lib/types';
+import { User } from '@prisma/client';
 import Image from 'next/image';
 
-export default function CardUser({
-  user
-}: {
-  user: UserNameEmailImage | undefined;
-}) {
+export default function CardUser({ user }: { user: User | undefined }) {
   return (
     <div className="flex flex-col items-center justify-center h-full gap-2 relative mt-16 sm:mt-0 mb-8">
       {user?.image ? (
