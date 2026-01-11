@@ -113,7 +113,14 @@ export default function Table({
           <div
             className={`${barlow.className} flex gap-4 capitalize mt-8 sm:mt-0 w-full sm:w-[18ch]`}
           >
-            <TransactionImporter householdId={householdId} />
+            <TransactionImporter
+              householdId={householdId}
+              categories={currentCategories}
+              budgetItemsForCurrentMonth={currentBudgetItems.filter(
+                (i) => i.month === selectedMonth
+              )}
+              setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
+            />
             <AddCategory
               user={user}
               householdId={householdId}

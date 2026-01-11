@@ -2,6 +2,78 @@
 
 import { ColorEnum } from '@prisma/client';
 import prisma from './prisma';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+// AI --------------------------------------------------------------------
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+export async function processStatementWithAI(
+  base64File: string,
+  householdId: string,
+  budgetItemsForCurrentMonth: any[]
+) {
+  // Toggle this to true if you are hit by Rate Limits during development
+  const MOCK_MODE = false;
+
+  if (MOCK_MODE) {
+    return {
+      success: true,
+      transactions: [
+        {
+          date: '2026-01-11',
+          description: 'Mock Transaction 1',
+          amount: 45.0,
+          budgetItemId: budgetItemsForCurrentMonth[0]?.id || null
+        },
+        {
+          date: '2026-01-12',
+          description: 'Mock Transaction 2',
+          amount: 12.5,
+          budgetItemId: null
+        }
+      ]
+    };
+  }
+
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+    const prompt = `
+      Act as a financial expert. Extract transactions from the provided PDF.
+      Match each to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+      Return ONLY a JSON array: [{"date": "ISO", "description": "string", "amount": number, "budgetItemId": "string or null"}]
+    `;
+
+    // ❌ Error Fix: Ensure structure is exact. No extra braces or commas on line 39
+    const result = await model.generateContent([
+      {
+        inlineData: {
+          data: base64File,
+          mimeType: 'application/pdf'
+        }
+      },
+      { text: prompt }
+    ]);
+
+    const response = await result.response;
+    const text = response
+      .text()
+      .replace(/```json/g, '')
+      .replace(/```/g, '')
+      .trim();
+
+    return { success: true, transactions: JSON.parse(text) };
+  } catch (error: any) {
+    if (error.status === 429) {
+      return {
+        success: false,
+        error: 'Quota exceeded. Try again in 60 seconds.'
+      };
+    }
+    return { success: false, error: 'AI failed to read the PDF.' };
+  }
+}
 
 // USER --------------------------------------------------------------------
 
@@ -303,6 +375,41 @@ export async function addTransaction(data: {
     return { success: true, updatedItems };
   } catch (error) {
     console.error('Transaction Error:', error);
+    return { success: false };
+  }
+}
+
+export async function bulkAddTransactions(
+  transactions: any[],
+  householdId: string
+) {
+  try {
+    // 1. Prepare the data for Prisma
+    const dataToSave = transactions.map((tx) => ({
+      description: tx.description,
+      amount: parseFloat(tx.amount),
+      // AI sometimes gives weird date formats, we ensure it's a valid Date object
+      date: new Date(tx.date),
+      householdId: householdId,
+      source: 'AI Import',
+      // This is the ID from your dropdown/AI match
+      budgetItemId: tx.budgetItemId || null
+    }));
+
+    // 2. Efficiently create all transactions at once
+    await prisma.transaction.createMany({
+      data: dataToSave
+    });
+
+    // 3. Fetch fresh budget items so the table updates instantly
+    const updatedItems = await getBudgetItems(householdId);
+
+    return {
+      success: true,
+      updatedItems // Return these so the UI reflects the new "Actual" totals
+    };
+  } catch (error) {
+    console.error('--- ❌ Bulk Save Error:', error);
     return { success: false };
   }
 }
