@@ -82,14 +82,77 @@ export async function processStatementWithAI(
 ) {
   console.log('--- 🚀 Starting AI Process for Household:', householdId); // Server-side log
 
+  // 🟢 TURN THIS TO TRUE TO BYPASS THE 429 ERROR
+  const MOCK_MODE = true;
+
+  if (MOCK_MODE) {
+    console.log(
+      '--- 🧪 MOCK MODE: Returning fake transactions from Scotiabank test'
+    );
+    // We simulate a 2-second delay so the UI "loading" state looks real
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    return {
+      success: true,
+      transactions: [
+        {
+          date: '2026-01-27',
+          description: 'AMZN Mktp CA*ZG7NX7801',
+          amount: 30.5,
+          budgetItemId:
+            budgetItemsForCurrentMonth.find((i) => i.name.includes('Amazon'))
+              ?.id || null
+        },
+        {
+          date: '2026-01-27',
+          description: 'UBER CANADA UBERTRIP',
+          amount: 15.7,
+          budgetItemId:
+            budgetItemsForCurrentMonth.find((i) => i.name.includes('Uber'))
+              ?.id || null
+        },
+        {
+          date: '2026-02-01',
+          description: 'YSI*PROP PYMNT SVCFEE',
+          amount: 42.78,
+          budgetItemId: null
+        },
+        {
+          date: '2026-02-01',
+          description: 'YSI*InterRent REIT',
+          amount: 2444.36,
+          budgetItemId:
+            budgetItemsForCurrentMonth.find((i) => i.name.includes('Rent'))
+              ?.id || null
+        },
+        {
+          date: '2026-02-10',
+          description: 'SCOTIABANK PAYMENT',
+          amount: -5883.32,
+          budgetItemId: null
+        }
+      ]
+    };
+  }
+
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
-      Act as a financial expert. Extract every transaction from this PDF.
-      Match to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
-      Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "budgetItemId": "string or null"}]
-    `;
+  Act as a financial data expert. Extract ALL transactions from this bank statement.
+  
+  MATCHING RULES:
+  - Match transactions to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+  - If a match is unclear, set "budgetItemId" to null.
+  
+  CRITICAL EXTRACTION RULES:
+  1. **Multi-line Descriptions**: Some descriptions wrap across multiple lines (e.g., UBER CANADA on line 1, TORONTO ON on line 2). Combine these into a single clean description string.
+  2. **Trailing Minus Signs**: If an amount ends with a minus sign (e.g., "5,883.32-"), this is a CREDIT or PAYMENT. Return it as a negative number (e.g., -5883.32).
+  3. **Date Normalization**: Return all dates in "YYYY-MM-DD" format. Assume the year is 2026.
+  4. **Clean Numbers**: Remove currency symbols ($) and commas from amounts.
+  
+  Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "budgetItemId": "string or null"}]
+`;
 
     const result = await model.generateContent([
       {
