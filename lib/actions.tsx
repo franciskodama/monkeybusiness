@@ -8,44 +8,89 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+// export async function processStatementWithAI(
+//   base64File: string,
+//   householdId: string,
+//   budgetItemsForCurrentMonth: any[]
+// ) {
+//   // Toggle this to true if you are hit by Rate Limits during development
+//   const MOCK_MODE = false;
+
+//   if (MOCK_MODE) {
+//     return {
+//       success: true,
+//       transactions: [
+//         {
+//           date: '2026-01-11',
+//           description: 'Mock Transaction 1',
+//           amount: 45.0,
+//           budgetItemId: budgetItemsForCurrentMonth[0]?.id || null
+//         },
+//         {
+//           date: '2026-01-12',
+//           description: 'Mock Transaction 2',
+//           amount: 12.5,
+//           budgetItemId: null
+//         }
+//       ]
+//     };
+//   }
+
+//   try {
+//     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+
+//     const prompt = `
+//       Act as a financial expert. Extract transactions from the provided PDF.
+//       Match each to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+//       Return ONLY a JSON array: [{"date": "ISO", "description": "string", "amount": number, "budgetItemId": "string or null"}]
+//     `;
+
+//     // ❌ Error Fix: Ensure structure is exact. No extra braces or commas on line 39
+//     const result = await model.generateContent([
+//       {
+//         inlineData: {
+//           data: base64File,
+//           mimeType: 'application/pdf'
+//         }
+//       },
+//       { text: prompt }
+//     ]);
+
+//     const response = await result.response;
+//     const text = response
+//       .text()
+//       .replace(/```json/g, '')
+//       .replace(/```/g, '')
+//       .trim();
+
+//     return { success: true, transactions: JSON.parse(text) };
+//   } catch (error: any) {
+//     if (error.status === 429) {
+//       return {
+//         success: false,
+//         error: 'Quota exceeded. Try again in 60 seconds.'
+//       };
+//     }
+//     return { success: false, error: 'AI failed to read the PDF.' };
+//   }
+// }
+
 export async function processStatementWithAI(
   base64File: string,
   householdId: string,
   budgetItemsForCurrentMonth: any[]
 ) {
-  // Toggle this to true if you are hit by Rate Limits during development
-  const MOCK_MODE = false;
-
-  if (MOCK_MODE) {
-    return {
-      success: true,
-      transactions: [
-        {
-          date: '2026-01-11',
-          description: 'Mock Transaction 1',
-          amount: 45.0,
-          budgetItemId: budgetItemsForCurrentMonth[0]?.id || null
-        },
-        {
-          date: '2026-01-12',
-          description: 'Mock Transaction 2',
-          amount: 12.5,
-          budgetItemId: null
-        }
-      ]
-    };
-  }
+  console.log('--- 🚀 Starting AI Process for Household:', householdId); // Server-side log
 
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
-      Act as a financial expert. Extract transactions from the provided PDF.
-      Match each to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
-      Return ONLY a JSON array: [{"date": "ISO", "description": "string", "amount": number, "budgetItemId": "string or null"}]
+      Act as a financial expert. Extract every transaction from this PDF.
+      Match to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+      Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "budgetItemId": "string or null"}]
     `;
 
-    // ❌ Error Fix: Ensure structure is exact. No extra braces or commas on line 39
     const result = await model.generateContent([
       {
         inlineData: {
@@ -57,21 +102,30 @@ export async function processStatementWithAI(
     ]);
 
     const response = await result.response;
-    const text = response
-      .text()
+    const text = response.text();
+
+    if (!text) {
+      console.error(
+        '--- ⚠️ AI returned empty text. Possible safety filter block.'
+      );
+      return {
+        success: false,
+        error: 'AI could not read the content. Try a different file.'
+      };
+    }
+
+    const cleanedJson = text
       .replace(/```json/g, '')
       .replace(/```/g, '')
       .trim();
-
-    return { success: true, transactions: JSON.parse(text) };
+    return { success: true, transactions: JSON.parse(cleanedJson) };
   } catch (error: any) {
-    if (error.status === 429) {
-      return {
-        success: false,
-        error: 'Quota exceeded. Try again in 60 seconds.'
-      };
-    }
-    return { success: false, error: 'AI failed to read the PDF.' };
+    console.error('--- ❌ Server Action Error:', error.message); // This will show in your terminal
+    return {
+      success: false,
+      error:
+        error.message || 'A server error occurred while processing the PDF.'
+    };
   }
 }
 

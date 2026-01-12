@@ -61,10 +61,10 @@ export function TransactionImporter({
 
       if (res.success) {
         setReviewData(res.transactions);
-        toast.success(`AI found ${res.transactions.length} transactions!`);
       } else {
-        // res.error will now contain the "Wait 60 seconds" message
-        toast.error(res.error || 'Failed to process statement');
+        // This ensures the "nothing happened" feeling is replaced with an actual message
+        toast.error(res.error || 'Something went wrong on the server.');
+        setIsProcessing(false);
       }
       setIsProcessing(false);
     };
