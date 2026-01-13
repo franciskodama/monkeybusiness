@@ -12,7 +12,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 export async function processStatementWithAI(
   base64File: string,
   householdId: string,
-  budgetItemsForCurrentMonth: any[]
+  subcategoriesForCurrentMonth: any[]
 ) {
   console.log('--- 🚀 Starting AI Process for Household:', householdId); // Server-side log
 
@@ -33,37 +33,37 @@ export async function processStatementWithAI(
           date: '2026-01-27',
           description: 'AMZN Mktp CA*ZG7NX7801',
           amount: 30.5,
-          budgetItemId:
-            budgetItemsForCurrentMonth.find((i) => i.name.includes('Amazon'))
+          subcategoryId:
+            subcategoriesForCurrentMonth.find((i) => i.name.includes('Amazon'))
               ?.id || null
         },
         {
           date: '2026-01-27',
           description: 'UBER CANADA UBERTRIP',
           amount: 15.7,
-          budgetItemId:
-            budgetItemsForCurrentMonth.find((i) => i.name.includes('Uber'))
+          subcategoryId:
+            subcategoriesForCurrentMonth.find((i) => i.name.includes('Uber'))
               ?.id || null
         },
         {
           date: '2026-02-01',
           description: 'YSI*PROP PYMNT SVCFEE',
           amount: 42.78,
-          budgetItemId: null
+          subcategoryId: null
         },
         {
           date: '2026-02-01',
           description: 'YSI*InterRent REIT',
           amount: 2444.36,
-          budgetItemId:
-            budgetItemsForCurrentMonth.find((i) => i.name.includes('Rent'))
+          subcategoryId:
+            subcategoriesForCurrentMonth.find((i) => i.name.includes('Rent'))
               ?.id || null
         },
         {
           date: '2026-02-10',
           description: 'SCOTIABANK PAYMENT',
           amount: -5883.32,
-          budgetItemId: null
+          subcategoryId: null
         }
       ]
     };
@@ -76,8 +76,8 @@ export async function processStatementWithAI(
   Act as a financial data expert. Extract ALL transactions from this bank statement.
   
   MATCHING RULES:
-  - Match transactions to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
-  - If a match is unclear, set "budgetItemId" to null.
+  - Match transactions to these IDs: ${subcategoriesForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+  - If a match is unclear, set "subcategoryId" to null.
   
   CRITICAL EXTRACTION RULES:
   1. **Multi-line Descriptions**: Some descriptions wrap across multiple lines (e.g., UBER CANADA on line 1, TORONTO ON on line 2). Combine these into a single clean description string.
@@ -85,7 +85,7 @@ export async function processStatementWithAI(
   3. **Date Normalization**: Return all dates in "YYYY-MM-DD" format. Assume the year is 2026.
   4. **Clean Numbers**: Remove currency symbols ($) and commas from amounts.
   
-  Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "budgetItemId": "string or null"}]
+  Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "subcategoryId": "string or null"}]
 `;
 
     const result = await model.generateContent([
@@ -285,28 +285,22 @@ export async function deleteCategory(id: string) {
   }
 }
 
-// BUDGET ITEM --------------------------------------------------------------------
+// SUBCATEGORY --------------------------------------------------------------------
 
-export const getBudgetItems = async (householdId: string) => {
+export const getSubcategories = async (householdId: string) => {
   try {
-    const budgetItems = await prisma.budgetItem.findMany({
+    const subcategories = await prisma.subcategory.findMany({
       where: { householdId },
       include: { category: true, transactions: true }
     });
-    return budgetItems || [];
+    return subcategories || [];
   } catch (error) {
     console.error(error);
     return [];
   }
 };
 
-/**
- * Rewritten addBudgetItem to support:
- * 1. Single month creation
- * 2. Multi-month "recurring" creation (rest of year)
- * 3. Fresh data return for UI syncing
- */
-export async function addBudgetItem(data: {
+export async function addSubcategory(data: {
   name: string;
   amount: number;
   categoryId: string;
@@ -316,29 +310,46 @@ export async function addBudgetItem(data: {
   applyToFuture: boolean;
 }) {
   try {
-    // 1. Prepare the data for creation
     if (data.applyToFuture) {
-      // Create a series of items from the current selected month until December (12)
-      const itemsToCreate = [];
+      // Loop through each month until December
       for (let m = data.month; m <= 12; m++) {
-        itemsToCreate.push({
-          name: data.name,
-          amount: data.amount,
-          categoryId: data.categoryId,
-          householdId: data.householdId,
-          month: m,
-          year: data.year
+        // Use 'upsert' to create if new, or update amount if it already exists
+        await prisma.subcategory.upsert({
+          where: {
+            name_month_year_householdId: {
+              // This matches your unique constraint
+              name: data.name,
+              month: m,
+              year: data.year,
+              householdId: data.householdId
+            }
+          },
+          update: {
+            amount: data.amount // Update the amount if it's already there
+          },
+          create: {
+            name: data.name,
+            amount: data.amount,
+            categoryId: data.categoryId,
+            householdId: data.householdId,
+            month: m,
+            year: data.year
+          }
         });
       }
-
-      // Use createMany for high-performance batch insertion
-      await prisma.budgetItem.createMany({
-        data: itemsToCreate
-      });
     } else {
-      // Standard single-month creation
-      await prisma.budgetItem.create({
-        data: {
+      // Single month safe creation
+      await prisma.subcategory.upsert({
+        where: {
+          name_month_year_householdId: {
+            name: data.name,
+            month: data.month,
+            year: data.year,
+            householdId: data.householdId
+          }
+        },
+        update: { amount: data.amount },
+        create: {
           name: data.name,
           amount: data.amount,
           categoryId: data.categoryId,
@@ -349,49 +360,41 @@ export async function addBudgetItem(data: {
       });
     }
 
-    // 2. Fetch the updated list of budget items for the specific month/year
-    // This is what the UI (useEffect) is waiting for to refresh the table
-    const _currentbudgetItems = await prisma.budgetItem.findMany({
+    // Fetch the full year's data to sync the UI
+    const _currentSubcategories = await prisma.subcategory.findMany({
       where: {
         householdId: data.householdId,
-        month: data.month,
         year: data.year
       },
       include: {
-        category: true // Include categories if your table uses them for colors/names
+        category: true,
+        transactions: true
       },
-      orderBy: {
-        name: 'asc'
-      }
+      orderBy: { name: 'asc' }
     });
 
-    // 3. Clear Next.js cache so other parts of the app also see the new data
     revalidatePath('/table');
-
-    return {
-      success: true,
-      _currentbudgetItems
-    };
-  } catch (error) {
-    console.error('--- ❌ Database Error adding budget item:', error);
+    return { success: true, _currentSubcategories };
+  } catch (error: any) {
+    console.error('--- ❌ Database Error:', error.message);
     return {
       success: false,
-      error: 'Failed to create budget item(s).'
+      error: 'Database error. Check for duplicate names.'
     };
   }
 }
 
-export async function updateBudgetItemAmount(
+export async function updateSubcategoryAmount(
   id: string,
   amount: number,
   updateFutureMonths: boolean = false
 ) {
   try {
-    const currentItem = await prisma.budgetItem.findUnique({ where: { id } });
+    const currentItem = await prisma.subcategory.findUnique({ where: { id } });
     if (!currentItem) return { success: false };
 
     if (updateFutureMonths) {
-      await prisma.budgetItem.updateMany({
+      await prisma.subcategory.updateMany({
         where: {
           name: currentItem.name,
           householdId: currentItem.householdId,
@@ -401,7 +404,7 @@ export async function updateBudgetItemAmount(
         data: { amount }
       });
     } else {
-      await prisma.budgetItem.update({
+      await prisma.subcategory.update({
         where: { id },
         data: { amount }
       });
@@ -413,20 +416,20 @@ export async function updateBudgetItemAmount(
   }
 }
 
-export async function deleteBudgetItem(
+export async function deleteSubcategory(
   id: string,
   householdId: string,
   mode: 'SINGLE' | 'FUTURE' | 'ALL'
 ) {
   try {
-    const item = await prisma.budgetItem.findUnique({ where: { id } });
+    const item = await prisma.subcategory.findUnique({ where: { id } });
     if (!item) return { success: false };
 
     if (mode === 'SINGLE') {
-      await prisma.budgetItem.delete({ where: { id, householdId } });
+      await prisma.subcategory.delete({ where: { id, householdId } });
     } else if (mode === 'FUTURE') {
       // Delete from CURRENT month to 12
-      await prisma.budgetItem.deleteMany({
+      await prisma.subcategory.deleteMany({
         where: {
           name: item.name,
           householdId,
@@ -436,7 +439,7 @@ export async function deleteBudgetItem(
       });
     } else if (mode === 'ALL') {
       // Delete months 1 through 12
-      await prisma.budgetItem.deleteMany({
+      await prisma.subcategory.deleteMany({
         where: { name: item.name, householdId, year: item.year }
       });
     }
@@ -453,7 +456,7 @@ export async function addTransaction(data: {
   amount: number;
   date: Date;
   householdId: string;
-  budgetItemId: string;
+  subcategoryId: string;
 }) {
   try {
     const transaction = await prisma.transaction.create({
@@ -462,12 +465,12 @@ export async function addTransaction(data: {
         amount: data.amount,
         date: data.date,
         householdId: data.householdId,
-        budgetItemId: data.budgetItemId,
+        subcategoryId: data.subcategoryId,
         source: 'Manual'
       }
     });
 
-    const updatedItems = await getBudgetItems(data.householdId);
+    const updatedItems = await getSubcategories(data.householdId);
     return { success: true, updatedItems };
   } catch (error) {
     console.error('Transaction Error:', error);
@@ -489,7 +492,7 @@ export async function bulkAddTransactions(
       householdId: householdId,
       source: 'AI Import',
       // This is the ID from your dropdown/AI match
-      budgetItemId: tx.budgetItemId || null
+      subcategoryId: tx.subcategoryId || null
     }));
 
     // 2. Efficiently create all transactions at once
@@ -498,7 +501,7 @@ export async function bulkAddTransactions(
     });
 
     // 3. Fetch fresh budget items so the table updates instantly
-    const updatedItems = await getBudgetItems(householdId);
+    const updatedItems = await getSubcategories(householdId);
 
     return {
       success: true,
@@ -509,52 +512,3 @@ export async function bulkAddTransactions(
     return { success: false };
   }
 }
-
-// SEEDS --------------------------------------------------------------------
-
-// export async function seedSection(
-//   uid: string,
-//   categoryName: string,
-//   items: { name: string; amount: number }[]
-// ) {
-//   const category = await prisma.category.upsert({
-//     where: {
-//       name_householdId: {
-//         name: categoryName,
-//         householdId
-//       }
-//     },
-//     update: {},
-//     create: {
-//       name: categoryName,
-//       uid: uid
-//     }
-//   });
-
-//   for (const item of items) {
-//     for (let month = 1; month <= 12; month++) {
-//       await prisma.budgetItem.upsert({
-//         where: {
-//           name_month_year_uid: {
-//             name: item.name,
-//             month: month,
-//             year: 2026,
-//             uid: uid
-//           }
-//         },
-//         update: {
-//           amount: item.amount,
-//           categoryId: category.id
-//         },
-//         create: {
-//           name: item.name,
-//           amount: item.amount,
-//           month: month,
-//           year: 2026,
-//           uid: uid,
-//           categoryId: category.id
-//         }
-//       });
-//     }
-//   }
-// }

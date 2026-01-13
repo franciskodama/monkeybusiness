@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 
-import { getBudgetItems, getCategories, getUser } from '@/lib/actions';
+import { getCategories, getSubcategories, getUser } from '@/lib/actions';
 import Table from './table';
 import { Spinner } from '@/lib/icons';
 
@@ -14,16 +14,16 @@ export default async function TablePage() {
   }
 
   const categories = await getCategories(householdId);
-  const budgetItems = await getBudgetItems(householdId);
+  const subcategories = await getSubcategories(householdId);
 
   return (
     <>
-      {user.householdId && categories && budgetItems ? (
+      {user.householdId && categories && subcategories ? (
         <Table
           user={user}
           householdId={householdId}
           categories={categories}
-          budgetItems={budgetItems}
+          subcategories={subcategories}
         />
       ) : (
         <Spinner />

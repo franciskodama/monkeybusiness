@@ -22,13 +22,13 @@ import { processStatementWithAI } from '@/lib/actions';
 
 export function TransactionImporter({
   householdId,
-  budgetItemsForCurrentMonth,
+  subcategoriesForCurrentMonth,
   setReviewDataAction
 }: {
   householdId: string;
   categories: any[];
-  budgetItemsForCurrentMonth: any[];
-  setCurrentBudgetItemsAction: React.Dispatch<React.SetStateAction<any[]>>;
+  subcategoriesForCurrentMonth: any[];
+  setCurrentSubcategoriesAction: React.Dispatch<React.SetStateAction<any[]>>;
   setReviewDataAction: React.Dispatch<React.SetStateAction<any[] | null>>;
 }) {
   const [source, setSource] = useState('');
@@ -57,7 +57,7 @@ export function TransactionImporter({
         const res = await processStatementWithAI(
           base64,
           householdId,
-          budgetItemsForCurrentMonth
+          subcategoriesForCurrentMonth
         );
 
         if (res.success) {

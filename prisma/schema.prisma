@@ -19,7 +19,7 @@ model Household {
   name         String
   users        User[]
   categories   Category[]
-  budgetItems  BudgetItem[]
+  subcategories  Subcategory[]
   transactions Transaction[] 
 }
 
@@ -29,10 +29,10 @@ model Category {
   color        ColorEnum
   householdId  String
   household    Household     @relation(fields: [householdId], references: [id])
-  budgetItems  BudgetItem[]
+  subcategories  Subcategory[]
 }
 
-model BudgetItem {
+model Subcategory {
   id           String    @id @default(uuid())
   name         String
   amount       Float?    @default(0)
@@ -57,8 +57,8 @@ model Transaction {
   householdId  String
   household    Household   @relation(fields: [householdId], references: [id])
   // Optional: Link to a specific budget goal
-  budgetItemId String?
-  budgetItem   BudgetItem? @relation(fields: [budgetItemId], references: [id])
+  subcategoryId String?
+  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
 
   createdAt    DateTime    @default(now())
 }

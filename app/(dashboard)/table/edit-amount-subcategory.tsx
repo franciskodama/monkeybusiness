@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { updateBudgetItemAmount } from '@/lib/actions';
+import { updateSubcategoryAmount } from '@/lib/actions';
 import { toast } from 'sonner';
 
 export function EditableAmount({
@@ -25,7 +25,7 @@ export function EditableAmount({
     setIsEditing(false);
     if (amount !== initialAmount) {
       const updateFuture = window.confirm('Apply to future months?');
-      const result = await updateBudgetItemAmount(id, amount, updateFuture);
+      const result = await updateSubcategoryAmount(id, amount, updateFuture);
 
       if (result.success) {
         // CALL THE PARENT UPDATE HERE

@@ -22,14 +22,14 @@ export function TransactionReviewModal({
   reviewData,
   setReviewData,
   householdId,
-  budgetItemsForCurrentMonth,
-  setCurrentBudgetItemsAction
+  subcategoriesForCurrentMonth,
+  setCurrentSubcategoriesAction
 }: {
   reviewData: any[];
   setReviewData: (data: any[] | null) => void;
   householdId: string;
-  budgetItemsForCurrentMonth: any[];
-  setCurrentBudgetItemsAction: (items: any[]) => void;
+  subcategoriesForCurrentMonth: any[];
+  setCurrentSubcategoriesAction: (items: any[]) => void;
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
 
@@ -39,7 +39,7 @@ export function TransactionReviewModal({
       const res = await bulkAddTransactions(reviewData, householdId);
       if (res.success) {
         toast.success(`Saved ${reviewData.length} transactions!`);
-        if (res.updatedItems) setCurrentBudgetItemsAction(res.updatedItems);
+        if (res.updatedItems) setCurrentSubcategoriesAction(res.updatedItems);
         setReviewData(null);
       } else {
         toast.error('Failed to save transactions.');
@@ -59,7 +59,7 @@ export function TransactionReviewModal({
     (sum, tx) => sum + (tx.amount < 0 ? Math.abs(tx.amount) : 0),
     0
   );
-  const unlinkedCount = reviewData.filter((tx) => !tx.budgetItemId).length;
+  const unlinkedCount = reviewData.filter((tx) => !tx.subcategoryId).length;
 
   return (
     <Dialog
@@ -90,26 +90,26 @@ export function TransactionReviewModal({
                 </div>
 
                 <div
-                  className={`flex items-center gap-2 p-2 rounded-lg ${!tx.budgetItemId ? 'bg-yellow-50 border border-yellow-200' : ''}`}
+                  className={`flex items-center gap-2 p-2 rounded-lg ${!tx.subcategoryId ? 'bg-yellow-50 border border-yellow-200' : ''}`}
                 >
                   <span className="text-[10px] uppercase font-bold text-muted-foreground w-16">
-                    {tx.budgetItemId ? 'Linked:' : '⚠️ Link to:'}
+                    {tx.subcategoryId ? 'Linked:' : '⚠️ Link to:'}
                   </span>
                   <Select
-                    defaultValue={tx.budgetItemId || ''}
+                    defaultValue={tx.subcategoryId || ''}
                     onValueChange={(value) => {
                       const updatedData = [...reviewData];
-                      updatedData[index].budgetItemId = value;
+                      updatedData[index].subcategoryId = value;
                       setReviewData(updatedData);
                     }}
                   >
                     <SelectTrigger
-                      className={`h-8 text-xs flex-1 ${!tx.budgetItemId ? 'border-yellow-500' : ''}`}
+                      className={`h-8 text-xs flex-1 ${!tx.subcategoryId ? 'border-yellow-500' : ''}`}
                     >
                       <SelectValue placeholder="Uncategorized..." />
                     </SelectTrigger>
                     <SelectContent>
-                      {budgetItemsForCurrentMonth.map((item) => (
+                      {subcategoriesForCurrentMonth.map((item) => (
                         <SelectItem key={item.id} value={item.id}>
                           {item.name}
                         </SelectItem>
