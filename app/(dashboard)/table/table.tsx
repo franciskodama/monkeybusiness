@@ -6,8 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
 import { getColorCode, months } from '@/lib/utils';
-// Note: Ensure your Prisma types include the relations if you're using them
-import { BudgetItem, Category, User } from '@prisma/client';
+import { Category, User } from '@prisma/client';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { AddBudgetItem } from './add-budget-item';
 import { deleteBudgetItem } from '@/lib/actions';
@@ -30,6 +29,8 @@ import Help from '@/components/Help';
 import ExplanationTable from './explanation-table';
 import { AddTransactionModal } from './add-transaction-modal';
 import { TransactionImporter } from './transaction-importer';
+import { DirectCodeImporter } from './transaction-direct-code-importer';
+import { TransactionReviewModal } from './transaction-review-modal';
 
 export default function Table({
   user,
@@ -40,7 +41,7 @@ export default function Table({
   user: User;
   householdId: string;
   categories: Category[];
-  budgetItems: any[]; // Changed to any[] to allow for the .transactions relation
+  budgetItems: any[];
 }) {
   const [openAction, setOpenAction] = useState(false);
   const [currentBudgetItems, setCurrentBudgetItemsAction] =
@@ -48,6 +49,7 @@ export default function Table({
   const [currentCategories, setCurrentCategoriesAction] =
     useState<Category[]>(categories);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [reviewData, setReviewData] = useState<any[] | null>(null);
 
   const handleUpdateAmount = (
     itemId: string,
@@ -100,9 +102,9 @@ export default function Table({
           <div className="flex flex-col">
             <div className="flex items-center justify-between">
               <p>Table</p>
-              <div className="block sm:hidden">
+              {/* <div className="block sm:hidden">
                 {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
-              </div>
+              </div> */}
             </div>
             <p
               className={`${barlow.className} text-sm font-normal lowercase mt-2`}
@@ -113,7 +115,16 @@ export default function Table({
           <div
             className={`${barlow.className} flex gap-4 capitalize mt-8 sm:mt-0 w-full sm:w-[18ch]`}
           >
-            <TransactionImporter householdId={householdId} />
+            <TransactionImporter
+              householdId={householdId}
+              categories={currentCategories}
+              budgetItemsForCurrentMonth={currentBudgetItems.filter(
+                (i) => i.month === selectedMonth
+              )}
+              setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
+              setReviewDataAction={setReviewData}
+            />
+            <DirectCodeImporter onDataLoaded={(data) => setReviewData(data)} />
             <AddCategory
               user={user}
               householdId={householdId}
@@ -336,13 +347,14 @@ export default function Table({
                     </div>
                   )}
 
-                  <div className="p-4 bg-secondary/5 flex justify-center">
+                  <div className="p-4 bg-secondary/5">
                     <AddBudgetItem
                       user={user}
                       householdId={householdId}
                       currentCategories={currentCategories}
                       setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
                       defaultCategoryId={category.id}
+                      selectedMonth={selectedMonth}
                     />
                   </div>
                 </div>
@@ -350,6 +362,17 @@ export default function Table({
             );
           })}
         </div>
+        {reviewData && (
+          <TransactionReviewModal
+            reviewData={reviewData}
+            setReviewData={setReviewData}
+            householdId={householdId}
+            budgetItemsForCurrentMonth={currentBudgetItems.filter(
+              (i) => i.month === selectedMonth
+            )}
+            setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
+          />
+        )}
       </CardContent>
     </Card>
   );

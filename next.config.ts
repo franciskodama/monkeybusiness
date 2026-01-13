@@ -1,6 +1,11 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '4mb' // Increase to 4MB for PDF processing
+    }
+  },
   images: {
     unoptimized: false,
     remotePatterns: [
