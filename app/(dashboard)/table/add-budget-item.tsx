@@ -120,8 +120,8 @@ export function AddBudgetItem({
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
-      <SheetTrigger asChild className="w-full">
-        <Button>Add Item</Button>
+      <SheetTrigger asChild>
+        <Button variant="outline">Add Subcategory</Button>
       </SheetTrigger>
       <SheetContent
         side="right"

@@ -48,7 +48,7 @@ export function DirectCodeImporter({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="gap-2">
+        <Button variant="default" className="gap-2">
           <Code2 size={16} />
           Direct Code Import
         </Button>
