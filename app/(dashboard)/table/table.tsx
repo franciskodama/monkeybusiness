@@ -30,6 +30,7 @@ import Help from '@/components/Help';
 import ExplanationTable from './explanation-table';
 import { AddTransactionModal } from './add-transaction-modal';
 import { TransactionImporter } from './transaction-importer';
+import { DirectCodeImporter } from './direct-code-importer';
 
 export default function Table({
   user,
@@ -48,6 +49,7 @@ export default function Table({
   const [currentCategories, setCurrentCategoriesAction] =
     useState<Category[]>(categories);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [reviewData, setReviewData] = useState<any[] | null>(null);
 
   const handleUpdateAmount = (
     itemId: string,
@@ -120,7 +122,9 @@ export default function Table({
                 (i) => i.month === selectedMonth
               )}
               setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
+              setReviewDataAction={setReviewData}
             />
+            <DirectCodeImporter onDataLoaded={(data) => setReviewData(data)} />
             <AddCategory
               user={user}
               householdId={householdId}

@@ -24,12 +24,14 @@ export function TransactionImporter({
   householdId,
   categories,
   budgetItemsForCurrentMonth,
-  setCurrentBudgetItemsAction
+  setCurrentBudgetItemsAction,
+  setReviewDataAction
 }: {
   householdId: string;
   categories: any[];
   budgetItemsForCurrentMonth: any[];
   setCurrentBudgetItemsAction: React.Dispatch<React.SetStateAction<any[]>>;
+  setReviewDataAction: React.Dispatch<React.SetStateAction<any[] | null>>;
 }) {
   const [source, setSource] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -134,8 +136,9 @@ export function TransactionImporter({
                 <SelectValue placeholder="Select Bank Source..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Chase">Chase</SelectItem>
-                <SelectItem value="Amex">Amex</SelectItem>
+                <SelectItem value="Family">Family</SelectItem>
+                <SelectItem value="FK">FK</SelectItem>
+                <SelectItem value="MZ">MZ</SelectItem>
               </SelectContent>
             </Select>
 
@@ -276,174 +279,3 @@ export function TransactionImporter({
     </Dialog>
   );
 }
-
-const data = [
-  {
-    date: '2026-01-27',
-    description: 'AMZN Mktp CA*ZG7NX7801 WWW.AMAZON.CAON',
-    amount: 30.5,
-    budgetItemId: null
-  },
-  {
-    date: '2026-01-27',
-    description: 'UBER CANADA UBERTRIP TORONTO ON',
-    amount: 15.7,
-    budgetItemId: null
-  },
-  {
-    date: '2026-01-27',
-    description: 'UBER CANADA UBERTRIP TORONTO ON',
-    amount: 15.41,
-    budgetItemId: null
-  },
-  {
-    date: '2026-01-30',
-    description: 'Amazon.ca*Z78KE4H12 AMAZON.CA ON',
-    amount: 12.61,
-    budgetItemId: null
-  },
-  {
-    date: '2026-01-30',
-    description: 'CORNER PEACH OTTAWA ON',
-    amount: 117.3,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-01',
-    description: 'IC* INSTACART HALIFAX MID-HNS',
-    amount: 308.28,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-01',
-    description: 'YSI*PROP PYMIT SVCFEE OTTAWA ON',
-    amount: 42.78,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-01',
-    description: 'YSI*InterRent REIT OTTAWA ON',
-    amount: 2444.36,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-02',
-    description: 'Amazon.ca*Z75GQONJO AMAZON.CA ON',
-    amount: 11.18,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-04',
-    description: 'CINEPLEX ENTERTAINMENT 416-323-6600 ON',
-    amount: 7.07,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-04',
-    description: 'UBER CANADA UBERTRIP TORONTO ON',
-    amount: 15.7,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-05',
-    description: 'UBER CANADA UBERTRIP TORONTO ON',
-    amount: 12.58,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-06',
-    description: 'Amazon.ca*311P48T03 AMAZON.CA ON',
-    amount: 11.13,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-08',
-    description: 'IC* INSTACART HALIFAX MID-HNS',
-    amount: 3.05,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-08',
-    description: 'IC* INSTACART HALIFAX MID-HINS',
-    amount: 247.0,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-08',
-    description: 'AAA NOODLES OTTAWA ON',
-    amount: 48.27,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-09',
-    description: 'AMZN Mktp CA*3E2G89L33 WWW.AMAZON.CAON',
-    amount: 34.48,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-10',
-    description: 'SCOTIABANK TRANSIT 00026 OTTAWA ON',
-    amount: -5883.32,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-10',
-    description: 'NETFLIX.COM 844-5052993 BC',
-    amount: 6.77,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-11',
-    description: 'Amazon.ca*Y09251QY3 AMAZONICA ON',
-    amount: 50.61,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-11',
-    description: 'Amazon.ca*PF6Q664X3 AMAZON.CA ON',
-    amount: 67.1,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-14',
-    description: 'FIDO Mobile ******0980 8838-481-3436 ON',
-    amount: 148.04,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-14',
-    description: 'IC INSTACART HALIFAX MID-HINS',
-    amount: 275.29,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-15',
-    description: 'APPLE.COM/BILL 866-712-7753 ON',
-    amount: 14.68,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-17',
-    description: 'CINEPLEX ENTERTAINMENT 416-323-6600 ON',
-    amount: 23.15,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-17',
-    description: 'CINEPLEX #7311 OTTAWA ON',
-    amount: 41.32,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-18',
-    description: 'AMZN Mktp CA*S 186R9XX3 WWW.AMAZON.CAON',
-    amount: 30.5,
-    budgetItemId: null
-  },
-  {
-    date: '2026-02-19',
-    description: 'Amazon.ca Prime Member amazon.ca/priBC',
-    amount: 11.29,
-    budgetItemId: null
-  }
-];
