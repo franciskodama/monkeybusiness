@@ -3,77 +3,11 @@
 import { ColorEnum } from '@prisma/client';
 import prisma from './prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { revalidatePath } from 'next/cache';
 
 // AI --------------------------------------------------------------------
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-// export async function processStatementWithAI(
-//   base64File: string,
-//   householdId: string,
-//   budgetItemsForCurrentMonth: any[]
-// ) {
-//   // Toggle this to true if you are hit by Rate Limits during development
-//   const MOCK_MODE = false;
-
-//   if (MOCK_MODE) {
-//     return {
-//       success: true,
-//       transactions: [
-//         {
-//           date: '2026-01-11',
-//           description: 'Mock Transaction 1',
-//           amount: 45.0,
-//           budgetItemId: budgetItemsForCurrentMonth[0]?.id || null
-//         },
-//         {
-//           date: '2026-01-12',
-//           description: 'Mock Transaction 2',
-//           amount: 12.5,
-//           budgetItemId: null
-//         }
-//       ]
-//     };
-//   }
-
-//   try {
-//     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-
-//     const prompt = `
-//       Act as a financial expert. Extract transactions from the provided PDF.
-//       Match each to these IDs: ${budgetItemsForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
-//       Return ONLY a JSON array: [{"date": "ISO", "description": "string", "amount": number, "budgetItemId": "string or null"}]
-//     `;
-
-//     // ❌ Error Fix: Ensure structure is exact. No extra braces or commas on line 39
-//     const result = await model.generateContent([
-//       {
-//         inlineData: {
-//           data: base64File,
-//           mimeType: 'application/pdf'
-//         }
-//       },
-//       { text: prompt }
-//     ]);
-
-//     const response = await result.response;
-//     const text = response
-//       .text()
-//       .replace(/```json/g, '')
-//       .replace(/```/g, '')
-//       .trim();
-
-//     return { success: true, transactions: JSON.parse(text) };
-//   } catch (error: any) {
-//     if (error.status === 429) {
-//       return {
-//         success: false,
-//         error: 'Quota exceeded. Try again in 60 seconds.'
-//       };
-//     }
-//     return { success: false, error: 'AI failed to read the PDF.' };
-//   }
-// }
 
 export async function processStatementWithAI(
   base64File: string,
@@ -366,39 +300,84 @@ export const getBudgetItems = async (householdId: string) => {
   }
 };
 
-export async function addBudgetItem({
-  householdId,
-  name,
-  categoryId,
-  amount
-}: {
-  householdId: string;
+/**
+ * Rewritten addBudgetItem to support:
+ * 1. Single month creation
+ * 2. Multi-month "recurring" creation (rest of year)
+ * 3. Fresh data return for UI syncing
+ */
+export async function addBudgetItem(data: {
   name: string;
-  categoryId: string;
   amount: number;
+  categoryId: string;
+  householdId: string;
+  month: number;
+  year: number;
+  applyToFuture: boolean;
 }) {
   try {
-    const year = 2026;
-    const items = [];
-    for (let month = 1; month <= 12; month++) {
-      items.push({
-        name,
-        amount,
-        month,
-        year,
-        householdId,
-        categoryId
+    // 1. Prepare the data for creation
+    if (data.applyToFuture) {
+      // Create a series of items from the current selected month until December (12)
+      const itemsToCreate = [];
+      for (let m = data.month; m <= 12; m++) {
+        itemsToCreate.push({
+          name: data.name,
+          amount: data.amount,
+          categoryId: data.categoryId,
+          householdId: data.householdId,
+          month: m,
+          year: data.year
+        });
+      }
+
+      // Use createMany for high-performance batch insertion
+      await prisma.budgetItem.createMany({
+        data: itemsToCreate
+      });
+    } else {
+      // Standard single-month creation
+      await prisma.budgetItem.create({
+        data: {
+          name: data.name,
+          amount: data.amount,
+          categoryId: data.categoryId,
+          householdId: data.householdId,
+          month: data.month,
+          year: data.year
+        }
       });
     }
-    await prisma.budgetItem.createMany({
-      data: items
+
+    // 2. Fetch the updated list of budget items for the specific month/year
+    // This is what the UI (useEffect) is waiting for to refresh the table
+    const _currentbudgetItems = await prisma.budgetItem.findMany({
+      where: {
+        householdId: data.householdId,
+        month: data.month,
+        year: data.year
+      },
+      include: {
+        category: true // Include categories if your table uses them for colors/names
+      },
+      orderBy: {
+        name: 'asc'
+      }
     });
 
-    const updatedItems = await getBudgetItems(householdId);
-    return { success: true, updatedItems };
+    // 3. Clear Next.js cache so other parts of the app also see the new data
+    revalidatePath('/table');
+
+    return {
+      success: true,
+      _currentbudgetItems
+    };
   } catch (error) {
-    console.error('Error creating budget items:', error);
-    return null;
+    console.error('--- ❌ Database Error adding budget item:', error);
+    return {
+      success: false,
+      error: 'Failed to create budget item(s).'
+    };
   }
 }
 

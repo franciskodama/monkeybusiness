@@ -350,6 +350,7 @@ export default function Table({
                       currentCategories={currentCategories}
                       setCurrentBudgetItemsAction={setCurrentBudgetItemsAction}
                       defaultCategoryId={category.id}
+                      selectedMonth={selectedMonth}
                     />
                   </div>
                 </div>

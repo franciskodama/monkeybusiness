@@ -97,6 +97,18 @@ export function TransactionImporter({
     }
   };
 
+  /* --- Calculate Totals for the Summary Bar --- */
+  const totalSpent =
+    reviewData?.reduce((sum, tx) => sum + (tx.amount > 0 ? tx.amount : 0), 0) ||
+    0;
+  const totalPayments =
+    reviewData?.reduce(
+      (sum, tx) => sum + (tx.amount < 0 ? Math.abs(tx.amount) : 0),
+      0
+    ) || 0;
+  const unlinkedCount =
+    reviewData?.filter((tx) => !tx.budgetItemId).length || 0;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -206,6 +218,40 @@ export function TransactionImporter({
               ))}
             </div>
 
+            {/* NEW: The Summary Bar */}
+            <div className="bg-secondary/20 p-4 rounded-xl border border-secondary/50 space-y-2">
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-muted-foreground">
+                  Total Debits (Spent):
+                </span>
+                <span className="font-mono text-red-600">
+                  $
+                  {totalSpent.toLocaleString(undefined, {
+                    minimumFractionDigits: 2
+                  })}
+                </span>
+              </div>
+              <div className="flex justify-between text-xs font-medium">
+                <span className="text-muted-foreground">
+                  Total Credits (Payments):
+                </span>
+                <span className="font-mono text-green-600">
+                  $
+                  {totalPayments.toLocaleString(undefined, {
+                    minimumFractionDigits: 2
+                  })}
+                </span>
+              </div>
+
+              {unlinkedCount > 0 && (
+                <div className="pt-2 border-t border-secondary/50 flex items-center gap-2 text-[10px] text-yellow-700 font-bold uppercase">
+                  <span className="bg-yellow-100 px-2 py-0.5 rounded-full">
+                    ⚠️ {unlinkedCount} items need categorization
+                  </span>
+                </div>
+              )}
+            </div>
+
             <div className="flex gap-2 pt-2">
               <Button
                 variant="outline"
@@ -230,3 +276,174 @@ export function TransactionImporter({
     </Dialog>
   );
 }
+
+const data = [
+  {
+    date: '2026-01-27',
+    description: 'AMZN Mktp CA*ZG7NX7801 WWW.AMAZON.CAON',
+    amount: 30.5,
+    budgetItemId: null
+  },
+  {
+    date: '2026-01-27',
+    description: 'UBER CANADA UBERTRIP TORONTO ON',
+    amount: 15.7,
+    budgetItemId: null
+  },
+  {
+    date: '2026-01-27',
+    description: 'UBER CANADA UBERTRIP TORONTO ON',
+    amount: 15.41,
+    budgetItemId: null
+  },
+  {
+    date: '2026-01-30',
+    description: 'Amazon.ca*Z78KE4H12 AMAZON.CA ON',
+    amount: 12.61,
+    budgetItemId: null
+  },
+  {
+    date: '2026-01-30',
+    description: 'CORNER PEACH OTTAWA ON',
+    amount: 117.3,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-01',
+    description: 'IC* INSTACART HALIFAX MID-HNS',
+    amount: 308.28,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-01',
+    description: 'YSI*PROP PYMIT SVCFEE OTTAWA ON',
+    amount: 42.78,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-01',
+    description: 'YSI*InterRent REIT OTTAWA ON',
+    amount: 2444.36,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-02',
+    description: 'Amazon.ca*Z75GQONJO AMAZON.CA ON',
+    amount: 11.18,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-04',
+    description: 'CINEPLEX ENTERTAINMENT 416-323-6600 ON',
+    amount: 7.07,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-04',
+    description: 'UBER CANADA UBERTRIP TORONTO ON',
+    amount: 15.7,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-05',
+    description: 'UBER CANADA UBERTRIP TORONTO ON',
+    amount: 12.58,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-06',
+    description: 'Amazon.ca*311P48T03 AMAZON.CA ON',
+    amount: 11.13,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-08',
+    description: 'IC* INSTACART HALIFAX MID-HNS',
+    amount: 3.05,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-08',
+    description: 'IC* INSTACART HALIFAX MID-HINS',
+    amount: 247.0,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-08',
+    description: 'AAA NOODLES OTTAWA ON',
+    amount: 48.27,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-09',
+    description: 'AMZN Mktp CA*3E2G89L33 WWW.AMAZON.CAON',
+    amount: 34.48,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-10',
+    description: 'SCOTIABANK TRANSIT 00026 OTTAWA ON',
+    amount: -5883.32,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-10',
+    description: 'NETFLIX.COM 844-5052993 BC',
+    amount: 6.77,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-11',
+    description: 'Amazon.ca*Y09251QY3 AMAZONICA ON',
+    amount: 50.61,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-11',
+    description: 'Amazon.ca*PF6Q664X3 AMAZON.CA ON',
+    amount: 67.1,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-14',
+    description: 'FIDO Mobile ******0980 8838-481-3436 ON',
+    amount: 148.04,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-14',
+    description: 'IC INSTACART HALIFAX MID-HINS',
+    amount: 275.29,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-15',
+    description: 'APPLE.COM/BILL 866-712-7753 ON',
+    amount: 14.68,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-17',
+    description: 'CINEPLEX ENTERTAINMENT 416-323-6600 ON',
+    amount: 23.15,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-17',
+    description: 'CINEPLEX #7311 OTTAWA ON',
+    amount: 41.32,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-18',
+    description: 'AMZN Mktp CA*S 186R9XX3 WWW.AMAZON.CAON',
+    amount: 30.5,
+    budgetItemId: null
+  },
+  {
+    date: '2026-02-19',
+    description: 'Amazon.ca Prime Member amazon.ca/priBC',
+    amount: 11.29,
+    budgetItemId: null
+  }
+];
