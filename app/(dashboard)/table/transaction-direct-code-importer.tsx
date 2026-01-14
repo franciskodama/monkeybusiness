@@ -23,33 +23,39 @@ export function DirectCodeImporter({
 }) {
   const [code, setCode] = useState('');
   const [open, setOpen] = useState(false);
+  const [instructionsOpen, setInstructionsOpen] = useState(false);
+
   const handleProcessCode = async () => {
     try {
       const sanitizedCode = code.trim().replace(/^`{3}(json)?|`{3}$/g, '');
       const parsedData = JSON.parse(sanitizedCode);
 
       if (Array.isArray(parsedData)) {
-        // 1. Fetch user-defined rules from the database
+        // 1. Fetch the patterns you've "learned"
         const rules = await getTransactionRules(householdId);
 
-        const autoLinkedData = parsedData.map((tx) => {
-          // Check if ANY of our saved patterns exist inside the long bank description
-          const match = rules.find((rule) =>
+        // 2. Map through and apply partial matching
+        const autoMatchedData = parsedData.map((tx) => {
+          // If the pasted data already has an ID, keep it;
+          // otherwise, search our rules for a keyword match
+          const foundRule = rules.find((rule) =>
             tx.description.toUpperCase().includes(rule.pattern.toUpperCase())
           );
 
           return {
             ...tx,
-            subcategoryId: tx.subcategoryId || match?.subcategoryId || null
+            subcategoryId: tx.subcategoryId || foundRule?.subcategoryId || null
           };
         });
 
-        onDataLoaded(autoLinkedData);
+        // 3. Send the "smart" data to the Review Modal
+        onDataLoaded(autoMatchedData);
         setOpen(false);
-        toast.success('Data processed with auto-matching!');
+        setInstructionsOpen(false);
+        toast.success('Code processed! Patterns applied.');
       }
     } catch (e) {
-      toast.error('Invalid JSON format.');
+      toast.error('Invalid JSON. Check the format.');
     }
   };
 

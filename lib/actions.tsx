@@ -9,63 +9,80 @@ import { revalidatePath } from 'next/cache';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+// --- actions.tsx ---
+
 export async function processStatementWithAI(
   base64File: string,
   householdId: string,
   subcategoriesForCurrentMonth: any[]
 ) {
-  console.log('--- 🚀 Starting AI Process for Household:', householdId); // Server-side log
+  console.log('--- 🚀 Starting AI Process for Household:', householdId);
 
-  // 🟢 TURN THIS TO TRUE TO BYPASS THE 429 ERROR
+  // 1. Fetch your "Smart Rules" from the database
+  const savedRules = await getTransactionRules(householdId);
+
+  // Helper function to apply rules to a transaction list
+  const applySmartRules = (txList: any[]) => {
+    return txList.map((tx) => {
+      // If AI already found a match, we keep it, otherwise check our patterns
+      if (tx.subcategoryId) return tx;
+
+      const foundRule = savedRules.find((rule) =>
+        tx.description.toUpperCase().includes(rule.pattern.toUpperCase())
+      );
+
+      return {
+        ...tx,
+        subcategoryId: foundRule?.subcategoryId || null
+      };
+    });
+  };
+
+  // 🟢 MOCK MODE
   const MOCK_MODE = true;
 
   if (MOCK_MODE) {
-    console.log(
-      '--- 🧪 MOCK MODE: Returning fake transactions from Scotiabank test'
-    );
-    // We simulate a 2-second delay so the UI "loading" state looks real
+    console.log('--- 🧪 MOCK MODE: Applying Smart Rules to fake data');
     await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    const mockTransactions = [
+      {
+        date: '2026-01-27',
+        description: 'AMZN Mktp CA*ZG7NX7801',
+        amount: 30.5,
+        subcategoryId: null // Let the Smart Rule handle this
+      },
+      {
+        date: '2026-01-27',
+        description: 'UBER CANADA UBERTRIP',
+        amount: 15.7,
+        subcategoryId: null // Let the Smart Rule handle this
+      },
+      {
+        date: '2026-02-01',
+        description: 'YSI*PROP PYMNT SVCFEE',
+        amount: 42.78,
+        subcategoryId: null
+      },
+      {
+        date: '2026-02-01',
+        description: 'YSI*InterRent REIT',
+        amount: 2444.36,
+        subcategoryId:
+          subcategoriesForCurrentMonth.find((i) => i.name.includes('Rent'))
+            ?.id || null
+      },
+      {
+        date: '2026-02-10',
+        description: 'SCOTIABANK PAYMENT',
+        amount: -5883.32,
+        subcategoryId: null
+      }
+    ];
 
     return {
       success: true,
-      transactions: [
-        {
-          date: '2026-01-27',
-          description: 'AMZN Mktp CA*ZG7NX7801',
-          amount: 30.5,
-          subcategoryId:
-            subcategoriesForCurrentMonth.find((i) => i.name.includes('Amazon'))
-              ?.id || null
-        },
-        {
-          date: '2026-01-27',
-          description: 'UBER CANADA UBERTRIP',
-          amount: 15.7,
-          subcategoryId:
-            subcategoriesForCurrentMonth.find((i) => i.name.includes('Uber'))
-              ?.id || null
-        },
-        {
-          date: '2026-02-01',
-          description: 'YSI*PROP PYMNT SVCFEE',
-          amount: 42.78,
-          subcategoryId: null
-        },
-        {
-          date: '2026-02-01',
-          description: 'YSI*InterRent REIT',
-          amount: 2444.36,
-          subcategoryId:
-            subcategoriesForCurrentMonth.find((i) => i.name.includes('Rent'))
-              ?.id || null
-        },
-        {
-          date: '2026-02-10',
-          description: 'SCOTIABANK PAYMENT',
-          amount: -5883.32,
-          subcategoryId: null
-        }
-      ]
+      transactions: applySmartRules(mockTransactions)
     };
   }
 
@@ -73,28 +90,23 @@ export async function processStatementWithAI(
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const prompt = `
-  Act as a financial data expert. Extract ALL transactions from this bank statement.
-  
-  MATCHING RULES:
-  - Match transactions to these IDs: ${subcategoriesForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
-  - If a match is unclear, set "subcategoryId" to null.
-  
-  CRITICAL EXTRACTION RULES:
-  1. **Multi-line Descriptions**: Some descriptions wrap across multiple lines (e.g., UBER CANADA on line 1, TORONTO ON on line 2). Combine these into a single clean description string.
-  2. **Trailing Minus Signs**: If an amount ends with a minus sign (e.g., "5,883.32-"), this is a CREDIT or PAYMENT. Return it as a negative number (e.g., -5883.32).
-  3. **Date Normalization**: Return all dates in "YYYY-MM-DD" format. Assume the year is 2026.
-  4. **Clean Numbers**: Remove currency symbols ($) and commas from amounts.
-  
-  Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "subcategoryId": "string or null"}]
-`;
+      Act as a financial data expert. Extract ALL transactions from this bank statement.
+      
+      MATCHING RULES:
+      - Match transactions to these IDs: ${subcategoriesForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+      - If a match is unclear, set "subcategoryId" to null.
+      
+      CRITICAL EXTRACTION RULES:
+      1. **Multi-line Descriptions**: Combine wrapped descriptions into one string.
+      2. **Trailing Minus Signs**: Return as negative numbers (e.g., -5883.32).
+      3. **Date Normalization**: "YYYY-MM-DD".
+      4. **Clean Numbers**: Remove symbols and commas.
+      
+      Return ONLY a JSON array: [{"date": "ISO string", "description": "string", "amount": number, "subcategoryId": "string or null"}]
+    `;
 
     const result = await model.generateContent([
-      {
-        inlineData: {
-          data: base64File,
-          mimeType: 'application/pdf'
-        }
-      },
+      { inlineData: { data: base64File, mimeType: 'application/pdf' } },
       { text: prompt }
     ]);
 
@@ -102,22 +114,22 @@ export async function processStatementWithAI(
     const text = response.text();
 
     if (!text) {
-      console.error(
-        '--- ⚠️ AI returned empty text. Possible safety filter block.'
-      );
-      return {
-        success: false,
-        error: 'AI could not read the content. Try a different file.'
-      };
+      return { success: false, error: 'AI could not read the content.' };
     }
 
     const cleanedJson = text
       .replace(/```json/g, '')
       .replace(/```/g, '')
       .trim();
-    return { success: true, transactions: JSON.parse(cleanedJson) };
+    const aiTransactions = JSON.parse(cleanedJson);
+
+    // Apply Smart Rules to AI results before returning
+    return {
+      success: true,
+      transactions: applySmartRules(aiTransactions)
+    };
   } catch (error: any) {
-    console.error('--- ❌ Server Action Error:', error.message); // This will show in your terminal
+    console.error('--- ❌ Server Action Error:', error.message);
     return {
       success: false,
       error:
@@ -559,5 +571,14 @@ export async function getTransactionRules(householdId: string) {
   } catch (error) {
     console.error('❌ Error fetching rules:', error);
     return [];
+  }
+}
+
+export async function deleteTransactionRule(id: string) {
+  try {
+    await prisma.transactionRule.delete({ where: { id } });
+    return { success: true };
+  } catch (error) {
+    return { success: false };
   }
 }

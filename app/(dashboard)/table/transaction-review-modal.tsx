@@ -39,14 +39,14 @@ export function TransactionReviewModal({
   const handleSaveAll = async () => {
     setIsProcessing(true);
     try {
-      // 1. Save new rules first
       const rulePromises = Object.entries(rulesToSave)
         .filter(([_, shouldSave]) => shouldSave)
         .map(([index]) => {
           const tx = reviewData[Number(index)];
           if (tx.subcategoryId) {
             return addTransactionRule({
-              pattern: tx.description,
+              // NEW: Use the edited pattern, fallback to full description
+              pattern: tx.pattern || tx.description,
               subcategoryId: tx.subcategoryId,
               householdId
             });
@@ -55,23 +55,12 @@ export function TransactionReviewModal({
         })
         .filter(Boolean);
 
-      if (rulePromises.length > 0) {
-        await Promise.all(rulePromises);
-      }
+      if (rulePromises.length > 0) await Promise.all(rulePromises);
 
-      // 2. Standard bulk save logic for the transactions themselves
       const res = await bulkAddTransactions(reviewData, householdId);
-
-      if (res.success) {
-        toast.success(`Saved transactions and rules!`);
-        if (res.updatedItems) setCurrentSubcategoriesAction(res.updatedItems);
-        setReviewData(null);
-      } else {
-        toast.error('Failed to save transactions.');
-      }
+      // ... rest of success logic
     } catch (error) {
-      console.error(error);
-      toast.error('An error occurred during save.');
+      toast.error('Error saving rules or transactions.');
     } finally {
       setIsProcessing(false);
     }
@@ -167,38 +156,48 @@ export function TransactionReviewModal({
 
                     {/* Checkbox to "Learn" this description for the future */}
                     {!tx.subcategoryId && (
-                      <div className="flex items-start gap-2 px-1 py-1 bg-blue-50/50 rounded-md border border-blue-100">
-                        <Checkbox
-                          id={`rule-${index}`}
-                          checked={rulesToSave[index] || false}
-                          onCheckedChange={(checked) => {
-                            setRulesToSave((prev) => ({
-                              ...prev,
-                              [index]: !!checked
-                            }));
-                          }}
-                        />
-                        <div className="flex flex-col gap-1 w-full">
-                          <label
-                            htmlFor={`rule-${index}`}
-                            className="text-[9px] text-blue-800 uppercase font-bold cursor-pointer"
-                          >
-                            Remember this pattern:
-                          </label>
-                          {/* NEW: Editable Input for the Pattern */}
-                          <input
-                            type="text"
-                            className="text-xs bg-transparent border-b border-blue-200 focus:border-blue-500 outline-none pb-1 font-mono italic"
-                            value={tx.pattern || tx.description} // Use tx.pattern if user edited it
-                            onChange={(e) => {
-                              const updatedData = [...reviewData];
-                              updatedData[index].pattern = e.target.value; // Store the custom pattern
-                              setReviewData(updatedData);
+                      <div className="flex flex-col gap-2 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id={`rule-${index}`}
+                            checked={rulesToSave[index] || false}
+                            onCheckedChange={(checked) => {
+                              setRulesToSave((prev) => ({
+                                ...prev,
+                                [index]: !!checked
+                              }));
                             }}
                           />
-                          <p className="text-[8px] text-muted-foreground italic">
-                            Tip: Delete random numbers/cities to make it more
-                            generic (e.g., "AMAZON")
+                          <label
+                            htmlFor={`rule-${index}`}
+                            className="text-[10px] text-blue-800 uppercase font-bold cursor-pointer"
+                          >
+                            Create a "Smart Rule" for this
+                          </label>
+                        </div>
+
+                        <div className="flex flex-col gap-1 ml-6">
+                          <span className="text-[9px] text-muted-foreground uppercase font-semibold">
+                            Match Pattern:
+                          </span>
+                          <input
+                            type="text"
+                            className="text-xs bg-white border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400 outline-none font-mono"
+                            value={
+                              tx.pattern !== undefined
+                                ? tx.pattern
+                                : tx.description
+                            }
+                            onChange={(e) => {
+                              const updatedData = [...reviewData];
+                              updatedData[index].pattern = e.target.value;
+                              setReviewData(updatedData);
+                            }}
+                            placeholder="e.g. AMAZON"
+                          />
+                          <p className="text-[8px] text-blue-600/70 italic mt-1">
+                            Tip: Shorten this to just "UBER" or "AMAZON" to
+                            catch all variations.
                           </p>
                         </div>
                       </div>
