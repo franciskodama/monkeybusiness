@@ -143,7 +143,10 @@ export default function Table({
               setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
               setReviewDataAction={setReviewData}
             />
-            <DirectCodeImporter onDataLoaded={(data) => setReviewData(data)} />
+            <DirectCodeImporter
+              householdId={householdId}
+              onDataLoaded={(data) => setReviewData(data)}
+            />
             <AddCategory
               user={user}
               householdId={householdId}

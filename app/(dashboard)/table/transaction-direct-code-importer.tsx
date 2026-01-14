@@ -12,36 +12,44 @@ import {
   DialogTrigger
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { getTransactionRules } from '@/lib/actions';
 
 export function DirectCodeImporter({
-  onDataLoaded
+  onDataLoaded,
+  householdId
 }: {
   onDataLoaded: (data: any[]) => void;
+  householdId: string;
 }) {
   const [code, setCode] = useState('');
   const [open, setOpen] = useState(false);
-
-  const handleProcessCode = () => {
+  const handleProcessCode = async () => {
     try {
-      // 1. Clean the string (handle cases where people paste with backticks or comments)
       const sanitizedCode = code.trim().replace(/^`{3}(json)?|`{3}$/g, '');
-
-      // 2. Parse the JSON
-      // Note: If you paste standard JS objects (without quotes on keys),
-      // standard JSON.parse might fail. We use a simple regex fix or expect valid JSON.
       const parsedData = JSON.parse(sanitizedCode);
 
       if (Array.isArray(parsedData)) {
-        onDataLoaded(parsedData);
+        // 1. Fetch user-defined rules from the database
+        const rules = await getTransactionRules(householdId);
+
+        const autoLinkedData = parsedData.map((tx) => {
+          // Check if ANY of our saved patterns exist inside the long bank description
+          const match = rules.find((rule) =>
+            tx.description.toUpperCase().includes(rule.pattern.toUpperCase())
+          );
+
+          return {
+            ...tx,
+            subcategoryId: tx.subcategoryId || match?.subcategoryId || null
+          };
+        });
+
+        onDataLoaded(autoLinkedData);
         setOpen(false);
-        setCode('');
-        toast.success('Code data loaded successfully!');
-      } else {
-        toast.error('Data must be an array of objects.');
+        toast.success('Data processed with auto-matching!');
       }
     } catch (e) {
-      console.error(e);
-      toast.error('Invalid JSON format. Check your brackets and quotes.');
+      toast.error('Invalid JSON format.');
     }
   };
 

@@ -512,3 +512,52 @@ export async function bulkAddTransactions(
     return { success: false };
   }
 }
+
+// --- actions.tsx ---
+
+/**
+ * Saves a new matching rule.
+ * Pattern is sanitized to uppercase to make matching case-insensitive.
+ */
+export async function addTransactionRule(data: {
+  pattern: string;
+  subcategoryId: string;
+  householdId: string;
+}) {
+  try {
+    const rule = await prisma.transactionRule.upsert({
+      where: {
+        pattern_householdId: {
+          pattern: data.pattern.toUpperCase(),
+          householdId: data.householdId
+        }
+      },
+      update: {
+        subcategoryId: data.subcategoryId
+      },
+      create: {
+        pattern: data.pattern.toUpperCase(),
+        subcategoryId: data.subcategoryId,
+        householdId: data.householdId
+      }
+    });
+    return { success: true, rule };
+  } catch (error) {
+    console.error('❌ Error adding transaction rule:', error);
+    return { success: false };
+  }
+}
+
+/**
+ * Fetches all rules for a household to be used during the import process.
+ */
+export async function getTransactionRules(householdId: string) {
+  try {
+    return await prisma.transactionRule.findMany({
+      where: { householdId }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching rules:', error);
+    return [];
+  }
+}
