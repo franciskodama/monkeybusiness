@@ -1,4 +1,3 @@
-// app/(dashboard)/_components/BurnDownChart.tsx
 'use client';
 
 import {
@@ -12,30 +11,56 @@ import {
 } from 'recharts';
 
 export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
-  // 1. Data Processing: Calculate cumulative spend per day
-  const daysInMonth = new Date(2026, new Date().getMonth() + 1, 0).getDate();
-  const currentMonth = new Date().getMonth() + 1;
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = now.getFullYear();
+  const daysInMonth = new Date(currentYear, currentMonth, 0).getDate();
+  const today = now.getDate();
 
-  const totalBudget = subcategories
+  // 1. Calculate Total Monthly Budget (Target)
+  const totalPlanned = subcategories
     .filter(
       (s) =>
-        s.month === currentMonth && s.category.name.toLowerCase() !== 'income'
+        s.month === currentMonth && s.category?.name?.toLowerCase() !== 'income'
     )
-    .reduce((sum, s) => sum + s.amount, 0);
+    .reduce((sum, s) => sum + (s.amount || 0), 0);
 
-  const data = Array.from({ length: daysInMonth }, (_, i) => {
+  // 2. Flatten and group transactions by day
+  const allTransactions = subcategories
+    .filter((s) => s.month === currentMonth)
+    .flatMap((s) => s.transactions || []);
+
+  const dailySpend: Record<number, number> = {};
+  allTransactions.forEach((tx) => {
+    const day = new Date(tx.date).getDate();
+    dailySpend[day] = (dailySpend[day] || 0) + tx.amount;
+  });
+
+  // 3. Build cumulative data array
+  let runningTotal = 0;
+  const chartData = Array.from({ length: daysInMonth }, (_, i) => {
     const day = i + 1;
-    // ... Logic to sum transactions up to this day
+
+    // Only show actual data up until today
+    if (day <= today) {
+      runningTotal += dailySpend[day] || 0;
+    }
+
     return {
       day,
-      actual: 400 + i * 20,
-      planned: (totalBudget / daysInMonth) * day
+      // The "Actual" line
+      actual: day <= today ? runningTotal : null,
+      // The "Perfect" linear line
+      planned: (totalPlanned / daysInMonth) * day
     };
   });
 
   return (
-    <ResponsiveContainer width="100%" height="85%">
-      <LineChart data={data} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
+    <ResponsiveContainer width="100%" height="90%">
+      <LineChart
+        data={chartData}
+        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+      >
         <CartesianGrid
           strokeDasharray="3 3"
           vertical={false}
@@ -45,33 +70,45 @@ export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
           dataKey="day"
           axisLine={false}
           tickLine={false}
-          tick={{ fontSize: 10, fontWeight: 'bold' }}
+          tick={{ fontSize: 9, fontWeight: 'bold', fill: '#64748b' }}
+          interval={2}
         />
-        <YAxis hide />
+        <YAxis
+          axisLine={false}
+          tickLine={false}
+          tick={{ fontSize: 9, fill: '#94a3b8' }}
+          tickFormatter={(value) => `$${value}`}
+        />
         <Tooltip
           contentStyle={{
             borderRadius: '0px',
             border: '1px solid #cbd5e1',
-            fontSize: '10px'
+            fontSize: '10px',
+            textTransform: 'uppercase',
+            fontWeight: 'bold'
           }}
+          cursor={{ stroke: '#cbd5e1', strokeWidth: 1 }}
         />
-        {/* Planned Path (Dashed) */}
+        {/* Planned Path: Dashed and light */}
         <Line
           type="linear"
           dataKey="planned"
           stroke="#cbd5e1"
-          strokeDasharray="5 5"
+          strokeDasharray="4 4"
           dot={false}
           strokeWidth={1}
+          name="Planned"
+          connectNulls
         />
-        {/* Actual Spend (Solid) */}
+        {/* Actual Path: Bold, Black, and Step-style */}
         <Line
           type="stepAfter"
           dataKey="actual"
           stroke="#0f172a"
           strokeWidth={2}
-          dot={{ r: 0 }}
-          activeDot={{ r: 4, strokeWidth: 0 }}
+          dot={false}
+          activeDot={{ r: 4, strokeWidth: 0, fill: '#0f172a' }}
+          name="Actual"
         />
       </LineChart>
     </ResponsiveContainer>

@@ -7,14 +7,18 @@ import { User } from '@prisma/client';
 import { BurnDownChart } from '@/components/BurnDownChart';
 
 export default async function In({ user }: { user: User }) {
-  const session = await auth();
   const householdId = user?.householdId!;
-
   const subcategories = await getSubcategories(householdId);
   const currentMonth = new Date().getMonth() + 1;
 
   // Logic for the Alerts Card
   const pendingTransactions = subcategories
+    .filter((s) => s.month === currentMonth)
+    .flatMap((s) => s.transactions || [])
+    .filter((t) => !t.subcategoryId).length;
+
+  // Flatten current month transactions and count those without a subcategory
+  const pendingCount = subcategories
     .filter((s) => s.month === currentMonth)
     .flatMap((s) => s.transactions || [])
     .filter((t) => !t.subcategoryId).length;

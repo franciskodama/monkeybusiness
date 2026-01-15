@@ -153,7 +153,7 @@ export function TransactionReviewModal({
                               <SelectItem
                                 key={item.id}
                                 value={item.id}
-                                className="rounded-none text-xs"
+                                className="rounded-none text-xs uppercase font-bold"
                               >
                                 {item.name}
                               </SelectItem>
