@@ -54,19 +54,19 @@ export function TransactionImporter({
         );
 
         // Send to AI
-        const res = await processStatementWithAI(
+        const result = await processStatementWithAI(
           base64,
           householdId,
           subcategoriesForCurrentMonth
         );
 
-        if (res.success) {
-          // Pass the data to the parent state to trigger the shared Review Modal
-          setReviewDataAction(res.transactions);
-          setOpen(false); // Close this upload dialog
-          setFile(null); // Reset file input
+        if (result.success && result.transactions) {
+          // Use the transactions array from the result
+          setReviewDataAction(result.transactions);
         } else {
-          toast.error(res.error || 'Something went wrong on the server.');
+          // If failed or undefined, explicitly set to null to avoid the type error
+          setReviewDataAction(null);
+          toast.error(result.error || 'Failed to process statement');
         }
       } catch (error) {
         toast.error('An error occurred during processing.');
