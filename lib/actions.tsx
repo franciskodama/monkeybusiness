@@ -525,8 +525,6 @@ export async function bulkAddTransactions(
   }
 }
 
-// --- actions.tsx ---
-
 /**
  * Saves a new matching rule.
  * Pattern is sanitized to uppercase to make matching case-insensitive.

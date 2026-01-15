@@ -44,3 +44,17 @@ export const months = [
   'November',
   'December'
 ];
+
+export const getSourceTotals = (transactions: any[]) => {
+  const totals: Record<string, number> = {};
+
+  transactions.forEach((tx) => {
+    // We only care about spending (positive amounts in our system)
+    // and we exclude income if you want purely a "Credit Card" breakdown
+    if (tx.amount > 0 && tx.source) {
+      totals[tx.source] = (totals[tx.source] || 0) + tx.amount;
+    }
+  });
+
+  return Object.entries(totals).sort((a, b) => b[1] - a[1]); // Highest spend first
+};

@@ -31,6 +31,7 @@ import { DirectCodeImporter } from './transaction-direct-code-importer';
 import { TransactionReviewModal } from './transaction-review-modal';
 import { deleteSubcategory } from '@/lib/actions';
 import { AddSubcategory } from './add-subcategory';
+import { SourceBreakdown } from '@/components/SourceBreakdown';
 
 export default function Table({
   user,
@@ -114,13 +115,23 @@ export default function Table({
 
   const netBudget = totalPlannedIncome - totalPlannedExpenses;
 
+  // 1. Get only the subcategories for the month the user is looking at
+  const currentMonthSubs = currentSubcategories.filter(
+    (sub) => sub.month === selectedMonth
+  );
+
+  // 2. Flatten all transactions from those subcategories into one list
+  const allTransactions = currentMonthSubs.flatMap(
+    (sub) => sub.transactions || []
+  );
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex flex-col sm:flex-row sm:justify-between items-start mb-0">
           <div className="flex flex-col">
             <div className="flex items-center justify-between">
-              <p>Table</p>
+              <p>Planner</p>
               {/* <div className="block sm:hidden">
                 {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
               </div> */}
@@ -386,6 +397,8 @@ export default function Table({
             );
           })}
         </div>
+
+        <SourceBreakdown transactions={allTransactions} />
         {reviewData && (
           <TransactionReviewModal
             reviewData={reviewData}
