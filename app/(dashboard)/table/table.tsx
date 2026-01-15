@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
@@ -125,6 +125,51 @@ export default function Table({
     (sub) => sub.transactions || []
   );
 
+  //--------------------------------------------------
+  // Export Budget Data
+  //--------------------------------------------------
+
+  const exportBudgetData = () => {
+    const categoriesMap: Record<string, any> = {};
+
+    // 1. Map your current state data
+    currentSubcategories.forEach((sub) => {
+      const catName = sub.category?.name || 'Uncategorized';
+      if (!categoriesMap[catName]) {
+        categoriesMap[catName] = { name: catName, subcategories: [] };
+      }
+
+      const exists = categoriesMap[catName].subcategories.find(
+        (s: any) => s.name === sub.name
+      );
+      if (!exists) {
+        categoriesMap[catName].subcategories.push({
+          name: sub.name,
+          amount: sub.amount
+        });
+      }
+    });
+
+    // 2. Convert the object to a formatted JSON string
+    const dataStr = JSON.stringify(Object.values(categoriesMap), null, 2);
+
+    // 3. Create a Blob and a hidden download link
+    const blob = new Blob([dataStr], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'budget-backup.txt'; // The name of your file
+    document.body.appendChild(link);
+    link.click(); // Trigger the download
+
+    // 4. Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success('Backup file downloaded!');
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -164,6 +209,14 @@ export default function Table({
               currentCategories={currentCategories}
               setCurrentCategoriesAction={setCurrentCategoriesAction}
             />
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={exportBudgetData}
+            >
+              <Download size={16} />
+              JSON
+            </Button>
           </div>
           <div className="hidden sm:block">
             {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
@@ -215,7 +268,7 @@ export default function Table({
                 key={category.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col border rounded-xl overflow-hidden shadow-sm"
+                className="flex flex-col border overflow-hidden shadow-sm"
               >
                 <div className="flex items-center justify-between p-4 bg-secondary/30 border-b">
                   <div className="flex items-center gap-3">

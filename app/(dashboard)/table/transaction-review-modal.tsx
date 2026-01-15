@@ -33,7 +33,6 @@ export function TransactionReviewModal({
   setCurrentSubcategoriesAction: (items: any[]) => void;
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
-  // Track which indices the user wants to save as a persistent rule
   const [rulesToSave, setRulesToSave] = useState<Record<number, boolean>>({});
 
   const handleSaveAll = async () => {
@@ -45,7 +44,6 @@ export function TransactionReviewModal({
           const tx = reviewData[Number(index)];
           if (tx.subcategoryId) {
             return addTransactionRule({
-              // NEW: Use the edited pattern, fallback to full description
               pattern: tx.pattern || tx.description,
               subcategoryId: tx.subcategoryId,
               householdId
@@ -58,7 +56,6 @@ export function TransactionReviewModal({
       if (rulePromises.length > 0) await Promise.all(rulePromises);
 
       const res = await bulkAddTransactions(reviewData, householdId);
-      // ... rest of success logic
     } catch (error) {
       toast.error('Error saving rules or transactions.');
     } finally {
@@ -107,7 +104,12 @@ export function TransactionReviewModal({
                       </div>
 
                       <p className="text-[10px] text-muted-foreground uppercase font-mono">
-                        {tx.date} • ${Math.abs(tx.amount).toFixed(2)}
+                        {/* {tx.date} • ${Math.abs(tx.amount).toFixed(2)} */}
+                        {tx.date} •{' '}
+                        <span className="text-primary font-bold">
+                          {tx.source}
+                        </span>{' '}
+                        • ${Math.abs(tx.amount).toFixed(2)}
                       </p>
                     </div>
                     <p
@@ -144,12 +146,18 @@ export function TransactionReviewModal({
                         >
                           <SelectValue placeholder="Uncategorized..." />
                         </SelectTrigger>
-                        <SelectContent>
-                          {subcategoriesForCurrentMonth.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
+                        <SelectContent className="rounded-none border-slate-300">
+                          {subcategoriesForCurrentMonth
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map((item) => (
+                              <SelectItem
+                                key={item.id}
+                                value={item.id}
+                                className="rounded-none text-xs"
+                              >
+                                {item.name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -209,7 +217,7 @@ export function TransactionReviewModal({
           </div>
 
           {/* Summary Box */}
-          <div className="bg-secondary/20 p-4 rounded-xl border border-secondary/50 space-y-2">
+          <div className="bg-secondary/20 p-4 border border-secondary/50 space-y-2">
             <div className="flex justify-between text-xs font-medium">
               <span className="text-muted-foreground">Total Spent:</span>
               <span className="text-red-600 font-mono">

@@ -42,7 +42,7 @@ export function SourceBreakdown({ transactions }: { transactions: any[] }) {
           return (
             <div
               key={source}
-              className="p-3 rounded-xl border bg-background shadow-sm hover:shadow-md transition-shadow"
+              className="p-3 border bg-background shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="flex justify-between items-start mb-2">
                 <span className="text-[9px] font-black uppercase text-muted-foreground truncate max-w-[100px]">

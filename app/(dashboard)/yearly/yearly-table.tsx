@@ -43,7 +43,7 @@ export function YearlyTable({
 
   return (
     <div className="w-full">
-      <div className="overflow-x-auto border rounded-xl bg-background shadow-sm no-scrollbar">
+      <div className="overflow-x-auto border bg-background shadow-sm no-scrollbar">
         <table className="w-full border-collapse min-w-[1600px]">
           <thead>
             <tr className="bg-secondary/30">
