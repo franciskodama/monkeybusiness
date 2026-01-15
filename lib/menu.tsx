@@ -1,10 +1,15 @@
-import { Home, BarChart, Table } from 'lucide-react';
+import { Home, BarChart, Table, PiggyBank } from 'lucide-react';
 
 export const menuItems = [
   { label: 'Dashboard', href: '/in', icon: <Home className="h-5 w-5" /> },
   {
     label: 'Table',
     href: '/table',
+    icon: <PiggyBank className="h-5 w-5" />
+  },
+  {
+    label: 'Yearly Table',
+    href: '/yearly',
     icon: <Table className="h-5 w-5" />
   },
   {

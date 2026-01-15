@@ -15,12 +15,12 @@ import {
 } from '@/components/ui/dialog';
 
 export function AddTransactionModal({
-  budgetItemId,
+  subcategoryId,
   householdId,
   itemName,
   onSuccess
 }: {
-  budgetItemId: string;
+  subcategoryId: string;
   householdId: string;
   itemName: string;
   onSuccess: (updatedItems: any[]) => void;
@@ -35,7 +35,7 @@ export function AddTransactionModal({
       amount: parseFloat(amount),
       date: new Date(),
       householdId,
-      budgetItemId
+      subcategoryId
     });
 
     if (res.success) {
