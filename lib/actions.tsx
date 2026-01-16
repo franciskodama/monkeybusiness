@@ -302,7 +302,10 @@ export async function deleteCategory(id: string) {
 export const getSubcategories = async (householdId: string) => {
   try {
     const subcategories = await prisma.subcategory.findMany({
-      where: { householdId },
+      where: {
+        householdId,
+        year: 2026 // Ensure we get the full year's budget items
+      },
       include: {
         category: true,
         transactions: true
@@ -316,6 +319,21 @@ export const getSubcategories = async (householdId: string) => {
     console.error('❌ Prisma Fetch Error:', error);
     return [];
   }
+};
+
+export const getRecentSubcategories = async (householdId: string) => {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+
+  return await prisma.subcategory.findMany({
+    where: {
+      householdId,
+      // Fetch both months to cover statement overlaps
+      month: { in: [currentMonth, lastMonth] }
+    },
+    include: { category: true }
+  });
 };
 
 export async function addSubcategory(data: {

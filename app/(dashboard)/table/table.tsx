@@ -457,9 +457,8 @@ export default function Table({
             reviewData={reviewData}
             setReviewData={setReviewData}
             householdId={householdId}
-            subcategoriesForCurrentMonth={currentSubcategories.filter(
-              (i) => i.month === selectedMonth
-            )}
+            // Pass everything so Feb transactions can find Feb budget items
+            allAvailableSubcategories={currentSubcategories}
             setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
           />
         )}

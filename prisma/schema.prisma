@@ -63,7 +63,7 @@ model Transaction {
 }
 
 model TransactionRule {
-  id            String      @id @default(uuid()) 
+  id            String      @id @default(uuid()) // Must have @id and @default
   pattern       String
   subcategoryId String
   householdId   String

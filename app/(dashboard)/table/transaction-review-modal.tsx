@@ -23,14 +23,14 @@ export function TransactionReviewModal({
   reviewData,
   setReviewData,
   householdId,
-  subcategoriesForCurrentMonth,
-  setCurrentSubcategoriesAction
+  allAvailableSubcategories,
+  setCurrentSubcategoriesAction // Ensure this is added here
 }: {
   reviewData: any[];
   setReviewData: (data: any[] | null) => void;
   householdId: string;
-  subcategoriesForCurrentMonth: any[];
-  setCurrentSubcategoriesAction: (items: any[]) => void;
+  allAvailableSubcategories: any[];
+  setCurrentSubcategoriesAction: (items: any[]) => void; // Add this line
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [rulesToSave, setRulesToSave] = useState<Record<number, boolean>>({});
@@ -61,7 +61,7 @@ export function TransactionReviewModal({
 
       if (res.success) {
         toast.success('System synced successfully.');
-        setReviewData(null); // Close modal
+        setReviewData(null);
         setRulesToSave({});
       }
     } catch (error) {
@@ -97,9 +97,18 @@ export function TransactionReviewModal({
             {reviewData.map((tx, index) => {
               const isCredit = tx.amount < 0;
 
+              // --- DYNAMIC MONTH DETECTION ---
+              const txDate = new Date(tx.date);
+              const txMonth = txDate.getMonth() + 1;
+              const txYear = txDate.getFullYear();
+
+              // Filter subcategories to match the specific transaction's month
+              const filteredSubcategories = allAvailableSubcategories.filter(
+                (s) => s.month === txMonth && s.year === txYear
+              );
+
               return (
                 <div key={index} className="py-6 flex flex-col gap-4">
-                  {/* Top Row: Description & Amount */}
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -127,7 +136,6 @@ export function TransactionReviewModal({
                     </p>
                   </div>
 
-                  {/* Selection Area */}
                   <div className="flex flex-col gap-3">
                     <div
                       className={`flex items-center gap-2 p-2 rounded-none border ${
@@ -136,8 +144,10 @@ export function TransactionReviewModal({
                           : 'bg-slate-50 border-slate-200'
                       }`}
                     >
-                      <span className="text-[10px] uppercase font-black text-slate-500 w-16">
-                        {tx.subcategoryId ? 'Linked' : '⚠️ Target'}
+                      <span className="text-[9px] uppercase font-black text-slate-500 w-20">
+                        {tx.subcategoryId
+                          ? 'Linked'
+                          : `⚠️ Target (${txMonth}/${txYear})`}
                       </span>
                       <Select
                         defaultValue={tx.subcategoryId || ''}
@@ -153,24 +163,29 @@ export function TransactionReviewModal({
                         <SelectContent
                           position="popper"
                           className="rounded-none border-slate-300 z-[100]"
-                          onPointerDownOutside={(e) => e.preventDefault()} // Fixes Select-in-Dialog issue
+                          onPointerDownOutside={(e) => e.preventDefault()}
                         >
-                          {subcategoriesForCurrentMonth
-                            .sort((a, b) => a.name.localeCompare(b.name))
-                            .map((item) => (
-                              <SelectItem
-                                key={item.id}
-                                value={item.id}
-                                className="rounded-none text-[10px] uppercase font-black"
-                              >
-                                {item.name}
-                              </SelectItem>
-                            ))}
+                          {filteredSubcategories.length > 0 ? (
+                            filteredSubcategories
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((item) => (
+                                <SelectItem
+                                  key={item.id}
+                                  value={item.id}
+                                  className="rounded-none text-[10px] uppercase font-black"
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              ))
+                          ) : (
+                            <div className="p-3 text-[9px] text-rose-500 font-bold uppercase tracking-tighter">
+                              No Budget set for {txMonth}/{txYear}
+                            </div>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* SMART RULE UI (Only shows if uncategorized) */}
                     {!tx.subcategoryId && (
                       <div className="flex flex-col gap-3 p-4 bg-blue-50/30 border border-blue-100 rounded-none">
                         <div className="flex items-center space-x-2">
@@ -210,7 +225,6 @@ export function TransactionReviewModal({
                               updatedData[index].pattern = e.target.value;
                               setReviewData(updatedData);
                             }}
-                            placeholder="AMAZON"
                           />
                         </div>
                       </div>
@@ -221,8 +235,7 @@ export function TransactionReviewModal({
             })}
           </div>
 
-          {/* Summary Box */}
-          <div className="bg-slate-900 p-6 rounded-none border-none space-y-3">
+          <div className="bg-slate-900 p-6 rounded-none space-y-3">
             <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
               <span>Total Spending</span>
               <span className="text-white font-mono">
@@ -249,11 +262,10 @@ export function TransactionReviewModal({
             </div>
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 rounded-none border-slate-300 uppercase font-black text-[10px] tracking-widest h-14 hover:bg-slate-50"
+              className="flex-1 rounded-none border-slate-300 uppercase font-black text-[10px] tracking-widest h-14"
               onClick={() => setReviewData(null)}
             >
               Discard Batch
