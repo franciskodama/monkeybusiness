@@ -302,14 +302,38 @@ export async function deleteCategory(id: string) {
 export const getSubcategories = async (householdId: string) => {
   try {
     const subcategories = await prisma.subcategory.findMany({
-      where: { householdId },
-      include: { category: true, transactions: true }
+      where: {
+        householdId,
+        year: 2026 // Ensure we get the full year's budget items
+      },
+      include: {
+        category: true,
+        transactions: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
     });
-    return subcategories || [];
+    return subcategories;
   } catch (error) {
-    console.error(error);
+    console.error('❌ Prisma Fetch Error:', error);
     return [];
   }
+};
+
+export const getRecentSubcategories = async (householdId: string) => {
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const lastMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+
+  return await prisma.subcategory.findMany({
+    where: {
+      householdId,
+      // Fetch both months to cover statement overlaps
+      month: { in: [currentMonth, lastMonth] }
+    },
+    include: { category: true }
+  });
 };
 
 export async function addSubcategory(data: {
@@ -469,6 +493,7 @@ export async function addTransaction(data: {
   date: Date;
   householdId: string;
   subcategoryId: string;
+  source: string;
 }) {
   try {
     const transaction = await prisma.transaction.create({
@@ -478,7 +503,7 @@ export async function addTransaction(data: {
         date: data.date,
         householdId: data.householdId,
         subcategoryId: data.subcategoryId,
-        source: 'Manual'
+        source: data.source
       }
     });
 
@@ -502,7 +527,7 @@ export async function bulkAddTransactions(
       // AI sometimes gives weird date formats, we ensure it's a valid Date object
       date: new Date(tx.date),
       householdId: householdId,
-      source: 'AI Import',
+      source: tx.source,
       // This is the ID from your dropdown/AI match
       subcategoryId: tx.subcategoryId || null
     }));
@@ -525,12 +550,6 @@ export async function bulkAddTransactions(
   }
 }
 
-// --- actions.tsx ---
-
-/**
- * Saves a new matching rule.
- * Pattern is sanitized to uppercase to make matching case-insensitive.
- */
 export async function addTransactionRule(data: {
   pattern: string;
   subcategoryId: string;
@@ -560,13 +579,38 @@ export async function addTransactionRule(data: {
   }
 }
 
+export async function deleteTransactionRule(id: string) {
+  try {
+    await prisma.transactionRule.delete({
+      where: {
+        id: id
+      } as any
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error deleting rule:', error);
+    return { success: false };
+  }
+}
+
 /**
  * Fetches all rules for a household to be used during the import process.
  */
 export async function getTransactionRules(householdId: string) {
   try {
     return await prisma.transactionRule.findMany({
-      where: { householdId }
+      where: { householdId },
+      include: {
+        subcategory: {
+          include: {
+            category: true // Fetches the parent category name
+          }
+        }
+      },
+      orderBy: {
+        pattern: 'asc' // Keeps your list sharp and alphabetical
+      }
     });
   } catch (error) {
     console.error('❌ Error fetching rules:', error);
@@ -574,11 +618,48 @@ export async function getTransactionRules(householdId: string) {
   }
 }
 
-export async function deleteTransactionRule(id: string) {
+// SEEDING --------------------------------------------------------------------
+
+export async function seedHouseholdBudget(
+  householdId: string,
+  template: any[]
+) {
   try {
-    await prisma.transactionRule.delete({ where: { id } });
+    for (const cat of template) {
+      const category = await prisma.category.upsert({
+        where: {
+          name_householdId: {
+            name: cat.name,
+            householdId: householdId
+          }
+        },
+        update: {},
+        create: {
+          name: cat.name,
+          color: 'BLUE',
+          householdId
+        }
+      });
+
+      for (const sub of cat.subcategories) {
+        const batchData = Array.from({ length: 12 }, (_, i) => ({
+          name: sub.name,
+          amount: sub.amount,
+          month: i + 1,
+          year: 2026,
+          categoryId: category.id,
+          householdId
+        }));
+
+        await prisma.subcategory.createMany({
+          data: batchData,
+          skipDuplicates: true
+        });
+      }
+    }
     return { success: true };
   } catch (error) {
+    console.error(error);
     return { success: false };
   }
 }

@@ -13,6 +13,13 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
 
 export function AddTransactionModal({
   subcategoryId,
@@ -28,6 +35,7 @@ export function AddTransactionModal({
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState(itemName);
+  const [source, setSource] = useState('');
 
   const handleSubmit = async () => {
     const res = await addTransaction({
@@ -35,7 +43,8 @@ export function AddTransactionModal({
       amount: parseFloat(amount),
       date: new Date(),
       householdId,
-      subcategoryId
+      subcategoryId,
+      source
     });
 
     if (res.success) {
@@ -77,6 +86,21 @@ export function AddTransactionModal({
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
             />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold uppercase text-muted-foreground">
+              Source
+            </label>
+            <Select onValueChange={setSource} value={source}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select the Source" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Family">Family Card</SelectItem>
+                <SelectItem value="His">His Card</SelectItem>
+                <SelectItem value="Her">Her Card</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button className="w-full" onClick={handleSubmit}>
             Save Transaction

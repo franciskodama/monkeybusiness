@@ -23,29 +23,28 @@ export function TransactionReviewModal({
   reviewData,
   setReviewData,
   householdId,
-  subcategoriesForCurrentMonth,
-  setCurrentSubcategoriesAction
+  allAvailableSubcategories,
+  setCurrentSubcategoriesAction // Ensure this is added here
 }: {
   reviewData: any[];
   setReviewData: (data: any[] | null) => void;
   householdId: string;
-  subcategoriesForCurrentMonth: any[];
-  setCurrentSubcategoriesAction: (items: any[]) => void;
+  allAvailableSubcategories: any[];
+  setCurrentSubcategoriesAction: (items: any[]) => void; // Add this line
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
-  // Track which indices the user wants to save as a persistent rule
   const [rulesToSave, setRulesToSave] = useState<Record<number, boolean>>({});
 
   const handleSaveAll = async () => {
     setIsProcessing(true);
     try {
+      // 1. Save Rules for checked items
       const rulePromises = Object.entries(rulesToSave)
         .filter(([_, shouldSave]) => shouldSave)
         .map(([index]) => {
           const tx = reviewData[Number(index)];
           if (tx.subcategoryId) {
             return addTransactionRule({
-              // NEW: Use the edited pattern, fallback to full description
               pattern: tx.pattern || tx.description,
               subcategoryId: tx.subcategoryId,
               householdId
@@ -57,8 +56,14 @@ export function TransactionReviewModal({
 
       if (rulePromises.length > 0) await Promise.all(rulePromises);
 
+      // 2. Save Transactions to Database
       const res = await bulkAddTransactions(reviewData, householdId);
-      // ... rest of success logic
+
+      if (res.success) {
+        toast.success('System synced successfully.');
+        setReviewData(null);
+        setRulesToSave({});
+      }
     } catch (error) {
       toast.error('Error saving rules or transactions.');
     } finally {
@@ -80,54 +85,69 @@ export function TransactionReviewModal({
       open={!!reviewData}
       onOpenChange={(open) => !open && setReviewData(null)}
     >
-      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto rounded-none border-slate-300 shadow-none">
         <DialogHeader>
-          <DialogTitle>Review {reviewData.length} Transactions</DialogTitle>
+          <DialogTitle className="uppercase tracking-tighter font-black text-xl">
+            Review {reviewData.length} Transactions
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="max-h-[50vh] overflow-y-auto divide-y border rounded-lg px-4 no-scrollbar">
+          <div className="max-h-[50vh] overflow-y-auto divide-y border border-slate-300 rounded-none px-4 no-scrollbar">
             {reviewData.map((tx, index) => {
               const isCredit = tx.amount < 0;
 
+              // --- DYNAMIC MONTH DETECTION ---
+              const txDate = new Date(tx.date);
+              const txMonth = txDate.getMonth() + 1;
+              const txYear = txDate.getFullYear();
+
+              // Filter subcategories to match the specific transaction's month
+              const filteredSubcategories = allAvailableSubcategories.filter(
+                (s) => s.month === txMonth && s.year === txYear
+              );
+
               return (
-                <div key={index} className="py-4 flex flex-col gap-3">
-                  {/* Top: Description and Amount */}
+                <div key={index} className="py-6 flex flex-col gap-4">
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-bold text-sm leading-none">
+                        <p className="font-bold text-sm leading-none uppercase tracking-tighter">
                           {tx.description}
                         </p>
                         {isCredit && (
-                          <span className="text-[9px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-bold uppercase">
-                            Income/Credit
+                          <span className="text-[9px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded-none font-bold uppercase tracking-widest">
+                            Credit
                           </span>
                         )}
                       </div>
-
-                      <p className="text-[10px] text-muted-foreground uppercase font-mono">
-                        {tx.date} • ${Math.abs(tx.amount).toFixed(2)}
+                      <p className="text-[10px] text-muted-foreground uppercase font-mono tracking-tight">
+                        {tx.date} •{' '}
+                        <span className="text-primary font-bold">
+                          {tx.source}
+                        </span>{' '}
+                        • ${Math.abs(tx.amount).toFixed(2)}
                       </p>
                     </div>
                     <p
-                      className={`font-mono font-bold text-sm ${isCredit ? 'text-green-600' : 'text-foreground'}`}
+                      className={`font-mono font-bold text-sm ${isCredit ? 'text-emerald-600' : 'text-slate-900'}`}
                     >
                       {isCredit ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
                     </p>
                   </div>
 
-                  {/* Bottom: Linking and Rules */}
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3">
                     <div
-                      className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 p-2 rounded-none border ${
                         !tx.subcategoryId
-                          ? 'bg-yellow-50 border border-yellow-200'
-                          : 'bg-secondary/20'
+                          ? 'bg-amber-50 border-amber-200'
+                          : 'bg-slate-50 border-slate-200'
                       }`}
                     >
-                      <span className="text-[10px] uppercase font-bold text-muted-foreground w-16">
-                        {tx.subcategoryId ? 'Linked:' : '⚠️ Link to:'}
+                      <span className="text-[9px] uppercase font-black text-slate-500 w-20">
+                        {tx.subcategoryId
+                          ? 'Linked'
+                          : `⚠️ Target (${txMonth}/${txYear})`}
                       </span>
                       <Select
                         defaultValue={tx.subcategoryId || ''}
@@ -137,29 +157,41 @@ export function TransactionReviewModal({
                           setReviewData(updatedData);
                         }}
                       >
-                        <SelectTrigger
-                          className={`h-8 text-xs flex-1 bg-background ${
-                            !tx.subcategoryId ? 'border-yellow-500' : ''
-                          }`}
-                        >
-                          <SelectValue placeholder="Uncategorized..." />
+                        <SelectTrigger className="h-9 text-[10px] flex-1 bg-white rounded-none border-slate-300 uppercase font-bold tracking-wider">
+                          <SelectValue placeholder="SELECT CATEGORY..." />
                         </SelectTrigger>
-                        <SelectContent>
-                          {subcategoriesForCurrentMonth.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
-                              {item.name}
-                            </SelectItem>
-                          ))}
+                        <SelectContent
+                          position="popper"
+                          className="rounded-none border-slate-300 z-[100]"
+                          onPointerDownOutside={(e) => e.preventDefault()}
+                        >
+                          {filteredSubcategories.length > 0 ? (
+                            filteredSubcategories
+                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .map((item) => (
+                                <SelectItem
+                                  key={item.id}
+                                  value={item.id}
+                                  className="rounded-none text-[10px] uppercase font-black"
+                                >
+                                  {item.name}
+                                </SelectItem>
+                              ))
+                          ) : (
+                            <div className="p-3 text-[9px] text-rose-500 font-bold uppercase tracking-tighter">
+                              No Budget set for {txMonth}/{txYear}
+                            </div>
+                          )}
                         </SelectContent>
                       </Select>
                     </div>
 
-                    {/* Checkbox to "Learn" this description for the future */}
                     {!tx.subcategoryId && (
-                      <div className="flex flex-col gap-2 p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                      <div className="flex flex-col gap-3 p-4 bg-blue-50/30 border border-blue-100 rounded-none">
                         <div className="flex items-center space-x-2">
                           <Checkbox
                             id={`rule-${index}`}
+                            className="rounded-none border-blue-400 data-[state=checked]:bg-blue-600"
                             checked={rulesToSave[index] || false}
                             onCheckedChange={(checked) => {
                               setRulesToSave((prev) => ({
@@ -170,19 +202,19 @@ export function TransactionReviewModal({
                           />
                           <label
                             htmlFor={`rule-${index}`}
-                            className="text-[10px] text-blue-800 uppercase font-bold cursor-pointer"
+                            className="text-[10px] text-blue-900 uppercase font-black cursor-pointer tracking-widest"
                           >
-                            Create a "Smart Rule" for this
+                            Automate future {tx.description}
                           </label>
                         </div>
 
-                        <div className="flex flex-col gap-1 ml-6">
-                          <span className="text-[9px] text-muted-foreground uppercase font-semibold">
+                        <div className="flex flex-col gap-1.5 ml-6">
+                          <span className="text-[9px] text-blue-700/70 uppercase font-bold">
                             Match Pattern:
                           </span>
                           <input
                             type="text"
-                            className="text-xs bg-white border rounded px-2 py-1 focus:ring-1 focus:ring-blue-400 outline-none font-mono"
+                            className="text-xs bg-white border border-blue-200 rounded-none px-3 py-2 focus:ring-1 focus:ring-blue-500 outline-none font-mono uppercase"
                             value={
                               tx.pattern !== undefined
                                 ? tx.pattern
@@ -193,12 +225,7 @@ export function TransactionReviewModal({
                               updatedData[index].pattern = e.target.value;
                               setReviewData(updatedData);
                             }}
-                            placeholder="e.g. AMAZON"
                           />
-                          <p className="text-[8px] text-blue-600/70 italic mt-1">
-                            Tip: Shorten this to just "UBER" or "AMAZON" to
-                            catch all variations.
-                          </p>
                         </div>
                       </div>
                     )}
@@ -208,27 +235,26 @@ export function TransactionReviewModal({
             })}
           </div>
 
-          {/* Summary Box */}
-          <div className="bg-secondary/20 p-4 rounded-xl border border-secondary/50 space-y-2">
-            <div className="flex justify-between text-xs font-medium">
-              <span className="text-muted-foreground">Total Spent:</span>
-              <span className="text-red-600 font-mono">
+          <div className="bg-slate-900 p-6 rounded-none space-y-3">
+            <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <span>Total Spending</span>
+              <span className="text-white font-mono">
                 ${totalSpent.toFixed(2)}
               </span>
             </div>
-            <div className="flex justify-between text-xs font-medium">
-              <span className="text-muted-foreground">Total Payments:</span>
-              <span className="text-green-600 font-mono">
-                ${totalPayments.toFixed(2)}
+            <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              <span>Total Credits</span>
+              <span className="text-emerald-400 font-mono">
+                -${totalPayments.toFixed(2)}
               </span>
             </div>
-            <div className="pt-2 border-t border-secondary/50 flex justify-between text-xs font-bold uppercase">
-              <span>Net Impact:</span>
+            <div className="pt-3 border-t border-slate-700 flex justify-between text-xs font-black uppercase tracking-[0.2em] text-white">
+              <span>Net Impact</span>
               <span
                 className={
                   totalSpent - totalPayments > 0
-                    ? 'text-red-600'
-                    : 'text-green-600'
+                    ? 'text-rose-500'
+                    : 'text-emerald-400'
                 }
               >
                 ${(totalSpent - totalPayments).toFixed(2)}
@@ -236,20 +262,20 @@ export function TransactionReviewModal({
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1"
+              className="flex-1 rounded-none border-slate-300 uppercase font-black text-[10px] tracking-widest h-14"
               onClick={() => setReviewData(null)}
             >
-              Cancel
+              Discard Batch
             </Button>
             <Button
-              className="flex-1"
+              className="flex-1 rounded-none bg-primary uppercase font-black text-[10px] tracking-widest h-14"
               onClick={handleSaveAll}
               disabled={isProcessing}
             >
-              {isProcessing ? 'Saving...' : 'Confirm & Save'}
+              {isProcessing ? 'WRITING TO DATABASE...' : 'CONFIRM & SYNC'}
             </Button>
           </div>
         </div>

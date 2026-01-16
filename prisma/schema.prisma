@@ -31,6 +31,7 @@ model Category {
   householdId   String
   household     Household     @relation(fields: [householdId], references: [id])
   subcategories Subcategory[]
+  @@unique([name, householdId])
 }
 
 model Subcategory {
@@ -45,7 +46,6 @@ model Subcategory {
   household        Household         @relation(fields: [householdId], references: [id])
   transactions     Transaction[]
   transactionRules TransactionRule[]
-
   @@unique([name, month, year, householdId])
 }
 
@@ -54,25 +54,21 @@ model Transaction {
   description   String
   amount        Float
   date          DateTime
-  categoryName  String?
   source        String
   householdId   String
   household     Household    @relation(fields: [householdId], references: [id])
-  // Optional: Link to a specific budget goal
   subcategoryId String?
   subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
-
   createdAt DateTime @default(now())
 }
 
 model TransactionRule {
-  id            String      @id @default(cuid())
-  pattern       String // e.g., "IC INSTACART"
+  id            String      @id @default(uuid()) // Must have @id and @default
+  pattern       String
   subcategoryId String
   householdId   String
   subcategory   Subcategory @relation(fields: [subcategoryId], references: [id], onDelete: Cascade)
-
-  @@unique([pattern, householdId]) // Prevents duplicate rules for the same string
+  @@unique([pattern, householdId])
 }
 
 enum ColorEnum {

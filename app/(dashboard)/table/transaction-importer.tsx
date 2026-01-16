@@ -92,17 +92,17 @@ export function TransactionImporter({
         <div className="space-y-6 py-4">
           <Select onValueChange={setSource}>
             <SelectTrigger>
-              <SelectValue placeholder="Select Bank Source..." />
+              <SelectValue placeholder="Select the Source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Family">Family</SelectItem>
-              <SelectItem value="FK">FK</SelectItem>
-              <SelectItem value="MZ">MZ</SelectItem>
+              <SelectItem value="Family">Family Card</SelectItem>
+              <SelectItem value="His">His Card</SelectItem>
+              <SelectItem value="Her">Her Card</SelectItem>
             </SelectContent>
           </Select>
 
           <div
-            className="border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center cursor-pointer bg-secondary/10"
+            className="border-2 border-dashed p-8 flex flex-col items-center justify-center cursor-pointer bg-secondary/10"
             onClick={() => document.getElementById('file-upload')?.click()}
           >
             <input

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2 } from 'lucide-react';
+import { Download, Trash2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
@@ -31,6 +31,7 @@ import { DirectCodeImporter } from './transaction-direct-code-importer';
 import { TransactionReviewModal } from './transaction-review-modal';
 import { deleteSubcategory } from '@/lib/actions';
 import { AddSubcategory } from './add-subcategory';
+import { SourceBreakdown } from '@/components/SourceBreakdown';
 
 export default function Table({
   user,
@@ -114,13 +115,68 @@ export default function Table({
 
   const netBudget = totalPlannedIncome - totalPlannedExpenses;
 
+  // 1. Get only the subcategories for the month the user is looking at
+  const currentMonthSubs = currentSubcategories.filter(
+    (sub) => sub.month === selectedMonth
+  );
+
+  // 2. Flatten all transactions from those subcategories into one list
+  const allTransactions = currentMonthSubs.flatMap(
+    (sub) => sub.transactions || []
+  );
+
+  //--------------------------------------------------
+  // Export Budget Data
+  //--------------------------------------------------
+
+  const exportBudgetData = () => {
+    const categoriesMap: Record<string, any> = {};
+
+    // 1. Map your current state data
+    currentSubcategories.forEach((sub) => {
+      const catName = sub.category?.name || 'Uncategorized';
+      if (!categoriesMap[catName]) {
+        categoriesMap[catName] = { name: catName, subcategories: [] };
+      }
+
+      const exists = categoriesMap[catName].subcategories.find(
+        (s: any) => s.name === sub.name
+      );
+      if (!exists) {
+        categoriesMap[catName].subcategories.push({
+          name: sub.name,
+          amount: sub.amount
+        });
+      }
+    });
+
+    // 2. Convert the object to a formatted JSON string
+    const dataStr = JSON.stringify(Object.values(categoriesMap), null, 2);
+
+    // 3. Create a Blob and a hidden download link
+    const blob = new Blob([dataStr], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = 'budget-backup.txt'; // The name of your file
+    document.body.appendChild(link);
+    link.click(); // Trigger the download
+
+    // 4. Cleanup
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast.success('Backup file downloaded!');
+  };
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex flex-col sm:flex-row sm:justify-between items-start mb-0">
           <div className="flex flex-col">
             <div className="flex items-center justify-between">
-              <p>Table</p>
+              <p>Planner</p>
               {/* <div className="block sm:hidden">
                 {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
               </div> */}
@@ -153,6 +209,14 @@ export default function Table({
               currentCategories={currentCategories}
               setCurrentCategoriesAction={setCurrentCategoriesAction}
             />
+            <Button
+              variant="outline"
+              className="gap-2"
+              onClick={exportBudgetData}
+            >
+              <Download size={16} />
+              JSON
+            </Button>
           </div>
           <div className="hidden sm:block">
             {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
@@ -204,7 +268,7 @@ export default function Table({
                 key={category.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col border rounded-xl overflow-hidden shadow-sm"
+                className="flex flex-col border overflow-hidden shadow-sm"
               >
                 <div className="flex items-center justify-between p-4 bg-secondary/30 border-b">
                   <div className="flex items-center gap-3">
@@ -386,14 +450,15 @@ export default function Table({
             );
           })}
         </div>
+
+        <SourceBreakdown transactions={allTransactions} />
         {reviewData && (
           <TransactionReviewModal
             reviewData={reviewData}
             setReviewData={setReviewData}
             householdId={householdId}
-            subcategoriesForCurrentMonth={currentSubcategories.filter(
-              (i) => i.month === selectedMonth
-            )}
+            // Pass everything so Feb transactions can find Feb budget items
+            allAvailableSubcategories={currentSubcategories}
             setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
           />
         )}
