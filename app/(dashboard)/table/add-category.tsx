@@ -140,12 +140,7 @@ export function AddCategory({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full rounded-none uppercase font-black text-[10px] tracking-widest"
-        >
-          Add Category
-        </Button>
+        <Button variant="outline">Add Category</Button>
       </SheetTrigger>
       <SheetContent
         side="right"

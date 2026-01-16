@@ -18,6 +18,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { bulkAddTransactions, addTransactionRule } from '@/lib/actions';
+import { formatCurrency } from '@/lib/utils';
 
 export function TransactionReviewModal({
   reviewData,
@@ -101,9 +102,10 @@ export function TransactionReviewModal({
               const isCredit = tx.amount < 0;
 
               // --- DYNAMIC MONTH DETECTION ---
-              const txDate = new Date(tx.date);
-              const txMonth = txDate.getMonth() + 1;
-              const txYear = txDate.getFullYear();
+              // Parse manually to avoid timezone shifting (e.g. 2026-01-01 becoming 2025-12-31)
+              const dateParts = tx.date.split('-');
+              const txYear = parseInt(dateParts[0], 10);
+              const txMonth = parseInt(dateParts[1], 10);
 
               // Filter subcategories to match the specific transaction's month
               const filteredSubcategories = allAvailableSubcategories.filter(
@@ -129,13 +131,14 @@ export function TransactionReviewModal({
                         <span className="text-primary font-bold">
                           {tx.source}
                         </span>{' '}
-                        • ${Math.abs(tx.amount).toFixed(2)}
+                        • ${formatCurrency(Math.abs(tx.amount))}
                       </p>
                     </div>
                     <p
                       className={`font-mono font-bold text-sm ${isCredit ? 'text-emerald-600' : 'text-slate-900'}`}
                     >
-                      {isCredit ? '+' : ''}${Math.abs(tx.amount).toFixed(2)}
+                      {isCredit ? '+' : ''}$
+                      {formatCurrency(Math.abs(tx.amount))}
                     </p>
                   </div>
 
@@ -153,7 +156,7 @@ export function TransactionReviewModal({
                           : `⚠️ Target (${txMonth}/${txYear})`}
                       </span>
                       <Select
-                        defaultValue={tx.subcategoryId || ''}
+                        value={tx.subcategoryId || ''}
                         onValueChange={(value) => {
                           const updatedData = [...reviewData];
                           updatedData[index].subcategoryId = value;
@@ -165,7 +168,7 @@ export function TransactionReviewModal({
                         </SelectTrigger>
                         <SelectContent
                           position="popper"
-                          className="rounded-none border-slate-300 z-[100]"
+                          className="rounded-none border-slate-300 z-[100] max-h-72"
                           onPointerDownOutside={(e) => e.preventDefault()}
                         >
                           {filteredSubcategories.length > 0 ? (
@@ -239,19 +242,19 @@ export function TransactionReviewModal({
           </div>
 
           <div className="bg-slate-900 p-6 rounded-none space-y-3">
-            <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <div className="flex justify-between text-sm font-bold text-slate-400 uppercase tracking-widest">
               <span>Total Spending</span>
               <span className="text-white font-mono">
-                ${totalSpent.toFixed(2)}
+                ${formatCurrency(totalSpent)}
               </span>
             </div>
-            <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+            <div className="flex justify-between text-sm font-bold text-slate-400 uppercase tracking-widest">
               <span>Total Credits</span>
               <span className="text-emerald-400 font-mono">
-                -${totalPayments.toFixed(2)}
+                -${formatCurrency(totalPayments)}
               </span>
             </div>
-            <div className="pt-3 border-t border-slate-700 flex justify-between text-xs font-black uppercase tracking-[0.2em] text-white">
+            <div className="pt-3 border-t border-slate-700 flex justify-between text-sm font-black uppercase tracking-[0.2em] text-white">
               <span>Net Impact</span>
               <span
                 className={
@@ -260,7 +263,7 @@ export function TransactionReviewModal({
                     : 'text-emerald-400'
                 }
               >
-                ${(totalSpent - totalPayments).toFixed(2)}
+                ${formatCurrency(totalSpent - totalPayments)}
               </span>
             </div>
           </div>
@@ -268,13 +271,13 @@ export function TransactionReviewModal({
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1 rounded-none border-slate-300 uppercase font-black text-[10px] tracking-widest h-14"
+              className="flex-1 rounded-none border-slate-300 uppercase text-sm tracking-widest h-14"
               onClick={() => setReviewData(null)}
             >
               Discard Batch
             </Button>
             <Button
-              className="flex-1 rounded-none bg-primary uppercase font-black text-[10px] tracking-widest h-14"
+              className="flex-1 rounded-none bg-primary uppercase text-sm tracking-widest h-14"
               onClick={handleSaveAll}
               disabled={isProcessing}
             >

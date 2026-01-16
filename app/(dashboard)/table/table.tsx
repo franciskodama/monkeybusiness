@@ -5,7 +5,12 @@ import { Download, Trash2 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
-import { getColorCode, months } from '@/lib/utils';
+import {
+  getColorCode,
+  months,
+  formatCurrency,
+  formatCurrencyRounded
+} from '@/lib/utils';
 import { Category, User } from '@prisma/client';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { EditableAmount } from './edit-amount-subcategory';
@@ -211,7 +216,7 @@ export default function Table({
             />
             <Button
               variant="outline"
-              className="gap-2 rounded-none uppercase font-black text-[10px] tracking-widest"
+              className="gap-2"
               onClick={exportBudgetData}
             >
               <Download size={16} />
@@ -260,7 +265,8 @@ export default function Table({
               (item) =>
                 item.categoryId === category.id &&
                 item.month === selectedMonth &&
-                item.year === 2026
+                item.year ===
+                  new Date(allTransactions[0]?.date || new Date()).getFullYear()
             );
 
             return (
@@ -337,10 +343,7 @@ export default function Table({
                               <span
                                 className={`text-sm font-mono ${isOverBudget ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}
                               >
-                                $
-                                {actualAmount.toLocaleString(undefined, {
-                                  minimumFractionDigits: 2
-                                })}
+                                ${formatCurrency(actualAmount)}
                               </span>
                             </div>
                             <div className="col-span-3 flex items-center justify-end gap-3">
@@ -353,8 +356,8 @@ export default function Table({
                                 }`}
                               >
                                 {diff >= 0
-                                  ? `${diff.toFixed(0)} left`
-                                  : `${Math.abs(diff).toFixed(0)} over`}
+                                  ? `${formatCurrencyRounded(diff)} left`
+                                  : `${formatCurrencyRounded(Math.abs(diff))} over`}
                               </div>
                               {/* Add Transaction Action */}
                               <AddTransactionModal

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Category } from '@prisma/client';
-import { getColorCode, months } from '@/lib/utils';
+import { getColorCode, months, formatCurrency } from '@/lib/utils';
 
 interface YearlyTableProps {
   categories: Category[];
@@ -124,12 +124,12 @@ export function YearlyTable({
                               key={i}
                               className="p-3 text-center border-r font-mono"
                             >
-                              ${val.toFixed(0)}
+                              ${formatCurrency(val)}
                             </td>
                           );
                         })}
                         <td className="p-3 text-center font-bold bg-primary/5 font-mono">
-                          ${subYtd.toLocaleString()}
+                          ${formatCurrency(subYtd)}
                         </td>
                       </tr>
                     );
@@ -151,16 +151,17 @@ export function YearlyTable({
                           key={i}
                           className="p-3 text-center border-r font-mono"
                         >
-                          ${catMonthTotal.toFixed(0)}
+                          ${formatCurrency(catMonthTotal)}
                         </td>
                       );
                     })}
                     <td className="p-3 text-center bg-primary/10 font-mono text-primary">
                       $
-                      {subcategories
-                        .filter((s) => s.categoryId === category.id)
-                        .reduce((sum, s) => sum + (s.amount || 0), 0)
-                        .toLocaleString()}
+                      {formatCurrency(
+                        subcategories
+                          .filter((s) => s.categoryId === category.id)
+                          .reduce((sum, s) => sum + (s.amount || 0), 0)
+                      )}
                     </td>
                   </tr>
                 </React.Fragment>
@@ -181,15 +182,15 @@ export function YearlyTable({
                     key={i}
                     className="p-4 text-center border-r font-mono text-sm"
                   >
-                    {net < 0 ? '-' : ''}${Math.abs(net).toLocaleString()}
+                    {net < 0 ? '-' : ''}${formatCurrency(Math.abs(net))}
                   </td>
                 );
               })}
               <td className="p-4 text-center bg-slate-800 font-mono text-sm">
                 $
-                {months
-                  .reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
-                  .toLocaleString()}
+                {formatCurrency(
+                  months.reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
+                )}
               </td>
             </tr>
 
