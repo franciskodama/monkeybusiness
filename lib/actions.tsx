@@ -540,6 +540,8 @@ export async function bulkAddTransactions(
     // 3. Fetch fresh budget items so the table updates instantly
     const updatedItems = await getSubcategories(householdId);
 
+    revalidatePath('/table');
+
     return {
       success: true,
       updatedItems // Return these so the UI reflects the new "Actual" totals
@@ -586,6 +588,8 @@ export async function deleteTransactionRule(id: string) {
         id: id
       } as any
     });
+
+    revalidatePath('/settings');
 
     return { success: true };
   } catch (error) {

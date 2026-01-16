@@ -61,6 +61,9 @@ export function TransactionReviewModal({
 
       if (res.success) {
         toast.success('System synced successfully.');
+        if (res.updatedItems) {
+          setCurrentSubcategoriesAction(res.updatedItems);
+        }
         setReviewData(null);
         setRulesToSave({});
       }
@@ -87,7 +90,7 @@ export function TransactionReviewModal({
     >
       <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-y-auto rounded-none border-slate-300 shadow-none">
         <DialogHeader>
-          <DialogTitle className="uppercase tracking-tighter font-black text-xl">
+          <DialogTitle className="uppercase tracking-widest font-black text-xl">
             Review {reviewData.length} Transactions
           </DialogTitle>
         </DialogHeader>
@@ -112,7 +115,7 @@ export function TransactionReviewModal({
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <p className="font-bold text-sm leading-none uppercase tracking-tighter">
+                        <p className="font-bold text-sm leading-none uppercase tracking-widest">
                           {tx.description}
                         </p>
                         {isCredit && (

@@ -49,7 +49,7 @@ export default async function SettingsPage() {
           <div className="hidden sm:flex flex-col sm:flex-row w-full justify-between gap-8 mb-12">
             {/* Account Profile Card */}
             <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+              <div className="h-12 w-12 rounded-none bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20">
                 <User size={24} />
               </div>
               <div className="flex flex-col">
@@ -67,7 +67,7 @@ export default async function SettingsPage() {
 
             {/* Automation Health Card */}
             <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex items-center gap-4">
-              <div className="h-12 w-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
+              <div className="h-12 w-12 rounded-none bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 border border-emerald-200">
                 <Zap size={24} />
               </div>
               <div>

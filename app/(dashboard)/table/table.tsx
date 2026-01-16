@@ -211,7 +211,7 @@ export default function Table({
             />
             <Button
               variant="outline"
-              className="gap-2"
+              className="gap-2 rounded-none uppercase font-black text-[10px] tracking-widest"
               onClick={exportBudgetData}
             >
               <Download size={16} />
@@ -273,7 +273,7 @@ export default function Table({
                 <div className="flex items-center justify-between p-4 bg-secondary/30 border-b">
                   <div className="flex items-center gap-3">
                     <div
-                      className="w-4 h-4 rounded-full shadow-inner"
+                      className="w-4 h-4 rounded-none shadow-inner"
                       style={getColorCode(category.color)}
                     />
                     <h3
@@ -346,7 +346,7 @@ export default function Table({
                             <div className="col-span-3 flex items-center justify-end gap-3">
                               {/* Status Pill */}
                               <div
-                                className={`text-[10px] uppercase font-bold px-2 py-1 rounded-full border ${
+                                className={`text-[10px] uppercase font-bold px-2 py-1 rounded-none border ${
                                   isOverBudget
                                     ? 'bg-red-50 border-red-200 text-red-700'
                                     : 'bg-green-50 border-green-200 text-green-700'

@@ -140,7 +140,10 @@ export function AddCategory({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button
+          variant="outline"
+          className="w-full rounded-none uppercase font-black text-[10px] tracking-widest"
+        >
           Add Category
         </Button>
       </SheetTrigger>
@@ -186,7 +189,7 @@ export function AddCategory({
                   <SelectItem key={color.code} value={color.name}>
                     <div className="flex items-center gap-2">
                       <div
-                        className="w-4 h-4 rounded-full"
+                        className="w-4 h-4 rounded-none"
                         style={{ backgroundColor: color.code }}
                       />
                       <p className="capitalize">{color.name.toLowerCase()}</p>
@@ -204,7 +207,11 @@ export function AddCategory({
 
           <input type="hidden" name="householdId" value={householdId} />
 
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button
+            type="submit"
+            disabled={isPending}
+            className="w-full rounded-none uppercase font-black text-[10px] tracking-widest"
+          >
             {isPending ? 'Saving...' : 'Create Category'}
           </Button>
         </form>
@@ -215,11 +222,11 @@ export function AddCategory({
             currentCategories.map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between border p-3 rounded-md mb-2"
+                className="flex items-center justify-between border p-3 rounded-none mb-2 border-slate-200"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-4 h-4 rounded-full"
+                    className="w-4 h-4 rounded-none"
                     style={{
                       backgroundColor: getColorCode(category.color)
                         .backgroundColor
