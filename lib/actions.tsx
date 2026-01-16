@@ -454,7 +454,7 @@ export async function addSubcategory(data: {
       orderBy: { name: 'asc' }
     });
 
-    revalidatePath('/table');
+    revalidatePath('/planner');
     return { success: true, _currentSubcategories };
   } catch (error: any) {
     console.error('--- ❌ Database Error:', error.message);
@@ -585,7 +585,7 @@ export async function bulkAddTransactions(
     // 3. Fetch fresh budget items so the table updates instantly
     const updatedItems = await getSubcategories(householdId);
 
-    revalidatePath('/table');
+    revalidatePath('/planner');
 
     return {
       success: true,

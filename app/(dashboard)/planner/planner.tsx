@@ -38,7 +38,7 @@ import { deleteSubcategory } from '@/lib/actions';
 import { AddSubcategory } from './add-subcategory';
 import { SourceBreakdown } from '@/components/SourceBreakdown';
 
-export default function Table({
+export default function Planner({
   user,
   householdId,
   categories,
@@ -101,7 +101,7 @@ export default function Table({
     }
   };
 
-  // Example logic for table.tsx
+  // Example logic for planner.tsx
   const totalPlannedIncome = currentSubcategories
     .filter(
       (sub) =>

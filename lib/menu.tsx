@@ -4,7 +4,7 @@ export const menuItems = [
   { label: 'Dashboard', href: '/in', icon: <Home className="h-5 w-5" /> },
   {
     label: 'Planner',
-    href: '/table',
+    href: '/planner',
     icon: <CalendarDays className="h-5 w-5" />
   },
   {
