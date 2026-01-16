@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 import Help from '@/components/Help';
-import ExplanationTable from './explanation-table';
+import ExplanationPlanner from './explanation-planner';
 import { AddTransactionModal } from './add-transaction-modal';
 import { TransactionImporter } from './transaction-importer';
 import { DirectCodeImporter } from './transaction-direct-code-importer';
@@ -239,7 +239,7 @@ export default function Planner({
               exit={{ opacity: 0, scale: 0.5, transition: { duration: 0.2 } }}
             >
               <div className="mb-12">
-                <ExplanationTable setOpenAction={setOpenAction} />
+                <ExplanationPlanner setOpenAction={setOpenAction} />
               </div>
             </motion.div>
           )}

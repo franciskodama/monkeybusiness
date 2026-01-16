@@ -39,9 +39,14 @@ export function TransactionReviewModal({
   const handleSaveAll = async () => {
     setIsProcessing(true);
     try {
-      // 1. Save Rules for checked items
+      const transactionsToSave = reviewData.filter((tx) => !tx.ignored);
+
+      // 1. Save Rules for checked items (only if not ignored)
       const rulePromises = Object.entries(rulesToSave)
-        .filter(([_, shouldSave]) => shouldSave)
+        .filter(
+          ([index, shouldSave]) =>
+            shouldSave && !reviewData[Number(index)].ignored
+        )
         .map(([index]) => {
           const tx = reviewData[Number(index)];
           if (tx.subcategoryId) {
@@ -58,10 +63,12 @@ export function TransactionReviewModal({
       if (rulePromises.length > 0) await Promise.all(rulePromises);
 
       // 2. Save Transactions to Database
-      const res = await bulkAddTransactions(reviewData, householdId);
+      const res = await bulkAddTransactions(transactionsToSave, householdId);
 
       if (res.success) {
-        toast.success('System synced successfully.');
+        toast.success(
+          `System synced ${transactionsToSave.length} transactions successfully.`
+        );
         if (res.updatedItems) {
           setCurrentSubcategoriesAction(res.updatedItems);
         }
@@ -75,11 +82,13 @@ export function TransactionReviewModal({
     }
   };
 
-  const totalSpent = reviewData.reduce(
+  const activeTransactions = reviewData.filter((tx) => !tx.ignored);
+
+  const totalSpent = activeTransactions.reduce(
     (sum, tx) => sum + (tx.amount > 0 ? tx.amount : 0),
     0
   );
-  const totalPayments = reviewData.reduce(
+  const totalPayments = activeTransactions.reduce(
     (sum, tx) => sum + (tx.amount < 0 ? Math.abs(tx.amount) : 0),
     0
   );
@@ -113,7 +122,29 @@ export function TransactionReviewModal({
               );
 
               return (
-                <div key={index} className="py-6 flex flex-col gap-4">
+                <div
+                  key={index}
+                  className={`py-6 flex flex-col gap-4 transition-opacity ${tx.ignored ? 'opacity-40' : 'opacity-100'}`}
+                >
+                  <div className="flex items-center justify-end gap-2 -mb-2">
+                    <Checkbox
+                      id={`skip-${index}`}
+                      className="h-3 w-3 rounded-none border-slate-400 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
+                      checked={tx.ignored || false}
+                      onCheckedChange={(checked) => {
+                        const updatedData = [...reviewData];
+                        updatedData[index].ignored = !!checked;
+                        setReviewData(updatedData);
+                      }}
+                    />
+                    <label
+                      htmlFor={`skip-${index}`}
+                      className="text-[9px] font-black uppercase tracking-widest text-slate-500 cursor-pointer hover:text-rose-600 transition-colors"
+                    >
+                      Don't import this
+                    </label>
+                  </div>
+
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
@@ -156,6 +187,7 @@ export function TransactionReviewModal({
                           : `⚠️ Target (${txMonth}/${txYear})`}
                       </span>
                       <Select
+                        disabled={tx.ignored}
                         value={tx.subcategoryId || ''}
                         onValueChange={(value) => {
                           const updatedData = [...reviewData];
@@ -169,7 +201,6 @@ export function TransactionReviewModal({
                         <SelectContent
                           position="popper"
                           className="rounded-none border-slate-300 z-[100] max-h-72"
-                          onPointerDownOutside={(e) => e.preventDefault()}
                         >
                           {filteredSubcategories.length > 0 ? (
                             filteredSubcategories
@@ -192,7 +223,7 @@ export function TransactionReviewModal({
                       </Select>
                     </div>
 
-                    {!tx.subcategoryId && (
+                    {!tx.subcategoryId && !tx.ignored && (
                       <div className="flex flex-col gap-3 p-4 bg-blue-50/30 border border-blue-100 rounded-none">
                         <div className="flex items-center space-x-2">
                           <Checkbox
