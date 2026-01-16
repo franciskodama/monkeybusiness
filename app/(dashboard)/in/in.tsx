@@ -24,7 +24,7 @@ export default async function In({ user }: { user: User }) {
     .filter((t) => !t.subcategoryId).length;
 
   return (
-    <div className="flex flex-col gap-8 p-6">
+    <div className="flex flex-col gap-8 p-6 mb-8">
       {/* SECTION 1: TOP ROW (33/33/33) */}
       <div className="hidden sm:flex flex-row w-full justify-between gap-8">
         <div className="sm:w-1/3">

@@ -12,6 +12,7 @@ import { BackupRestore } from './backup-restore';
 import { User, ShieldCheck, Zap, Settings as SettingsIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { tagClass } from '@/lib/classes'; // Reusing your established tag style
+import Image from 'next/image';
 
 export default async function SettingsPage() {
   const session = await auth();
@@ -33,7 +34,7 @@ export default async function SettingsPage() {
       : 0;
 
   return (
-    <Card className="relative border-none shadow-none bg-transparent">
+    <Card className="relative border-none shadow-none bg-transparent mb-8">
       <CardHeader className="sm:mb-12">
         <CardTitle className="flex justify-between items-center gap-2">
           <p className="text-2xl font-bold">Settings</p>
@@ -48,9 +49,15 @@ export default async function SettingsPage() {
           {/* --- TOP ROW: Using the Dashed Border & Tag Style from CardMessage/CardEmpty --- */}
           <div className="hidden sm:flex flex-col sm:flex-row w-full justify-between gap-8 mb-12">
             {/* Account Profile Card */}
-            <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex items-center gap-4">
-              <div className="h-12 w-12 rounded-none bg-primary/10 flex items-center justify-center text-primary shrink-0 border border-primary/20">
-                <User size={24} />
+            <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex items-center justify-center gap-4">
+              <div className="h-12 w-12 flex items-center justify-center shrink-0 ">
+                <Image
+                  src={user?.image || '/avatar.png'}
+                  width={100}
+                  height={100}
+                  alt="Avatar"
+                  className="overflow-hidden rounded-full z-0"
+                />
               </div>
               <div className="flex flex-col">
                 <p className="text-xl font-bold">{user?.name || 'User'}</p>
@@ -66,24 +73,24 @@ export default async function SettingsPage() {
             </div>
 
             {/* Automation Health Card */}
-            <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex items-center gap-4">
+            <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex items-center justify-center gap-4">
               <div className="h-12 w-12 rounded-none bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0 border border-emerald-200">
                 <Zap size={24} />
               </div>
               <div>
                 <p className="text-xl font-bold">{automationCoverage}%</p>
-                <p className="text-xs text-muted-foreground uppercase font-bold">
+                <p className="text-sm text-muted-foreground uppercase font-bold">
                   Smart Coverage
                 </p>
               </div>
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 p-1 px-2 bg-primary text-white text-[10px] font-bold uppercase tracking-widest">
-                Health Status
+                <span className="mr-2">⚡️</span>System Health Status
               </div>
             </div>
 
             {/* System Version Card */}
             <div className="relative sm:w-1/3 p-6 pt-10 border border-slate-300 border-dashed flex flex-col justify-center text-center">
-              <p className="text-xs mb-2 text-muted-foreground italic">
+              <p className="text-sm mb-2 text-muted-foreground italic">
                 System engine is healthy.
               </p>
               <p className="text-lg font-bold uppercase tracking-tighter">
@@ -100,13 +107,13 @@ export default async function SettingsPage() {
             <TabsList className="flex w-full sm:w-[400px] bg-muted border border-slate-300 border-dashed p-1 h-12 rounded-none">
               <TabsTrigger
                 value="rules"
-                className="flex-1 uppercase text-[10px] font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
+                className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
               >
                 Smart Rules
               </TabsTrigger>
               <TabsTrigger
                 value="backup"
-                className="flex-1 uppercase text-[10px] font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
+                className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
               >
                 Backup & Restore
               </TabsTrigger>
