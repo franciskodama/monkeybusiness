@@ -5,6 +5,7 @@ import CardEmpty from './_components/CardEmpty';
 import CardUser from './_components/CardUser';
 import { User } from '@prisma/client';
 import { BurnDownChart } from '@/components/BurnDownChart';
+import { SourceBurnChart } from '@/components/SourceBurnChart';
 
 export default async function In({ user }: { user: User }) {
   const householdId = user?.householdId!;
@@ -72,7 +73,7 @@ export default async function In({ user }: { user: User }) {
             <h4 className="text-[10px] font-black uppercase tracking-widest mb-4">
               Top Burn Sources
             </h4>
-            {/* We can put the SourceBreakdown component here later */}
+            <SourceBurnChart subcategories={subcategories} />
           </div>
         </div>
       </div>

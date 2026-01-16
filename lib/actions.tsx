@@ -342,6 +342,27 @@ export async function deleteCategory(id: string) {
   }
 }
 
+export async function updateCategory(data: {
+  id: string;
+  name: string;
+  color: ColorEnum;
+}) {
+  try {
+    const updated = await prisma.category.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        color: data.color
+      }
+    });
+    revalidatePath('/planner');
+    return { success: true, category: updated };
+  } catch (error) {
+    console.error('❌ Error updating category:', error);
+    return { success: false };
+  }
+}
+
 // SUBCATEGORY --------------------------------------------------------------------
 
 export const getSubcategories = async (householdId: string) => {
@@ -493,6 +514,31 @@ export async function updateSubcategoryAmount(
     return { success: true };
   } catch (error) {
     console.error('Failed to update:', error);
+    return { success: false };
+  }
+}
+
+export async function renameSubcategory(data: {
+  householdId: string;
+  oldName: string;
+  newName: string;
+  year: number;
+}) {
+  try {
+    await prisma.subcategory.updateMany({
+      where: {
+        name: data.oldName,
+        householdId: data.householdId,
+        year: data.year
+      },
+      data: {
+        name: data.newName
+      }
+    });
+    revalidatePath('/planner');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error renaming subcategory:', error);
     return { success: false };
   }
 }

@@ -126,7 +126,7 @@ export function TransactionReviewModal({
                   key={index}
                   className={`py-6 flex flex-col gap-4 transition-opacity ${tx.ignored ? 'opacity-40' : 'opacity-100'}`}
                 >
-                  <div className="flex items-center justify-end gap-2 -mb-2">
+                  <div className="flex items-center justify-end gap-2">
                     <Checkbox
                       id={`skip-${index}`}
                       className="h-3 w-3 rounded-none border-slate-400 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500"
@@ -139,7 +139,7 @@ export function TransactionReviewModal({
                     />
                     <label
                       htmlFor={`skip-${index}`}
-                      className="text-[9px] font-black uppercase tracking-widest text-slate-500 cursor-pointer hover:text-rose-600 transition-colors"
+                      className="text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer hover:text-rose-600 transition-colors"
                     >
                       Don't import this
                     </label>
@@ -299,16 +299,19 @@ export function TransactionReviewModal({
             </div>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex gap-4">
             <Button
               variant="outline"
-              className="flex-1 rounded-none border-slate-300 uppercase text-sm tracking-widest h-14"
+              size="xl"
+              className="flex-1 tracking-widest"
               onClick={() => setReviewData(null)}
             >
               Discard Batch
             </Button>
             <Button
-              className="flex-1 rounded-none bg-primary uppercase text-sm tracking-widest h-14"
+              variant="default"
+              size="xl"
+              className="flex-1 tracking-widest"
               onClick={handleSaveAll}
               disabled={isProcessing}
             >

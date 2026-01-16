@@ -78,7 +78,7 @@ export function AddTransactionModal({
               onChange={(e) => setDescription(e.target.value)}
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-">
             <label className="text-sm font-medium">Amount</label>
             <Input
               type="number"
@@ -88,9 +88,7 @@ export function AddTransactionModal({
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase text-muted-foreground">
-              Source
-            </label>
+            <label className="text-sm font-medium">Source</label>
             <Select onValueChange={setSource} value={source}>
               <SelectTrigger className="h-8 text-xs">
                 <SelectValue placeholder="Select the Source" />
@@ -102,6 +100,7 @@ export function AddTransactionModal({
               </SelectContent>
             </Select>
           </div>
+          <div className="h-4" />
           <Button className="w-full" onClick={handleSubmit}>
             Save Transaction
           </Button>

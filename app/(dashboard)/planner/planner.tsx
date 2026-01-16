@@ -14,6 +14,7 @@ import {
 import { Category, User } from '@prisma/client';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { EditableAmount } from './edit-amount-subcategory';
+import { EditableSubcategoryName } from './edit-name-subcategory';
 import { toast } from 'sonner';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -27,6 +28,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger
 } from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
 
 import Help from '@/components/Help';
 import ExplanationPlanner from './explanation-planner';
@@ -56,6 +63,11 @@ export default function Planner({
     useState<Category[]>(categories);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
   const [reviewData, setReviewData] = useState<any[] | null>(null);
+  const [selectedDetails, setSelectedDetails] = useState<{
+    name: string;
+    month: number;
+    transactions: any[];
+  } | null>(null);
 
   const handleUpdateAmount = (
     itemId: string,
@@ -75,6 +87,14 @@ export default function Planner({
           return { ...item, amount: newAmount };
         return item;
       })
+    );
+  };
+
+  const handleRenameSubcategory = (oldName: string, newName: string) => {
+    setCurrentSubcategoriesAction((prev) =>
+      prev.map((item) =>
+        item.name === oldName ? { ...item, name: newName } : item
+      )
     );
   };
 
@@ -311,9 +331,14 @@ export default function Planner({
                           key={item.id}
                           className="flex items-center justify-between px-6 py-4 hover:bg-secondary/10 transition-colors"
                         >
-                          <span className="text-sm font-medium w-[20%]">
-                            {item.name}
-                          </span>
+                          <EditableSubcategoryName
+                            initialName={item.name}
+                            householdId={householdId}
+                            year={2026}
+                            onUpdateSuccess={(newName) =>
+                              handleRenameSubcategory(item.name, newName)
+                            }
+                          />
 
                           <div className="flex items-center justify-end gap-8 flex-1">
                             {/* Target Column */}
@@ -336,12 +361,38 @@ export default function Planner({
                             </div>
 
                             {/* Actual Column */}
-                            <div className="flex flex-col items-end w-24">
-                              <span className="text-[10px] text-muted-foreground uppercase mb-1">
+                            <div
+                              className={`flex flex-col items-end w-24 group relative ${
+                                (item.transactions?.length ?? 0) > 0
+                                  ? 'cursor-pointer'
+                                  : ''
+                              }`}
+                              onClick={() => {
+                                if ((item.transactions?.length ?? 0) > 0) {
+                                  setSelectedDetails({
+                                    name: item.name,
+                                    month: selectedMonth,
+                                    transactions: item.transactions
+                                  });
+                                }
+                              }}
+                            >
+                              <span className="text-[10px] text-muted-foreground uppercase mb-1 flex items-center gap-1">
                                 Actual
+                                {(item.transactions?.length ?? 0) > 0 && (
+                                  <span className="text-[8px] bg-primary text-white px-1 leading-tight opacity-0 group-hover:opacity-100 transition-opacity">
+                                    {item.transactions.length}
+                                  </span>
+                                )}
                               </span>
                               <span
-                                className={`text-sm font-mono ${isOverBudget ? 'text-red-500 font-bold' : 'text-muted-foreground'}`}
+                                className={`text-sm font-mono transition-colors ${
+                                  isOverBudget
+                                    ? 'text-red-500 font-bold'
+                                    : (item.transactions?.length ?? 0) > 0
+                                      ? 'text-slate-900 font-bold group-hover:text-primary'
+                                      : 'text-muted-foreground'
+                                }`}
                               >
                                 ${formatCurrency(actualAmount)}
                               </span>
@@ -466,6 +517,72 @@ export default function Planner({
           />
         )}
       </CardContent>
+
+      <Dialog
+        open={!!selectedDetails}
+        onOpenChange={(open) => !open && setSelectedDetails(null)}
+      >
+        <DialogContent className="rounded-none border-slate-300 sm:max-w-md max-h-[70vh] flex flex-col p-0 overflow-hidden [&_[data-slot=dialog-close]]:text-white">
+          <DialogHeader className="p-6 bg-slate-900 text-white rounded-none">
+            <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
+              <span>{selectedDetails?.name}</span>
+              <span className="text-sm font-mono opacity-50 leading-none">
+                {selectedDetails ? months[selectedDetails.month - 1] : ''} 2026
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+            <div className="flex flex-col divide-y border border-slate-200">
+              {selectedDetails?.transactions.map((tx: any, idx: number) => (
+                <div
+                  key={idx}
+                  className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-black uppercase tracking-widest">
+                      {tx.description}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
+                        {tx.source}
+                      </span>
+                      <span className="text-[9px] text-muted-foreground font-mono">
+                        {tx.date instanceof Date
+                          ? tx.date.toLocaleDateString()
+                          : tx.date}
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    className={`font-mono font-bold text-sm ${
+                      tx.amount < 0 ? 'text-emerald-600' : 'text-slate-900'
+                    }`}
+                  >
+                    {tx.amount < 0 ? '+' : ''}$
+                    {formatCurrency(Math.abs(tx.amount))}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-6 bg-slate-50 border-t flex justify-between items-center">
+            <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">
+              Total Actual
+            </span>
+            <span className="font-mono font-black text-lg">
+              $
+              {formatCurrency(
+                selectedDetails?.transactions.reduce(
+                  (sum: number, tx: any) => sum + (tx.amount || 0),
+                  0
+                ) || 0
+              )}
+            </span>
+          </div>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
