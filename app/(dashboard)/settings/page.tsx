@@ -115,7 +115,7 @@ export default async function SettingsPage() {
             <TabsContent value="rules" className="outline-none">
               <div className="stripe-border w-full min-h-[30em] p-1 border border-slate-300 border-dashed">
                 <div className="bg-white w-full h-full min-h-[30em] overflow-hidden">
-                  <RulesManager householdId={householdId} />
+                  <RulesManager rules={rules} />
                 </div>
               </div>
             </TabsContent>

@@ -47,13 +47,14 @@ export function DirectCodeImporter({
 
         const autoMatchedData = parsedData.map((tx) => {
           const foundRule = rules.find((rule) =>
-            tx.description.toUpperCase().includes(rule.pattern.toUpperCase())
+            tx.description.toLowerCase().includes(rule.pattern.toLowerCase())
           );
 
           return {
             ...tx,
             source: source,
-            subcategoryId: tx.subcategoryId || foundRule?.subcategoryId || null
+            subcategoryId:
+              tx.subcategoryId || foundRule?.subcategoryId || undefined
           };
         });
 

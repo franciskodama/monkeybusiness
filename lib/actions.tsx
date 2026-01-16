@@ -555,26 +555,42 @@ export async function addTransactionRule(data: {
   }
 }
 
+export async function deleteTransactionRule(id: string) {
+  try {
+    await prisma.transactionRule.delete({
+      where: {
+        id: id
+      } as any
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error deleting rule:', error);
+    return { success: false };
+  }
+}
+
 /**
  * Fetches all rules for a household to be used during the import process.
  */
 export async function getTransactionRules(householdId: string) {
   try {
     return await prisma.transactionRule.findMany({
-      where: { householdId }
+      where: { householdId },
+      include: {
+        subcategory: {
+          include: {
+            category: true // Fetches the parent category name
+          }
+        }
+      },
+      orderBy: {
+        pattern: 'asc' // Keeps your list sharp and alphabetical
+      }
     });
   } catch (error) {
     console.error('❌ Error fetching rules:', error);
     return [];
-  }
-}
-
-export async function deleteTransactionRule(id: string) {
-  try {
-    await prisma.transactionRule.delete({ where: { id } });
-    return { success: true };
-  } catch (error) {
-    return { success: false };
   }
 }
 
