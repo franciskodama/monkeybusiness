@@ -98,10 +98,10 @@ export function BackupRestore({
             <Download size={20} />
           </div>
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-tight">
+            <h4 className="text-base font-bold uppercase tracking-tight">
               Export Config
             </h4>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               Save your categories and targets to a local file.
             </p>
           </div>
@@ -109,7 +109,7 @@ export function BackupRestore({
         <Button
           onClick={handleExport}
           variant="outline"
-          className="w-full md:w-auto font-bold uppercase text-[10px]"
+          className="w-full md:w-auto"
         >
           Download .txt
         </Button>
@@ -125,10 +125,10 @@ export function BackupRestore({
             />
           </div>
           <div>
-            <h4 className="text-sm font-bold uppercase tracking-tight text-emerald-900">
+            <h4 className="text-base font-bold uppercase tracking-tight text-emerald-900">
               Restore System
             </h4>
-            <p className="text-xs text-emerald-700/70 lowercase">
+            <p className="text-sm text-emerald-700/70 lowercase">
               <span className="uppercase">U</span>pload your backup to rebuild
               all 12 months for 2026.
             </p>
@@ -146,7 +146,7 @@ export function BackupRestore({
           <Button
             onClick={() => document.getElementById('restore-file')?.click()}
             disabled={isRestoring}
-            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold uppercase text-[10px]"
+            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isRestoring ? 'Processing...' : 'Upload & Sync'}
           </Button>

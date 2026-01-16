@@ -1,10 +1,10 @@
 import { auth } from '@/lib/auth';
 
 import { getCategories, getSubcategories, getUser } from '@/lib/actions';
-import Table from './table';
+import Planner from './planner';
 import { Spinner } from '@/lib/icons';
 
-export default async function TablePage() {
+export default async function PlannerPage() {
   const session = await auth();
   const user = await getUser(session?.user?.email ?? '');
   const householdId = user?.householdId;
@@ -19,7 +19,7 @@ export default async function TablePage() {
   return (
     <>
       {user.householdId && categories && subcategories ? (
-        <Table
+        <Planner
           user={user}
           householdId={householdId}
           categories={categories}

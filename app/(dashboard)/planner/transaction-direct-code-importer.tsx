@@ -19,7 +19,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { getTransactionRules } from '@/lib/actions';
+import { matchTransactionsWithRules } from '@/lib/actions';
 
 export function DirectCodeImporter({
   onDataLoaded,
@@ -43,22 +43,19 @@ export function DirectCodeImporter({
       const parsedData = JSON.parse(sanitizedCode);
 
       if (Array.isArray(parsedData)) {
-        const rules = await getTransactionRules(householdId);
+        // Use the centralized matching logic (handles month-pivoting and key aliases)
+        const autoMatchedData = await matchTransactionsWithRules(
+          parsedData,
+          householdId
+        );
 
-        const autoMatchedData = parsedData.map((tx) => {
-          const foundRule = rules.find((rule) =>
-            tx.description.toLowerCase().includes(rule.pattern.toLowerCase())
-          );
+        // Map the source to each transaction
+        const finalData = autoMatchedData.map((tx: any) => ({
+          ...tx,
+          source
+        }));
 
-          return {
-            ...tx,
-            source: source,
-            subcategoryId:
-              tx.subcategoryId || foundRule?.subcategoryId || undefined
-          };
-        });
-
-        onDataLoaded(autoMatchedData);
+        onDataLoaded(finalData);
         setOpen(false);
         toast.success(`Processed for ${source} Card`);
       }

@@ -58,3 +58,16 @@ export const getSourceTotals = (transactions: any[]) => {
 
   return Object.entries(totals).sort((a, b) => b[1] - a[1]); // Highest spend first
 };
+
+export const formatCurrency = (amount: number) => {
+  return amount.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+export const formatCurrencyRounded = (amount: number) => {
+  return amount.toLocaleString('en-US', {
+    maximumFractionDigits: 0
+  });
+};

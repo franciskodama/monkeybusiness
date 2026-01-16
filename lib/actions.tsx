@@ -11,35 +11,59 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 // --- actions.tsx ---
 
+export async function matchTransactionsWithRules(
+  txList: any[],
+  householdId: string
+) {
+  const [savedRules, allSubcategories] = await Promise.all([
+    getTransactionRules(householdId),
+    prisma.subcategory.findMany({
+      where: { householdId, year: 2026 },
+      include: { category: true }
+    })
+  ]);
+
+  return txList.map((tx) => {
+    // 1. Identify the target month safely (handle YYYY-MM-DD strings without TZ shifts)
+    let currentId = tx.subcategoryId || null;
+    const dateParts = tx.date.split('-');
+    const txMonth = parseInt(dateParts[1], 10);
+    const txYear = parseInt(dateParts[0], 10);
+
+    // 2. Check for "Smart Rules" match (highest priority)
+    const foundRule = savedRules.find((rule) =>
+      tx.description.toUpperCase().includes(rule.pattern.toUpperCase())
+    );
+
+    if (foundRule) {
+      const targetSub = allSubcategories.find(
+        (s) => s.name === foundRule.subcategory.name && s.month === txMonth
+      );
+      if (targetSub) return { ...tx, subcategoryId: targetSub.id };
+    }
+
+    // 3. If there's an existing ID (from AI or manual input), pivot it to the current month to ensure it shows up in the dropdown
+    if (currentId) {
+      const aiPickedSub = allSubcategories.find((s) => s.id === currentId);
+      if (aiPickedSub) {
+        const targetSub = allSubcategories.find(
+          (s) => s.name === aiPickedSub.name && s.month === txMonth
+        );
+        if (targetSub) return { ...tx, subcategoryId: targetSub.id };
+      }
+    }
+
+    return { ...tx, subcategoryId: currentId };
+  });
+}
+
 export async function processStatementWithAI(
   base64File: string,
   householdId: string,
   subcategoriesForCurrentMonth: any[]
 ) {
-  console.log('--- 🚀 Starting AI Process for Household:', householdId);
-
-  // 1. Fetch your "Smart Rules" from the database
-  const savedRules = await getTransactionRules(householdId);
-
-  // Helper function to apply rules to a transaction list
-  const applySmartRules = (txList: any[]) => {
-    return txList.map((tx) => {
-      // If AI already found a match, we keep it, otherwise check our patterns
-      if (tx.subcategoryId) return tx;
-
-      const foundRule = savedRules.find((rule) =>
-        tx.description.toUpperCase().includes(rule.pattern.toUpperCase())
-      );
-
-      return {
-        ...tx,
-        subcategoryId: foundRule?.subcategoryId || null
-      };
-    });
-  };
-
   // 🟢 MOCK MODE
-  const MOCK_MODE = true;
+  const MOCK_MODE = false; // Turn off mock for real testing if needed, though prompt is below
 
   if (MOCK_MODE) {
     console.log('--- 🧪 MOCK MODE: Applying Smart Rules to fake data');
@@ -82,18 +106,34 @@ export async function processStatementWithAI(
 
     return {
       success: true,
-      transactions: applySmartRules(mockTransactions)
+      transactions: await matchTransactionsWithRules(
+        mockTransactions,
+        householdId
+      )
     };
   }
 
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
+    const allSubcategories = await prisma.subcategory.findMany({
+      where: { householdId, year: 2026 }
+    });
+
+    const uniqueNames = Array.from(
+      new Set(allSubcategories.map((s) => s.name))
+    );
+
     const prompt = `
       Act as a financial data expert. Extract ALL transactions from this bank statement.
       
       MATCHING RULES:
-      - Match transactions to these IDs: ${subcategoriesForCurrentMonth.map((i: any) => `${i.name} (ID: ${i.id})`).join(', ')}
+      - Match transactions to these categories: ${uniqueNames.join(', ')}
+      - If you find a match, you MUST return the ID for that category from this list:
+        ${allSubcategories
+          .filter((s) => s.month === new Date().getMonth() + 1)
+          .map((s) => `${s.name} (ID: ${s.id})`)
+          .join(', ')}
       - If a match is unclear, set "subcategoryId" to null.
       
       CRITICAL EXTRACTION RULES:
@@ -124,9 +164,14 @@ export async function processStatementWithAI(
     const aiTransactions = JSON.parse(cleanedJson);
 
     // Apply Smart Rules to AI results before returning
+    const processedTransactions = await matchTransactionsWithRules(
+      aiTransactions,
+      householdId
+    );
+
     return {
       success: true,
-      transactions: applySmartRules(aiTransactions)
+      transactions: processedTransactions
     };
   } catch (error: any) {
     console.error('--- ❌ Server Action Error:', error.message);
@@ -409,7 +454,7 @@ export async function addSubcategory(data: {
       orderBy: { name: 'asc' }
     });
 
-    revalidatePath('/table');
+    revalidatePath('/planner');
     return { success: true, _currentSubcategories };
   } catch (error: any) {
     console.error('--- ❌ Database Error:', error.message);
@@ -540,6 +585,8 @@ export async function bulkAddTransactions(
     // 3. Fetch fresh budget items so the table updates instantly
     const updatedItems = await getSubcategories(householdId);
 
+    revalidatePath('/planner');
+
     return {
       success: true,
       updatedItems // Return these so the UI reflects the new "Actual" totals
@@ -586,6 +633,8 @@ export async function deleteTransactionRule(id: string) {
         id: id
       } as any
     });
+
+    revalidatePath('/settings');
 
     return { success: true };
   } catch (error) {

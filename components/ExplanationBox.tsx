@@ -30,10 +30,10 @@ export default function ExplanationBox({
   setOpenAction: (value: boolean) => void;
 }) {
   return (
-    <div className="relative mt-8">
+    <div className="relative text-primary">
       <Alert className="stripe-border">
-        <AlertDescription className="relative text-sm flex flex-col sm:flex-row items-start justify-between p-1">
-          <div className="flex flex-col mb-6 sm:w-1/3 py-2 sm:px-12">
+        <AlertDescription className="relative text-sm flex flex-col sm:flex-row items-start justify-between p-1 mt-4">
+          <div className="flex flex-col mb-6 sm:w-1/3 py-2 sm:px-12 text-primary">
             <div className="flex items-center gap-2 mb-4">
               {iconOne}
               <p className="text-lg font-bold">{titleOne}</p>
@@ -41,7 +41,7 @@ export default function ExplanationBox({
             <div className="flex flex-col gap-4 mb-4">{contentOne}</div>
           </div>
 
-          <div className="flex flex-col mb-6 sm:w-1/3 py-2 sm:px-12">
+          <div className="flex flex-col mb-6 sm:w-1/3 py-2 sm:px-12 text-primary">
             <div className="flex items-center gap-2 mb-4">
               {iconTwo}
               <p className="text-lg font-bold">{titleTwo}</p>
@@ -50,7 +50,7 @@ export default function ExplanationBox({
             <div className="flex flex-col gap-4 mb-4">{contentTwo}</div>
           </div>
 
-          <div className="flex flex-col justify-between sm:w-1/3 py-2 sm:px-12">
+          <div className="flex flex-col justify-between sm:w-1/3 py-2 sm:px-12 text-primary">
             <div className="flex items-center gap-2 mb-4">
               {iconThree}
               <p className="text-lg font-bold">{titleThree}</p>
@@ -58,7 +58,7 @@ export default function ExplanationBox({
             <div className="flex flex-wrap gap-4">{contentThree}</div>
             <Button
               variant={'outline'}
-              className="mt-12 mb-6 w-fit"
+              className="mt-12 mb-6 w-fit text-primary"
               onClick={() => setOpenAction(false)}
             >
               {callToAction}

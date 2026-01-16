@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Category } from '@prisma/client';
-import { getColorCode, months } from '@/lib/utils';
+import { getColorCode, months, formatCurrency } from '@/lib/utils';
 
 interface YearlyTableProps {
   categories: Category[];
@@ -40,7 +40,17 @@ export function YearlyTable({
         return isIncome ? acc + amount : acc - amount;
       }, 0);
   };
-
+  // Helper to get total spending by source for a month
+  const getMonthlySourceTotal = (month: number, source: string) => {
+    return subcategories
+      .filter((s) => s.month === month && s.year === 2026)
+      .reduce((acc, s) => {
+        const sourceTotal = (s.transactions || [])
+          .filter((tx: any) => tx.source === source)
+          .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+        return acc + sourceTotal;
+      }, 0);
+  };
   return (
     <div className="w-full">
       <div className="overflow-x-auto border bg-background shadow-sm no-scrollbar">
@@ -124,12 +134,12 @@ export function YearlyTable({
                               key={i}
                               className="p-3 text-center border-r font-mono"
                             >
-                              ${val.toFixed(0)}
+                              ${formatCurrency(val)}
                             </td>
                           );
                         })}
                         <td className="p-3 text-center font-bold bg-primary/5 font-mono">
-                          ${subYtd.toLocaleString()}
+                          ${formatCurrency(subYtd)}
                         </td>
                       </tr>
                     );
@@ -151,16 +161,17 @@ export function YearlyTable({
                           key={i}
                           className="p-3 text-center border-r font-mono"
                         >
-                          ${catMonthTotal.toFixed(0)}
+                          ${formatCurrency(catMonthTotal)}
                         </td>
                       );
                     })}
                     <td className="p-3 text-center bg-primary/10 font-mono text-primary">
                       $
-                      {subcategories
-                        .filter((s) => s.categoryId === category.id)
-                        .reduce((sum, s) => sum + (s.amount || 0), 0)
-                        .toLocaleString()}
+                      {formatCurrency(
+                        subcategories
+                          .filter((s) => s.categoryId === category.id)
+                          .reduce((sum, s) => sum + (s.amount || 0), 0)
+                      )}
                     </td>
                   </tr>
                 </React.Fragment>
@@ -181,15 +192,15 @@ export function YearlyTable({
                     key={i}
                     className="p-4 text-center border-r font-mono text-sm"
                   >
-                    {net < 0 ? '-' : ''}${Math.abs(net).toLocaleString()}
+                    {net < 0 ? '-' : ''}${formatCurrency(Math.abs(net))}
                   </td>
                 );
               })}
               <td className="p-4 text-center bg-slate-800 font-mono text-sm">
                 $
-                {months
-                  .reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
-                  .toLocaleString()}
+                {formatCurrency(
+                  months.reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
+                )}
               </td>
             </tr>
 
@@ -227,6 +238,47 @@ export function YearlyTable({
                 })()}
                 %
               </td>
+            </tr>
+
+            {/* SPACER GAP */}
+            <tr className="h-2 bg-gray-200">
+              <td colSpan={14} className="border-y border-secondary/20" />
+            </tr>
+
+            {/* SOURCE BREAKDOWN ROWS */}
+            {['Family', 'His', 'Her'].map((source) => (
+              <tr
+                key={source}
+                className="bg-background border-b text-xs text-muted-foreground font-medium"
+              >
+                <td className="sticky left-0 z-10 bg-background p-3 border-r pl-8 uppercase tracking-widest text-[9px]">
+                  Total {source}
+                </td>
+                {months.map((_, i) => {
+                  const val = getMonthlySourceTotal(i + 1, source);
+                  return (
+                    <td
+                      key={i}
+                      className="p-3 text-center border-r font-mono italic"
+                    >
+                      ${formatCurrency(val)}
+                    </td>
+                  );
+                })}
+                <td className="p-3 text-center bg-primary/5 font-mono font-bold">
+                  {(() => {
+                    const total = months.reduce(
+                      (acc, _, i) => acc + getMonthlySourceTotal(i + 1, source),
+                      0
+                    );
+                    return `$${formatCurrency(total)}`;
+                  })()}
+                </td>
+              </tr>
+            ))}
+            {/* SPACER GAP */}
+            <tr className="h-2 bg-gray-200">
+              <td colSpan={14} className="border-y border-secondary/20" />
             </tr>
           </tfoot>
         </table>
