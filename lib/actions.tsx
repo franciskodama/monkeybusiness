@@ -303,11 +303,17 @@ export const getSubcategories = async (householdId: string) => {
   try {
     const subcategories = await prisma.subcategory.findMany({
       where: { householdId },
-      include: { category: true, transactions: true }
+      include: {
+        category: true,
+        transactions: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
     });
-    return subcategories || [];
+    return subcategories;
   } catch (error) {
-    console.error(error);
+    console.error('❌ Prisma Fetch Error:', error);
     return [];
   }
 };
