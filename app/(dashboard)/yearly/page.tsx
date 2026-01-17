@@ -14,7 +14,7 @@ export default async function YearlyPage() {
     <div className="p-6 space-y-6">
       <div>
         <h1 className="text-2xl font-bold tracking-tight uppercase">
-          2026 Yearly Overview
+          Yearly Overview
         </h1>
         <p className="text-muted-foreground text-sm lowercase">
           <span className="uppercase">A</span> full picture of your financial

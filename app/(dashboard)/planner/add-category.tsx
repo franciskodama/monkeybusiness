@@ -194,7 +194,7 @@ export function AddCategory({
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="outline">
-          {currentCategories.length > 0 ? 'Edit Category' : 'Add Category'}
+          {currentCategories.length > 0 ? 'Edit Categories' : 'Add Category'}
         </Button>
       </SheetTrigger>
       <SheetContent
@@ -204,7 +204,9 @@ export function AddCategory({
         <SheetHeader>
           <div className="flex flex-col gap-2 my-8">
             <SheetTitle className="text-lg uppercase font-bold text-left">
-              {currentCategories.length > 0 ? 'Edit Category' : 'Add Category'}
+              {currentCategories.length > 0
+                ? 'Edit Categories'
+                : 'Add Category'}
             </SheetTitle>
             <SheetDescription className="text-sm font-normal text-left italic">
               {currentCategories.length > 0
@@ -257,35 +259,91 @@ export function AddCategory({
             )}
           </div>
 
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <Checkbox id="isIncome" name="isIncome" />
-              <label
-                htmlFor="isIncome"
-                className="text-xs font-bold uppercase tracking-widest text-emerald-600 cursor-pointer"
-              >
-                Category is Income
+          <div className="flex flex-col gap-6 w-full">
+            <div className="flex flex-col gap-2">
+              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Category Type
               </label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="xs"
+                  variant={!editIsIncome ? 'default' : 'outline'}
+                  className="flex-1 rounded-none uppercase font-black tracking-widest text-[9px]"
+                  onClick={() => setEditIsIncome(false)}
+                >
+                  Expense
+                </Button>
+                <Button
+                  type="button"
+                  size="xs"
+                  variant={editIsIncome ? 'default' : 'outline'}
+                  className={`flex-1 rounded-none uppercase font-black tracking-widest text-[9px] ${editIsIncome ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                  onClick={() => {
+                    setEditIsIncome(true);
+                    setEditIsFixed(false);
+                    setEditIsSavings(false);
+                  }}
+                >
+                  Income
+                </Button>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="isSavings" name="isSavings" />
-              <label
-                htmlFor="isSavings"
-                className="text-xs font-medium leading-none cursor-pointer"
-              >
-                This is a Savings category
-              </label>
-            </div>
-            <div className="flex items-center gap-2">
-              <Checkbox id="isFixed" name="isFixed" />
-              <label
-                htmlFor="isFixed"
-                className="text-xs font-medium leading-none cursor-pointer"
-              >
-                This is a Fixed / Monthly cost
-              </label>
-            </div>
+
+            {!editIsIncome ? (
+              <div className="flex flex-col gap-3 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="isFixed"
+                    name="isFixed"
+                    checked={editIsFixed}
+                    onCheckedChange={(checked) => setEditIsFixed(!!checked)}
+                  />
+                  <label
+                    htmlFor="isFixed"
+                    className="text-xs font-medium leading-none cursor-pointer"
+                  >
+                    This is a Fixed / Monthly cost
+                  </label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="isSavings"
+                    name="isSavings"
+                    checked={editIsSavings}
+                    onCheckedChange={(checked) => setEditIsSavings(!!checked)}
+                  />
+                  <label
+                    htmlFor="isSavings"
+                    className="text-xs font-medium leading-none cursor-pointer"
+                  >
+                    This is a Savings category
+                  </label>
+                </div>
+              </div>
+            ) : (
+              <div className="p-3 bg-emerald-50 border border-emerald-100 text-[10px] text-emerald-700 italic">
+                Income categories represent money coming into the household
+                (Refills/Pool Funding).
+              </div>
+            )}
           </div>
+
+          <input
+            type="hidden"
+            name="isIncome"
+            value={editIsIncome ? 'on' : 'off'}
+          />
+          <input
+            type="hidden"
+            name="isSavings"
+            value={editIsSavings ? 'on' : 'off'}
+          />
+          <input
+            type="hidden"
+            name="isFixed"
+            value={editIsFixed ? 'on' : 'off'}
+          />
 
           <input type="hidden" name="householdId" value={householdId} />
 
@@ -337,52 +395,69 @@ export function AddCategory({
                       </SelectContent>
                     </Select>
 
-                    <div className="flex flex-col gap-2 py-1">
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="editIsIncome"
-                          checked={editIsIncome}
-                          onCheckedChange={(checked) =>
-                            setEditIsIncome(!!checked)
-                          }
-                        />
-                        <label
-                          htmlFor="editIsIncome"
-                          className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 cursor-pointer"
-                        >
-                          Income
+                    <div className="flex flex-col gap-4 py-1">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">
+                          Type
                         </label>
+                        <div className="flex gap-1">
+                          <Button
+                            size="xs"
+                            variant={!editIsIncome ? 'default' : 'outline'}
+                            className="h-6 flex-1 text-[8px] rounded-none px-0"
+                            onClick={() => setEditIsIncome(false)}
+                          >
+                            Expense
+                          </Button>
+                          <Button
+                            size="xs"
+                            variant={editIsIncome ? 'default' : 'outline'}
+                            className={`h-6 flex-1 text-[8px] rounded-none px-0 ${editIsIncome ? 'bg-emerald-600' : ''}`}
+                            onClick={() => {
+                              setEditIsIncome(true);
+                              setEditIsFixed(false);
+                              setEditIsSavings(false);
+                            }}
+                          >
+                            Income
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="editIsSavings"
-                          checked={editIsSavings}
-                          onCheckedChange={(checked) =>
-                            setEditIsSavings(!!checked)
-                          }
-                        />
-                        <label
-                          htmlFor="editIsSavings"
-                          className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
-                        >
-                          Savings
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Checkbox
-                          id="editIsFixed"
-                          checked={editIsFixed}
-                          onCheckedChange={(checked) =>
-                            setEditIsFixed(!!checked)
-                          }
-                        />
-                        <label
-                          htmlFor="editIsFixed"
-                          className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
-                        >
-                          Fixed
-                        </label>
-                      </div>
+
+                      {!editIsIncome && (
+                        <div className="flex flex-col gap-2 animate-in fade-in duration-200">
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id="editIsSavings"
+                              checked={editIsSavings}
+                              onCheckedChange={(checked) =>
+                                setEditIsSavings(!!checked)
+                              }
+                            />
+                            <label
+                              htmlFor="editIsSavings"
+                              className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                            >
+                              Savings
+                            </label>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Checkbox
+                              id="editIsFixed"
+                              checked={editIsFixed}
+                              onCheckedChange={(checked) =>
+                                setEditIsFixed(!!checked)
+                              }
+                            />
+                            <label
+                              htmlFor="editIsFixed"
+                              className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                            >
+                              Fixed
+                            </label>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex gap-2 justify-end">
