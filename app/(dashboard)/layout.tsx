@@ -55,11 +55,11 @@ export function DesktopNav() {
           className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
         >
           <Image
-            src="/logo/banana-png-100x150.png"
+            src="/logo/logo-monkeybusiness-150x124.png"
             alt="Monkey Business Logo"
-            width={50}
-            height={75}
-            className="w-[1.5em]"
+            width={150}
+            height={124}
+            className="w-[5em]"
           />
         </Link>
 
