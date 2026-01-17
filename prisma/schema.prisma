@@ -18,6 +18,7 @@ model User {
 model Household {
   id            String        @id @default(uuid())
   name          String
+  inviteCode    String?       @unique
   users         User[]
   categories    Category[]
   subcategories Subcategory[]

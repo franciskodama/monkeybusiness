@@ -9,15 +9,28 @@ import { getUser, getTransactionRules, getSubcategories } from '@/lib/actions';
 import { auth } from '@/lib/auth';
 import { RulesManager } from './rules-manager';
 import { BackupRestore } from './backup-restore';
-import { User, ShieldCheck, Zap, Settings as SettingsIcon } from 'lucide-react';
+import { HouseholdManager } from './household-manager';
+import {
+  User,
+  ShieldCheck,
+  Zap,
+  Settings as SettingsIcon,
+  Home
+} from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { tagClass } from '@/lib/classes'; // Reusing your established tag style
 import Image from 'next/image';
+import { redirect } from 'next/navigation';
 
 export default async function SettingsPage() {
   const session = await auth();
   const user = await getUser(session?.user?.email!);
-  const householdId = user?.householdId!;
+
+  if (!user) {
+    redirect('/');
+  }
+
+  const householdId = user.householdId!;
 
   const [rules, subcategories] = await Promise.all([
     getTransactionRules(householdId),
@@ -63,7 +76,7 @@ export default async function SettingsPage() {
                 <p className="text-xl font-bold">{user?.name || 'User'}</p>
                 <div className="flex items-center gap-1 text-[10px] text-emerald-600 uppercase font-bold">
                   <ShieldCheck size={10} />
-                  Household Admin
+                  Household Member
                 </div>
               </div>
               {/* Floating Tag style from CardMessage */}
@@ -103,21 +116,38 @@ export default async function SettingsPage() {
           </div>
 
           {/* --- FUNCTIONAL AREA: Tabs with Spreadsheet-like inner containers --- */}
-          <Tabs defaultValue="rules" className="w-full space-y-6">
-            <TabsList className="flex w-full sm:w-[400px] bg-muted border border-slate-300 border-dashed p-1 h-12 rounded-none">
+          <Tabs defaultValue="household" className="w-full space-y-6">
+            <TabsList className="flex w-full sm:w-[600px] bg-muted border border-slate-300 border-dashed p-1 h-12 rounded-none">
+              <TabsTrigger
+                value="household"
+                className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
+              >
+                Household
+              </TabsTrigger>
               <TabsTrigger
                 value="rules"
                 className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
               >
-                Smart Rules
+                Rules
               </TabsTrigger>
               <TabsTrigger
                 value="backup"
                 className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
               >
-                Backup & Restore
+                Backup
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="household" className="outline-none">
+              <div className="stripe-border w-full min-h-[30em] p-1 border border-slate-300 border-dashed">
+                <div className="bg-white w-full h-full min-h-[30em] p-8">
+                  <HouseholdManager
+                    household={user.household}
+                    currentUserId={user.uid}
+                  />
+                </div>
+              </div>
+            </TabsContent>
 
             <TabsContent value="rules" className="outline-none">
               <div className="stripe-border w-full min-h-[30em] p-1 border border-slate-300 border-dashed">
