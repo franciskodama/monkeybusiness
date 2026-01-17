@@ -26,14 +26,14 @@ export default async function Login() {
         <div className="flex flex-col p-4 sm:p-12 bg-white sm:mr-12 mb-8 sm:mb-0 sm:w-[90ch] border border-primary shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
           <Image
             className="mb-6 sm:mb-12 w-20 h-20 sm:w-32 sm:h-32"
-            src="/logo/logo-icon-140x140.png"
+            src="/logo/logo-monkeybusiness-150x150-yellow.png"
             alt="Monkey Business Logo"
             width={140}
             height={140}
           />
           <div className="flex flex-col w-full">
             <p className="text-4xl uppercase sm:text-8xl font-extrabold sm:leading-[5.5rem]">
-              Family 🤖 Finance on Auto-Pilot.
+              Family Finance on Auto-Pilot.
             </p>
             <div className="flex w-full sm:justify-end uppercase text-base font-semibold sm:text-2xl sm:text-right opacity-50 sm:leading-10 my-8">
               <p className="w-[40%]">

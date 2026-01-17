@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { tagClass } from '@/lib/classes';
 
-export default function CardEmpty({
+export default function CardStatus({
   title,
   description,
   buttonText,
@@ -15,7 +15,7 @@ export default function CardEmpty({
 }) {
   return (
     <>
-      <div className="relative w-full p-4 sm:border sm:border-slate-300 sm:border-dashed">
+      <div className="w-full p-4 sm:border sm:border-slate-300 sm:border-dashed">
         <div className="stripe-border flex flex-col justify-between w-full items-center text-center p-4">
           <p className="text-xs mb-4">{description}</p>
           <Button

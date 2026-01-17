@@ -109,7 +109,7 @@ export default async function SettingsPage() {
               <p className="text-lg font-bold uppercase tracking-tighter">
                 v2.0.26 Online
               </p>
-              <div className={tagClass}>
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 p-1 px-2 bg-primary text-white text-[10px] font-bold uppercase tracking-widest">
                 <span className="mr-2">⚙️</span>System
               </div>
             </div>
