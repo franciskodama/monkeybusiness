@@ -71,3 +71,11 @@ export const formatCurrencyRounded = (amount: number) => {
     maximumFractionDigits: 0
   });
 };
+
+export const getSourceColor = (source: string) => {
+  const s = source.toUpperCase();
+  if (s.includes('HIS')) return '#00FFFF';
+  if (s.includes('HER')) return '#F97316';
+  if (s.includes('FAMILY')) return '#EF4444';
+  return '#64748B';
+};
