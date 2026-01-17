@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { tagClass } from '@/lib/classes';
 
 export default function CardEmpty({
   title,
@@ -24,9 +25,7 @@ export default function CardEmpty({
             <Link href={`/${url}`}>{buttonText}</Link>
           </Button>
         </div>
-        <div className="absolute -top-1 sm:-top-4 left-1/2 transform -translate-x-1/2 p-1 px-2 bg-primary text-white text-xs font-semibold">
-          {title}
-        </div>
+        <div className={tagClass}>{title}</div>
       </div>
     </>
   );

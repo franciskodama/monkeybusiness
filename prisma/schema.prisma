@@ -28,6 +28,8 @@ model Category {
   id            String        @id @default(uuid())
   name          String
   color         ColorEnum
+  isSavings     Boolean       @default(false)
+  isFixed       Boolean       @default(false)
   householdId   String
   household     Household     @relation(fields: [householdId], references: [id])
   subcategories Subcategory[]

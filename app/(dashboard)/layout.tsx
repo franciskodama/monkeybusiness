@@ -36,9 +36,8 @@ export default function DashboardLayout({
               </div>
             </header>
           </div>
-          <main className="grid flex-1 items-start gap-2 p-4 sm:px-6 sm:py-0 md:gap-4 bg-muted/40">
-            {children}
-            {/* <Toaster /> */}
+          <main className="flex flex-1 flex-col gap-4 p-4 sm:px-6 sm:py-0 md:gap-8 bg-muted/40">
+            <div className="flex-1">{children}</div>
             <Footer />
           </main>
         </div>

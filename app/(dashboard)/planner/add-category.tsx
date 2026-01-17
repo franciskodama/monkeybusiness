@@ -5,6 +5,7 @@ import { Bomb, Inbox, Trash2, Pencil, Check, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Sheet,
   SheetContent,
@@ -69,6 +70,8 @@ export function AddCategory({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState<ColorEnum>('BLUE' as ColorEnum);
+  const [editIsSavings, setEditIsSavings] = useState(false);
+  const [editIsFixed, setEditIsFixed] = useState(false);
 
   // Reset errors when sheet closes
   useEffect(() => {
@@ -82,6 +85,8 @@ export function AddCategory({
     const categoryName = formData.get('category') as string;
     const color = formData.get('color') as string;
     const householdId = formData.get('householdId') as string;
+    const isSavings = formData.get('isSavings') === 'on';
+    const isFixed = formData.get('isFixed') === 'on';
 
     const errors: FormErrors = {};
     if (!categoryName) errors.category = 'Category name is required';
@@ -96,7 +101,9 @@ export function AddCategory({
     const result = await addCategory({
       householdId,
       name: categoryName,
-      color: colorEnum
+      color: colorEnum,
+      isSavings,
+      isFixed
     });
 
     if (!result) {
@@ -150,6 +157,8 @@ export function AddCategory({
     setEditingId(category.id);
     setEditName(category.name);
     setEditColor(category.color);
+    setEditIsSavings(category.isSavings);
+    setEditIsFixed(category.isFixed);
   };
 
   const handleSaveEdit = async () => {
@@ -160,7 +169,9 @@ export function AddCategory({
     const res = await updateCategory({
       id: editingId!,
       name: editName,
-      color: editColor
+      color: editColor,
+      isSavings: editIsSavings,
+      isFixed: editIsFixed
     });
 
     if (res.success && res.category) {
@@ -241,6 +252,27 @@ export function AddCategory({
             )}
           </div>
 
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <Checkbox id="isSavings" name="isSavings" />
+              <label
+                htmlFor="isSavings"
+                className="text-xs font-medium leading-none cursor-pointer"
+              >
+                This is a Savings category
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="isFixed" name="isFixed" />
+              <label
+                htmlFor="isFixed"
+                className="text-xs font-medium leading-none cursor-pointer"
+              >
+                This is a Fixed / Monthly cost
+              </label>
+            </div>
+          </div>
+
           <input type="hidden" name="householdId" value={householdId} />
 
           <Button
@@ -290,6 +322,40 @@ export function AddCategory({
                         ))}
                       </SelectContent>
                     </Select>
+
+                    <div className="flex flex-col gap-2 py-1">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="editIsSavings"
+                          checked={editIsSavings}
+                          onCheckedChange={(checked) =>
+                            setEditIsSavings(!!checked)
+                          }
+                        />
+                        <label
+                          htmlFor="editIsSavings"
+                          className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                        >
+                          Savings
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="editIsFixed"
+                          checked={editIsFixed}
+                          onCheckedChange={(checked) =>
+                            setEditIsFixed(!!checked)
+                          }
+                        />
+                        <label
+                          htmlFor="editIsFixed"
+                          className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                        >
+                          Fixed
+                        </label>
+                      </div>
+                    </div>
+
                     <div className="flex gap-2 justify-end">
                       <Button
                         size="xs"

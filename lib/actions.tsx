@@ -299,17 +299,23 @@ export const getCategories = async (householdId: string) => {
 export async function addCategory({
   householdId,
   name,
-  color
+  color,
+  isSavings = false,
+  isFixed = false
 }: {
   householdId: string;
   name: string;
   color: ColorEnum;
+  isSavings?: boolean;
+  isFixed?: boolean;
 }) {
   try {
     const newCategory = await prisma.category.create({
       data: {
         name,
         color,
+        isSavings,
+        isFixed,
         householdId
       }
     });
@@ -346,13 +352,17 @@ export async function updateCategory(data: {
   id: string;
   name: string;
   color: ColorEnum;
+  isSavings: boolean;
+  isFixed: boolean;
 }) {
   try {
     const updated = await prisma.category.update({
       where: { id: data.id },
       data: {
         name: data.name,
-        color: data.color
+        color: data.color,
+        isSavings: data.isSavings,
+        isFixed: data.isFixed
       }
     });
     revalidatePath('/planner');
