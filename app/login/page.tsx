@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { signIn } from '@/lib/auth';
-import { LogoGitHub } from '@/lib/svgs';
+import { LogoGitHub, LogoGoogle } from '@/lib/svgs';
 
 export default async function Login() {
   return (
@@ -68,7 +68,7 @@ export default async function Login() {
               </div>
             </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col items-center my-2 sm:my-[3em]">
+          <CardContent className="flex flex-col items-center gap-4 my-2 sm:my-[3em]">
             <form
               action={async () => {
                 'use server';
@@ -85,6 +85,26 @@ export default async function Login() {
               >
                 <LogoGitHub />
                 <p>Sign in with GitHub</p>
+              </Button>
+            </form>
+
+            <form
+              action={async () => {
+                'use server';
+                await signIn('google', {
+                  redirectTo: '/in'
+                });
+              }}
+              className="w-full"
+            >
+              <Button
+                size={'xl'}
+                type="submit"
+                variant="outline"
+                className="flex items-center gap-4 w-full text-base font-normal border-2 border-primary shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-shadow"
+              >
+                <LogoGoogle />
+                <p>Sign in with Google</p>
               </Button>
             </form>
           </CardContent>
