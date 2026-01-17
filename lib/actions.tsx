@@ -4,6 +4,7 @@ import { ColorEnum } from '@prisma/client';
 import prisma from './prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { revalidatePath } from 'next/cache';
+import { auth } from './auth';
 
 // AI --------------------------------------------------------------------
 
@@ -199,15 +200,14 @@ export async function addUser(user: {
 
     if (existingUser) return existingUser;
 
-    // For now, we use our 'MONKEY_HOUSEHOLD_1' shortcut -
-    // TODO: WE NEED TO CHANGE THAT IF OTHER PEOPLE JOIN
+    // Create a new unique household for every new user
+    // They can then invite others or join another later
+    const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
-    const household = await prisma.household.upsert({
-      where: { id: 'MONKEY_HOUSEHOLD_1' },
-      update: {},
-      create: {
-        id: 'MONKEY_HOUSEHOLD_1',
-        name: 'Kodama Family Household'
+    const household = await prisma.household.create({
+      data: {
+        name: `${user.name.split(' ')[0]}'s Household`,
+        inviteCode: inviteCode
       }
     });
 
@@ -218,6 +218,9 @@ export async function addUser(user: {
         name: user.name,
         image: user.image,
         householdId: household.id
+      },
+      include: {
+        household: true
       }
     });
 
@@ -239,14 +242,58 @@ export async function getUser(email: string) {
         email: true,
         name: true,
         image: true,
-        householdId: true
+        householdId: true,
+        household: {
+          include: {
+            users: true
+          }
+        }
       }
     });
+
+    if (user?.household && !user.household.inviteCode) {
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      const updatedHousehold = await prisma.household.update({
+        where: { id: user.householdId! },
+        data: { inviteCode: code },
+        include: { users: true }
+      });
+      user.household = updatedHousehold;
+    }
 
     return user;
   } catch (error) {
     console.error('--- ❌ Error fetching user:', error);
     return null;
+  }
+}
+
+export async function joinHousehold(inviteCode: string) {
+  try {
+    const session = await auth();
+    if (!session?.user?.email) return { success: false, error: 'Unauthorized' };
+
+    const household = await prisma.household.findUnique({
+      where: { inviteCode: inviteCode.toUpperCase() }
+    });
+
+    if (!household) {
+      return { success: false, error: 'Invite code not found' };
+    }
+
+    await prisma.user.update({
+      where: { email: session.user.email },
+      data: { householdId: household.id }
+    });
+
+    revalidatePath('/settings');
+    revalidatePath('/in');
+    revalidatePath('/planner');
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error joining household:', error);
+    return { success: false, error: 'Failed to join' };
   }
 }
 

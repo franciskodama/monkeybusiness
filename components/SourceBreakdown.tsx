@@ -1,6 +1,7 @@
 'use client';
 
 import { CreditCard, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { getSourceColor } from '@/lib/utils';
 
 export function SourceBreakdown({ transactions }: { transactions: any[] }) {
   // Grouping logic
@@ -39,10 +40,12 @@ export function SourceBreakdown({ transactions }: { transactions: any[] }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
         {sortedSources.map(([source, amount]) => {
           const isIncome = amount < 0;
+          const sourceColor = getSourceColor(source);
           return (
             <div
               key={source}
-              className="p-3 border bg-background shadow-sm hover:shadow-md transition-shadow"
+              className="p-3 border bg-background shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+              style={{ borderTop: `3px solid ${sourceColor}` }}
             >
               <div className="flex justify-between items-start mb-2">
                 <span className="text-[9px] font-black uppercase text-muted-foreground truncate max-w-[100px]">
@@ -51,7 +54,7 @@ export function SourceBreakdown({ transactions }: { transactions: any[] }) {
                 {isIncome ? (
                   <ArrowDownLeft size={12} className="text-emerald-500" />
                 ) : (
-                  <ArrowUpRight size={12} className="text-red-500" />
+                  <ArrowUpRight size={12} style={{ color: sourceColor }} />
                 )}
               </div>
               <div className="flex flex-col">

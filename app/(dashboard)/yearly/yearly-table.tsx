@@ -2,7 +2,12 @@
 
 import React, { useState } from 'react';
 import { Category } from '@prisma/client';
-import { getColorCode, months, formatCurrency } from '@/lib/utils';
+import {
+  getColorCode,
+  months,
+  formatCurrency,
+  getSourceColor
+} from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -279,36 +284,52 @@ export function YearlyTable({
             </tr>
 
             {/* SOURCE BREAKDOWN ROWS */}
-            {['Family', 'His', 'Her'].map((source) => (
-              <tr
-                key={source}
-                className="bg-background border-b text-xs text-muted-foreground font-medium"
-              >
-                <td className="sticky left-0 z-10 bg-background p-3 border-r pl-8 uppercase tracking-widest text-[9px]">
-                  Total {source}
-                </td>
-                {months.map((_, i) => {
-                  const val = getMonthlySourceTotal(i + 1, source);
-                  return (
-                    <td
-                      key={i}
-                      className="p-3 text-center border-r font-mono italic"
-                    >
-                      ${formatCurrency(val)}
-                    </td>
-                  );
-                })}
-                <td className="p-3 text-center bg-primary/5 font-mono font-bold">
-                  {(() => {
-                    const total = months.reduce(
-                      (acc, _, i) => acc + getMonthlySourceTotal(i + 1, source),
-                      0
+            {['Family', 'His', 'Her'].map((source) => {
+              const sourceColor = getSourceColor(source);
+              return (
+                <tr
+                  key={source}
+                  style={{
+                    backgroundColor: `${sourceColor}08`
+                  }}
+                  className="border-b text-xs text-muted-foreground font-medium"
+                >
+                  <td
+                    style={{ borderLeft: `4px solid ${sourceColor}` }}
+                    className="sticky left-0 z-10 bg-inherit p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black"
+                  >
+                    Total {source}
+                  </td>
+                  {months.map((_, i) => {
+                    const val = getMonthlySourceTotal(i + 1, source);
+                    return (
+                      <td
+                        key={i}
+                        className="p-3 text-center border-r font-mono italic"
+                      >
+                        ${formatCurrency(val)}
+                      </td>
                     );
-                    return `$${formatCurrency(total)}`;
-                  })()}
-                </td>
-              </tr>
-            ))}
+                  })}
+                  <td
+                    className="p-3 text-center font-mono font-black border-l"
+                    style={{
+                      backgroundColor: `${sourceColor}15`,
+                      color: sourceColor
+                    }}
+                  >
+                    {(() => {
+                      const total = months.reduce(
+                        (acc, _, i) =>
+                          acc + getMonthlySourceTotal(i + 1, source),
+                        0
+                      );
+                      return `$${formatCurrency(total)}`;
+                    })()}
+                  </td>
+                </tr>
+              );
+            })}
             {/* SPACER GAP */}
             <tr className="h-2 bg-gray-200">
               <td colSpan={14} className="border-y border-secondary/20" />
