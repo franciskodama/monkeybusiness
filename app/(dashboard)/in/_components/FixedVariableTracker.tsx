@@ -15,7 +15,7 @@ export function FixedVariableTracker({
   const monthItems = subcategories.filter(
     (s) =>
       s.month === currentMonth &&
-      s.category?.name?.toLowerCase() !== 'income' &&
+      !s.category?.isIncome &&
       !s.category?.isSavings
   );
 

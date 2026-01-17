@@ -70,6 +70,7 @@ export function AddCategory({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editColor, setEditColor] = useState<ColorEnum>('BLUE' as ColorEnum);
+  const [editIsIncome, setEditIsIncome] = useState(false);
   const [editIsSavings, setEditIsSavings] = useState(false);
   const [editIsFixed, setEditIsFixed] = useState(false);
 
@@ -85,6 +86,7 @@ export function AddCategory({
     const categoryName = formData.get('category') as string;
     const color = formData.get('color') as string;
     const householdId = formData.get('householdId') as string;
+    const isIncome = formData.get('isIncome') === 'on';
     const isSavings = formData.get('isSavings') === 'on';
     const isFixed = formData.get('isFixed') === 'on';
 
@@ -102,6 +104,7 @@ export function AddCategory({
       householdId,
       name: categoryName,
       color: colorEnum,
+      isIncome,
       isSavings,
       isFixed
     });
@@ -157,6 +160,7 @@ export function AddCategory({
     setEditingId(category.id);
     setEditName(category.name);
     setEditColor(category.color);
+    setEditIsIncome(category.isIncome);
     setEditIsSavings(category.isSavings);
     setEditIsFixed(category.isFixed);
   };
@@ -170,6 +174,7 @@ export function AddCategory({
       id: editingId!,
       name: editName,
       color: editColor,
+      isIncome: editIsIncome,
       isSavings: editIsSavings,
       isFixed: editIsFixed
     });
@@ -254,6 +259,15 @@ export function AddCategory({
 
           <div className="flex flex-col gap-3">
             <div className="flex items-center gap-2">
+              <Checkbox id="isIncome" name="isIncome" />
+              <label
+                htmlFor="isIncome"
+                className="text-xs font-bold uppercase tracking-widest text-emerald-600 cursor-pointer"
+              >
+                Category is Income
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
               <Checkbox id="isSavings" name="isSavings" />
               <label
                 htmlFor="isSavings"
@@ -326,6 +340,21 @@ export function AddCategory({
                     <div className="flex flex-col gap-2 py-1">
                       <div className="flex items-center gap-2">
                         <Checkbox
+                          id="editIsIncome"
+                          checked={editIsIncome}
+                          onCheckedChange={(checked) =>
+                            setEditIsIncome(!!checked)
+                          }
+                        />
+                        <label
+                          htmlFor="editIsIncome"
+                          className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 cursor-pointer"
+                        >
+                          Income
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
                           id="editIsSavings"
                           checked={editIsSavings}
                           onCheckedChange={(checked) =>
@@ -384,8 +413,15 @@ export function AddCategory({
                             .backgroundColor
                         }}
                       />
-                      <p className="text-sm font-medium capitalize">
+                      <p
+                        className={`text-sm font-medium capitalize ${category.isIncome ? 'text-emerald-700 font-black' : ''}`}
+                      >
                         {category.name.toLowerCase()}
+                        {category.isIncome && (
+                          <span className="ml-2 bg-emerald-100 text-emerald-700 text-[8px] px-1 py-0.5 font-black uppercase">
+                            Income
+                          </span>
+                        )}
                       </p>
                     </div>
 

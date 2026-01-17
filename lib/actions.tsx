@@ -193,15 +193,16 @@ export async function addUser(user: {
   image: string;
 }) {
   try {
-    const existingUser = await prisma.user.findUnique({
-      where: { uid: user.uid },
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [{ uid: user.uid }, { email: user.email }]
+      },
       include: { household: true }
     });
 
     if (existingUser) return existingUser;
 
     // Create a new unique household for every new user
-    // They can then invite others or join another later
     const inviteCode = Math.random().toString(36).substring(2, 8).toUpperCase();
 
     const household = await prisma.household.create({
@@ -211,20 +212,30 @@ export async function addUser(user: {
       }
     });
 
-    const newUser = await prisma.user.create({
-      data: {
-        uid: user.uid,
-        email: user.email,
-        name: user.name,
-        image: user.image,
-        householdId: household.id
-      },
-      include: {
-        household: true
+    try {
+      const newUser = await prisma.user.create({
+        data: {
+          uid: user.uid,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+          householdId: household.id
+        },
+        include: {
+          household: true
+        }
+      });
+      return newUser;
+    } catch (err: any) {
+      // Handle race condition: if user was created by another simultaneous request
+      if (err.code === 'P2002') {
+        return await prisma.user.findUnique({
+          where: { uid: user.uid },
+          include: { household: true }
+        });
       }
-    });
-
-    return newUser;
+      throw err;
+    }
   } catch (error) {
     console.error('Error in addUser:', error);
     return null;
@@ -347,12 +358,14 @@ export async function addCategory({
   householdId,
   name,
   color,
+  isIncome = false,
   isSavings = false,
   isFixed = false
 }: {
   householdId: string;
   name: string;
   color: ColorEnum;
+  isIncome?: boolean;
   isSavings?: boolean;
   isFixed?: boolean;
 }) {
@@ -361,6 +374,7 @@ export async function addCategory({
       data: {
         name,
         color,
+        isIncome,
         isSavings,
         isFixed,
         householdId
@@ -399,6 +413,7 @@ export async function updateCategory(data: {
   id: string;
   name: string;
   color: ColorEnum;
+  isIncome: boolean;
   isSavings: boolean;
   isFixed: boolean;
 }) {
@@ -408,6 +423,7 @@ export async function updateCategory(data: {
       data: {
         name: data.name,
         color: data.color,
+        isIncome: data.isIncome,
         isSavings: data.isSavings,
         isFixed: data.isFixed
       }

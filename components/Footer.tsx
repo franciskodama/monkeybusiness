@@ -52,9 +52,9 @@ export default function Footer() {
 
         <div className="flex justify-end sm:w-1/5">
           <Image
-            src={'/logo/logo-monkeybusiness-150x124-shaved-inverted.png'}
-            width={100}
-            height={100}
+            src={'/logo/logo-monkeybusiness-200x207-yellow-all.png'}
+            width={90}
+            height={90}
             alt="Logo of Monkey Business"
             className="sm:mr-4 sm:mt-4"
           />

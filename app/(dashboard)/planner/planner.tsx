@@ -123,19 +123,11 @@ export default function Planner({
 
   // Example logic for planner.tsx
   const totalPlannedIncome = currentSubcategories
-    .filter(
-      (sub) =>
-        sub.category.name.toLowerCase() === 'income' &&
-        sub.month === selectedMonth
-    )
+    .filter((sub) => sub.category.isIncome && sub.month === selectedMonth)
     .reduce((sum, sub) => sum + sub.amount, 0);
 
   const totalPlannedExpenses = currentSubcategories
-    .filter(
-      (sub) =>
-        sub.category.name.toLowerCase() !== 'income' &&
-        sub.month === selectedMonth
-    )
+    .filter((sub) => !sub.category.isIncome && sub.month === selectedMonth)
     .reduce((sum, sub) => sum + sub.amount, 0);
 
   const netBudget = totalPlannedIncome - totalPlannedExpenses;

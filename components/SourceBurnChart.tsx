@@ -15,9 +15,9 @@ import { formatCurrencyRounded } from '@/lib/utils';
 export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
   const currentMonth = new Date().getMonth() + 1;
 
-  // 1. Extract transactions for the current month
+  // 1. Extract transactions for the current month (EXCLUDING income categories)
   const transactions = subcategories
-    .filter((s) => s.month === currentMonth)
+    .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .flatMap((s) => s.transactions || []);
 
   // 2. Calculate totals per source
