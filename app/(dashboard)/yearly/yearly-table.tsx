@@ -41,9 +41,7 @@ export function YearlyTable({
   // Helper to get total income for a specific month
   const getMonthlyIncome = (month: number) => {
     return subcategories
-      .filter(
-        (s) => s.category?.name.toLowerCase() === 'income' && s.month === month
-      )
+      .filter((s) => s.category?.isIncome && s.month === month)
       .reduce((sum, s) => sum + (s.amount || 0), 0);
   };
 
@@ -52,7 +50,7 @@ export function YearlyTable({
     return subcategories
       .filter((s) => s.month === month && s.year === 2026)
       .reduce((acc, s) => {
-        const isIncome = s.category?.name.toLowerCase() === 'income';
+        const isIncome = s.category?.isIncome;
         const amount = s.amount || 0;
         return isIncome ? acc + amount : acc - amount;
       }, 0);
@@ -264,7 +262,7 @@ export function YearlyTable({
               <td className="p-3 text-center bg-emerald-700 font-mono text-xs">
                 {(() => {
                   const totalIncome = subcategories
-                    .filter((s) => s.category?.name.toLowerCase() === 'income')
+                    .filter((s) => s.category?.isIncome)
                     .reduce((sum, s) => sum + (s.amount || 0), 0);
                   const totalNet = months.reduce(
                     (acc, _, i) => acc + getMonthlyNet(i + 1),

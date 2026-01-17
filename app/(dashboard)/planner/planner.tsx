@@ -123,19 +123,11 @@ export default function Planner({
 
   // Example logic for planner.tsx
   const totalPlannedIncome = currentSubcategories
-    .filter(
-      (sub) =>
-        sub.category.name.toLowerCase() === 'income' &&
-        sub.month === selectedMonth
-    )
+    .filter((sub) => sub.category.isIncome && sub.month === selectedMonth)
     .reduce((sum, sub) => sum + sub.amount, 0);
 
   const totalPlannedExpenses = currentSubcategories
-    .filter(
-      (sub) =>
-        sub.category.name.toLowerCase() !== 'income' &&
-        sub.month === selectedMonth
-    )
+    .filter((sub) => !sub.category.isIncome && sub.month === selectedMonth)
     .reduce((sum, sub) => sum + sub.amount, 0);
 
   const netBudget = totalPlannedIncome - totalPlannedExpenses;
@@ -209,7 +201,8 @@ export default function Planner({
             <p
               className={`${barlow.className} text-sm font-normal lowercase mt-2`}
             >
-              <span className="uppercase">Y</span>our go-to place for money!
+              <span className="uppercase">Y</span>our roadmap to financial
+              clarity!
             </p>
           </div>
           <div
@@ -265,18 +258,54 @@ export default function Planner({
           )}
         </AnimatePresence>
 
-        <div className="flex justify-between overflow-x-auto pb-4 no-scrollbar border-b mb-6">
-          {months.map((monthName, index) => (
-            <Button
-              key={monthName}
-              variant={selectedMonth === index + 1 ? 'default' : 'ghost'}
-              className="px-6"
-              size="xs"
-              onClick={() => setSelectedMonth(index + 1)}
-            >
-              {monthName}
-            </Button>
-          ))}
+        {/* STICKY COMMAND CENTER */}
+        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md -mx-6 px-6 py-4 border-b mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex justify-between w-full md:w-auto overflow-x-auto no-scrollbar gap-1">
+            {months.map((monthName, index) => (
+              <Button
+                key={monthName}
+                variant={selectedMonth === index + 1 ? 'default' : 'ghost'}
+                className={`px-4 h-8 text-[12px] font-black uppercase tracking-widest rounded-none ${selectedMonth === index + 1 ? 'shadow-md' : ''}`}
+                size="xs"
+                onClick={() => setSelectedMonth(index + 1)}
+              >
+                {monthName}
+              </Button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-4 text-xs font-bold divide-x divide-slate-200">
+            <div className="flex flex-col items-center px-4">
+              <span className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+                Income
+              </span>
+              <span className="font-mono text-emerald-600">
+                ${formatCurrency(totalPlannedIncome)}
+              </span>
+            </div>
+            <div className="flex flex-col items-center px-4">
+              <span className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+                Burn
+              </span>
+              <span className="font-mono text-slate-900">
+                ${formatCurrency(totalPlannedExpenses)}
+              </span>
+            </div>
+            <div className="flex flex-col items-center pl-4 pr-1">
+              <span className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+                Net Result
+              </span>
+              <span
+                className={`font-mono text-sm px-2 py-0.5 ${
+                  netBudget >= 0
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-rose-100 text-rose-800'
+                }`}
+              >
+                ${formatCurrency(netBudget)}
+              </span>
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col w-full gap-8 mt-4">
@@ -340,9 +369,9 @@ export default function Planner({
                             }
                           />
 
-                          <div className="flex items-center justify-end gap-8 flex-1">
+                          <div className="flex items-center justify-end gap-10 flex-1">
                             {/* Target Column */}
-                            <div className="flex flex-col items-end">
+                            <div className="flex flex-col items-end w-32">
                               <span className="text-[10px] text-muted-foreground uppercase mb-1">
                                 Target
                               </span>
@@ -362,7 +391,7 @@ export default function Planner({
 
                             {/* Actual Column */}
                             <div
-                              className={`flex flex-col items-end w-24 group relative ${
+                              className={`flex flex-col items-end w-32 group relative ${
                                 (item.transactions?.length ?? 0) > 0
                                   ? 'cursor-pointer'
                                   : ''
@@ -386,7 +415,7 @@ export default function Planner({
                                 )}
                               </span>
                               <span
-                                className={`text-sm font-mono transition-colors ${
+                                className={`text-sm font-mono transition-colors px-2 py-1 ${
                                   isOverBudget
                                     ? 'text-red-500 font-bold'
                                     : (item.transactions?.length ?? 0) > 0
@@ -397,10 +426,10 @@ export default function Planner({
                                 ${formatCurrency(actualAmount)}
                               </span>
                             </div>
-                            <div className="col-span-3 flex items-center justify-end gap-3">
+                            <div className="flex items-center justify-end gap-3 min-w-[7em]">
                               {/* Status Pill */}
                               <div
-                                className={`text-[10px] uppercase font-bold px-2 py-1 rounded-none border ${
+                                className={`text-[10px] uppercase font-bold px-2 py-1 rounded-none border w-24 text-center ${
                                   isOverBudget
                                     ? 'bg-red-50 border-red-200 text-red-700'
                                     : 'bg-green-50 border-green-200 text-green-700'

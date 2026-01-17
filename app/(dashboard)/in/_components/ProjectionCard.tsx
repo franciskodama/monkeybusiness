@@ -13,10 +13,7 @@ export function ProjectionCard({ subcategories }: { subcategories: any[] }) {
 
   // 1. Calculate Total Monthly Budget
   const totalTarget = subcategories
-    .filter(
-      (s) =>
-        s.month === currentMonth && s.category?.name?.toLowerCase() !== 'income'
-    )
+    .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .reduce((sum, s) => sum + (s.amount || 0), 0);
 
   // 2. Calculate Actual Spending
@@ -60,7 +57,7 @@ export function ProjectionCard({ subcategories }: { subcategories: any[] }) {
   }
 
   return (
-    <div className="relative flex flex-col justify-between w-full h-full">
+    <div className="flex flex-col justify-between w-full h-full">
       <div className="flex flex-col gap-1">
         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">
           EOM Projection

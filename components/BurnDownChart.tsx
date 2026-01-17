@@ -19,10 +19,7 @@ export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
 
   // 1. Calculate Total Monthly Budget (Target)
   const totalPlanned = subcategories
-    .filter(
-      (s) =>
-        s.month === currentMonth && s.category?.name?.toLowerCase() !== 'income'
-    )
+    .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .reduce((sum, s) => sum + (s.amount || 0), 0);
 
   // 2. Flatten and group transactions by day

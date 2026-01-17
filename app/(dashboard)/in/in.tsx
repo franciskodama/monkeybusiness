@@ -1,7 +1,6 @@
 import { getUser, getSubcategories } from '@/lib/actions';
 import { auth } from '@/lib/auth';
 import { CardMessage } from './_components/CardMessage';
-import CardEmpty from './_components/CardEmpty';
 import CardUser from './_components/CardUser';
 import { ProjectionCard } from './_components/ProjectionCard';
 import { SavingsTracker } from './_components/SavingsTracker';
@@ -11,6 +10,7 @@ import { User } from '@prisma/client';
 import { BurnDownChart } from '@/components/BurnDownChart';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { tagClass } from '@/lib/classes';
+import CardStatus from './_components/CardStatus';
 
 export default async function In({ user }: { user: User }) {
   const householdId = user?.householdId!;
@@ -57,7 +57,7 @@ export default async function In({ user }: { user: User }) {
         {/* Status Card */}
         <div className="border border-slate-300 border-dashed p-1 bg-slate-50">
           <div className="bg-white w-full h-full p-6 border border-slate-200 relative flex flex-col justify-center items-center">
-            <CardEmpty
+            <CardStatus
               title={`🚔 Status`}
               description={
                 pendingCount > 0

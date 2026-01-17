@@ -6,12 +6,12 @@ import { formatCurrencyRounded } from '@/lib/utils';
 export function OutlierAlerts({ subcategories }: { subcategories: any[] }) {
   const currentMonth = new Date().getMonth() + 1;
 
-  // 1. Calculate Average Spending per Subcategory (excluding current month)
+  // 1. Calculate Average Spending per Subcategory (excluding current month and INCOME)
   const historicalSubcategories = subcategories.filter(
-    (s) => s.month !== currentMonth
+    (s) => s.month !== currentMonth && !s.category?.isIncome
   );
   const currentSubcategories = subcategories.filter(
-    (s) => s.month === currentMonth
+    (s) => s.month === currentMonth && !s.category?.isIncome
   );
 
   const anomalies: {

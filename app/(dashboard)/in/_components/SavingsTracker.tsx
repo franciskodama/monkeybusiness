@@ -28,7 +28,7 @@ export function SavingsTracker({ subcategories }: { subcategories: any[] }) {
     targetSavings > 0 ? (actualSavings / targetSavings) * 100 : 0;
 
   return (
-    <div className="relative flex flex-col justify-between w-full h-full">
+    <div className="flex flex-col justify-between w-full h-full">
       <div className="flex flex-col gap-1">
         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">
           Family Savings Goal
