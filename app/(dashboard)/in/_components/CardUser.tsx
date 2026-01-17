@@ -1,9 +1,13 @@
+import { tagClass } from '@/lib/classes';
 import { User } from '@prisma/client';
 import Image from 'next/image';
 
 export default function CardUser({ user }: { user: User | undefined }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full gap-2 relative mt-16 sm:mt-0 mb-8">
+    <div className="flex flex-col items-center justify-center h-full gap-2 relative">
+      <div className={tagClass}>
+        <span className="mr-2">👤</span>Profile
+      </div>
       {user?.image ? (
         <>
           <Image

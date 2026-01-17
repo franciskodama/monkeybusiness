@@ -299,17 +299,23 @@ export const getCategories = async (householdId: string) => {
 export async function addCategory({
   householdId,
   name,
-  color
+  color,
+  isSavings = false,
+  isFixed = false
 }: {
   householdId: string;
   name: string;
   color: ColorEnum;
+  isSavings?: boolean;
+  isFixed?: boolean;
 }) {
   try {
     const newCategory = await prisma.category.create({
       data: {
         name,
         color,
+        isSavings,
+        isFixed,
         householdId
       }
     });
@@ -339,6 +345,31 @@ export async function deleteCategory(id: string) {
   } catch (error) {
     console.log(error);
     throw new Error('--- ❌ Failed to delete Category');
+  }
+}
+
+export async function updateCategory(data: {
+  id: string;
+  name: string;
+  color: ColorEnum;
+  isSavings: boolean;
+  isFixed: boolean;
+}) {
+  try {
+    const updated = await prisma.category.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        color: data.color,
+        isSavings: data.isSavings,
+        isFixed: data.isFixed
+      }
+    });
+    revalidatePath('/planner');
+    return { success: true, category: updated };
+  } catch (error) {
+    console.error('❌ Error updating category:', error);
+    return { success: false };
   }
 }
 
@@ -493,6 +524,31 @@ export async function updateSubcategoryAmount(
     return { success: true };
   } catch (error) {
     console.error('Failed to update:', error);
+    return { success: false };
+  }
+}
+
+export async function renameSubcategory(data: {
+  householdId: string;
+  oldName: string;
+  newName: string;
+  year: number;
+}) {
+  try {
+    await prisma.subcategory.updateMany({
+      where: {
+        name: data.oldName,
+        householdId: data.householdId,
+        year: data.year
+      },
+      data: {
+        name: data.newName
+      }
+    });
+    revalidatePath('/planner');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error renaming subcategory:', error);
     return { success: false };
   }
 }

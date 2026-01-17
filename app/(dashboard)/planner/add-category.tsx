@@ -1,10 +1,11 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import { Bomb, Inbox, Trash2 } from 'lucide-react';
+import { Bomb, Inbox, Trash2, Pencil, Check, X } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Sheet,
   SheetContent,
@@ -33,7 +34,12 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
-import { addCategory, deleteCategory, getCategories } from '@/lib/actions';
+import {
+  addCategory,
+  deleteCategory,
+  getCategories,
+  updateCategory
+} from '@/lib/actions';
 import { colors, getColorCode } from '@/lib/utils';
 import { Category, ColorEnum, User } from '@prisma/client';
 
@@ -61,11 +67,17 @@ export function AddCategory({
 }) {
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editColor, setEditColor] = useState<ColorEnum>('BLUE' as ColorEnum);
+  const [editIsSavings, setEditIsSavings] = useState(false);
+  const [editIsFixed, setEditIsFixed] = useState(false);
 
   // Reset errors when sheet closes
   useEffect(() => {
     if (!open) {
       setFormErrors({});
+      setEditingId(null);
     }
   }, [open]);
 
@@ -73,6 +85,8 @@ export function AddCategory({
     const categoryName = formData.get('category') as string;
     const color = formData.get('color') as string;
     const householdId = formData.get('householdId') as string;
+    const isSavings = formData.get('isSavings') === 'on';
+    const isFixed = formData.get('isFixed') === 'on';
 
     const errors: FormErrors = {};
     if (!categoryName) errors.category = 'Category name is required';
@@ -87,7 +101,9 @@ export function AddCategory({
     const result = await addCategory({
       householdId,
       name: categoryName,
-      color: colorEnum
+      color: colorEnum,
+      isSavings,
+      isFixed
     });
 
     if (!result) {
@@ -137,10 +153,44 @@ export function AddCategory({
     }
   };
 
+  const handleStartEdit = (category: Category) => {
+    setEditingId(category.id);
+    setEditName(category.name);
+    setEditColor(category.color);
+    setEditIsSavings(category.isSavings);
+    setEditIsFixed(category.isFixed);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editName) {
+      toast.error('Name is required');
+      return;
+    }
+    const res = await updateCategory({
+      id: editingId!,
+      name: editName,
+      color: editColor,
+      isSavings: editIsSavings,
+      isFixed: editIsFixed
+    });
+
+    if (res.success && res.category) {
+      setCurrentCategoriesAction((prev) =>
+        prev.map((c) => (c.id === editingId ? res.category! : c))
+      );
+      setEditingId(null);
+      toast.success('Category updated!');
+    } else {
+      toast.error('Failed to update category.');
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline">Add Category</Button>
+        <Button variant="outline">
+          {currentCategories.length > 0 ? 'Edit Category' : 'Add Category'}
+        </Button>
       </SheetTrigger>
       <SheetContent
         side="right"
@@ -149,10 +199,12 @@ export function AddCategory({
         <SheetHeader>
           <div className="flex flex-col gap-2 my-8">
             <SheetTitle className="text-lg uppercase font-bold text-left">
-              Add Category
+              {currentCategories.length > 0 ? 'Edit Category' : 'Add Category'}
             </SheetTitle>
             <SheetDescription className="text-sm font-normal text-left italic">
-              Create a new bucket for your budget.
+              {currentCategories.length > 0
+                ? 'Manage your budget categories.'
+                : 'Create a new bucket for your budget.'}
             </SheetDescription>
           </div>
         </SheetHeader>
@@ -200,12 +252,33 @@ export function AddCategory({
             )}
           </div>
 
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2">
+              <Checkbox id="isSavings" name="isSavings" />
+              <label
+                htmlFor="isSavings"
+                className="text-xs font-medium leading-none cursor-pointer"
+              >
+                This is a Savings category
+              </label>
+            </div>
+            <div className="flex items-center gap-2">
+              <Checkbox id="isFixed" name="isFixed" />
+              <label
+                htmlFor="isFixed"
+                className="text-xs font-medium leading-none cursor-pointer"
+              >
+                This is a Fixed / Monthly cost
+              </label>
+            </div>
+          </div>
+
           <input type="hidden" name="householdId" value={householdId} />
 
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full rounded-none uppercase font-black text-[10px] tracking-widest"
+            className="w-full rounded-none tracking-widest"
           >
             {isPending ? 'Saving...' : 'Create Category'}
           </Button>
@@ -217,52 +290,149 @@ export function AddCategory({
             currentCategories.map((category) => (
               <div
                 key={category.id}
-                className="flex items-center justify-between border p-3 rounded-none mb-2 border-slate-200"
+                className="flex flex-col border p-3 rounded-none mb-2 border-slate-200"
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className="w-4 h-4 rounded-none"
-                    style={{
-                      backgroundColor: getColorCode(category.color)
-                        .backgroundColor
-                    }}
-                  />
-                  <p className="text-sm font-medium capitalize">
-                    {category.name.toLowerCase()}
-                  </p>
-                </div>
-
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                {editingId === category.id ? (
+                  <div className="space-y-3">
+                    <Input
+                      value={editName}
+                      onChange={(e) => setEditName(e.target.value)}
+                      className="h-8 text-xs rounded-none"
+                    />
+                    <Select
+                      value={editColor}
+                      onValueChange={(v) => setEditColor(v as ColorEnum)}
                     >
-                      <Trash2 size={16} />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle className="flex items-center gap-2">
-                        <Bomb size={20} /> Are you sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        Deleting{' '}
-                        <span className="font-bold">{category.name}</span> will
-                        remove it from your budget view.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDeleteCategory(category)}
+                      <SelectTrigger className="h-8 text-xs rounded-none">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {colors.map((color: Color) => (
+                          <SelectItem key={color.code} value={color.name}>
+                            <div className="flex items-center gap-2">
+                              <div
+                                className="w-3 h-3 rounded-none"
+                                style={{ backgroundColor: color.code }}
+                              />
+                              <p className="text-[10px] capitalize">
+                                {color.name.toLowerCase()}
+                              </p>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <div className="flex flex-col gap-2 py-1">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="editIsSavings"
+                          checked={editIsSavings}
+                          onCheckedChange={(checked) =>
+                            setEditIsSavings(!!checked)
+                          }
+                        />
+                        <label
+                          htmlFor="editIsSavings"
+                          className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                        >
+                          Savings
+                        </label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="editIsFixed"
+                          checked={editIsFixed}
+                          onCheckedChange={(checked) =>
+                            setEditIsFixed(!!checked)
+                          }
+                        />
+                        <label
+                          htmlFor="editIsFixed"
+                          className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                        >
+                          Fixed
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        size="xs"
+                        variant="ghost"
+                        className="h-7 w-7 p-0 rounded-none"
+                        onClick={() => setEditingId(null)}
                       >
-                        Delete
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
+                        <X size={14} />
+                      </Button>
+                      <Button
+                        size="xs"
+                        className="h-7 w-7 p-0 rounded-none"
+                        onClick={handleSaveEdit}
+                      >
+                        <Check size={14} />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-4 h-4 rounded-none"
+                        style={{
+                          backgroundColor: getColorCode(category.color)
+                            .backgroundColor
+                        }}
+                      />
+                      <p className="text-sm font-medium capitalize">
+                        {category.name.toLowerCase()}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-muted-foreground hover:text-primary rounded-none"
+                        onClick={() => handleStartEdit(category)}
+                      >
+                        <Pencil size={14} />
+                      </Button>
+
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-none"
+                          >
+                            <Trash2 size={16} />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="flex items-center gap-2">
+                              <Bomb size={20} /> Are you sure?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Deleting{' '}
+                              <span className="font-bold">{category.name}</span>{' '}
+                              will remove it from your budget view.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteCategory(category)}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                )}
               </div>
             ))
           ) : (

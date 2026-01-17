@@ -3,6 +3,13 @@
 import React, { useState } from 'react';
 import { Category } from '@prisma/client';
 import { getColorCode, months, formatCurrency } from '@/lib/utils';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle
+} from '@/components/ui/dialog';
+import { Info } from 'lucide-react';
 
 interface YearlyTableProps {
   categories: Category[];
@@ -14,6 +21,11 @@ export function YearlyTable({
   initialSubcategories
 }: YearlyTableProps) {
   const [subcategories] = useState(initialSubcategories);
+  const [selectedDetails, setSelectedDetails] = useState<{
+    name: string;
+    month: number;
+    transactions: any[];
+  } | null>(null);
 
   const getSubData = (subName: string, month: number) => {
     return subcategories.find(
@@ -57,7 +69,7 @@ export function YearlyTable({
         <table className="w-full border-collapse min-w-[1600px]">
           <thead>
             <tr className="bg-secondary/30">
-              <th className="sticky left-0 z-20 bg-secondary/30 p-4 text-left text-xs font-bold uppercase border-r w-[220px]">
+              <th className="sticky left-0 z-20 bg-secondary/30 p-4 text-left text-[10px] font-base uppercase border-r w-[220px]">
                 Category / Subcategory
               </th>
               {months.map((m) => (
@@ -95,7 +107,7 @@ export function YearlyTable({
                     <td className="sticky left-0 z-10 p-3 font-bold text-sm border-r flex items-center gap-3">
                       {/* The Dot Indicator */}
                       <div
-                        className="w-3 h-3 rounded-full shadow-sm"
+                        className="w-3 h-3 shadow-sm"
                         style={{
                           backgroundColor: getColorCode(category.color)
                             .backgroundColor
@@ -122,7 +134,7 @@ export function YearlyTable({
                         key={name}
                         className="hover:bg-secondary/5 border-b transition-colors text-xs text-muted-foreground"
                       >
-                        <td className="sticky left-0 z-10 bg-background p-3 border-r pl-8">
+                        <td className="sticky left-0 z-10 bg-background p-3 border-r pl-8 text-sm font-semibold text-primary">
                           {name}
                         </td>
                         {months.map((_, i) => {
@@ -132,9 +144,30 @@ export function YearlyTable({
                           return (
                             <td
                               key={i}
-                              className="p-3 text-center border-r font-mono"
+                              className={`p-3 text-center border-r font-mono transition-all group relative ${
+                                (data?.transactions?.length ?? 0) > 0
+                                  ? 'cursor-pointer hover:bg-primary/5 hover:text-primary font-bold'
+                                  : ''
+                              }`}
+                              onClick={() => {
+                                if ((data?.transactions?.length ?? 0) > 0) {
+                                  setSelectedDetails({
+                                    name: name,
+                                    month: i + 1,
+                                    transactions: data.transactions
+                                  });
+                                }
+                              }}
                             >
-                              ${formatCurrency(val)}
+                              <div className="flex flex-col items-center gap-1">
+                                <span>${formatCurrency(val)}</span>
+                                {(data?.transactions?.length ?? 0) > 0 && (
+                                  <div className="flex items-center gap-1 text-[8px] uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-0.5 whitespace-nowrap bg-primary text-white px-1">
+                                    <Info size={8} /> {data.transactions.length}{' '}
+                                    tx
+                                  </div>
+                                )}
+                              </div>
                             </td>
                           );
                         })}
@@ -283,6 +316,72 @@ export function YearlyTable({
           </tfoot>
         </table>
       </div>
+
+      <Dialog
+        open={!!selectedDetails}
+        onOpenChange={(open) => !open && setSelectedDetails(null)}
+      >
+        <DialogContent className="rounded-none border-slate-300 sm:max-w-md max-h-[70vh] flex flex-col p-0 overflow-hidden [&_[data-slot=dialog-close]]:text-white">
+          <DialogHeader className="p-6 bg-slate-900 text-white rounded-none">
+            <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
+              <span>{selectedDetails?.name}</span>
+              <span className="text-sm font-mono opacity-50 leading-none">
+                {selectedDetails ? months[selectedDetails.month - 1] : ''} 2026
+              </span>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
+            <div className="flex flex-col divide-y border border-slate-200">
+              {selectedDetails?.transactions.map((tx, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-black uppercase tracking-widest">
+                      {tx.description}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
+                        {tx.source}
+                      </span>
+                      <span className="text-[9px] text-muted-foreground font-mono">
+                        {tx.date instanceof Date
+                          ? tx.date.toLocaleDateString()
+                          : tx.date}
+                      </span>
+                    </div>
+                  </div>
+                  <span
+                    className={`font-mono font-bold text-sm ${
+                      tx.amount < 0 ? 'text-emerald-600' : 'text-slate-900'
+                    }`}
+                  >
+                    {tx.amount < 0 ? '+' : ''}$
+                    {formatCurrency(Math.abs(tx.amount))}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="p-6 bg-slate-50 border-t flex justify-between items-center">
+            <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">
+              Monthly Total
+            </span>
+            <span className="font-mono font-black text-lg">
+              $
+              {formatCurrency(
+                selectedDetails?.transactions.reduce(
+                  (sum, tx) => sum + (tx.amount || 0),
+                  0
+                ) || 0
+              )}
+            </span>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
