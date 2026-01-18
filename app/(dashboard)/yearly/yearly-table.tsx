@@ -55,10 +55,12 @@ export function YearlyTable({
         return isIncome ? acc + amount : acc - amount;
       }, 0);
   };
-  // Helper to get total spending by source for a month
+  // Helper to get total spending by source for a month (Excluding Income)
   const getMonthlySourceTotal = (month: number, source: string) => {
     return subcategories
-      .filter((s) => s.month === month && s.year === 2026)
+      .filter(
+        (s) => s.month === month && s.year === 2026 && !s.category?.isIncome
+      )
       .reduce((acc, s) => {
         const sourceTotal = (s.transactions || [])
           .filter((tx: any) => tx.source === source)

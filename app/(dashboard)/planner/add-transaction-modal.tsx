@@ -94,9 +94,9 @@ export function AddTransactionModal({
                 <SelectValue placeholder="Select the Source" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Family">Family Card</SelectItem>
-                <SelectItem value="His">His Card</SelectItem>
-                <SelectItem value="Her">Her Card</SelectItem>
+                <SelectItem value="Family">Family</SelectItem>
+                <SelectItem value="His">His</SelectItem>
+                <SelectItem value="Her">Her</SelectItem>
               </SelectContent>
             </Select>
           </div>

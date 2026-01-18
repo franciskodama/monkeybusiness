@@ -22,9 +22,9 @@ export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
     .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .reduce((sum, s) => sum + (s.amount || 0), 0);
 
-  // 2. Flatten and group transactions by day
+  // 2. Flatten and group transactions by day (Excluding Income)
   const allTransactions = subcategories
-    .filter((s) => s.month === currentMonth)
+    .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .flatMap((s) => s.transactions || []);
 
   const dailySpend: Record<number, number> = {};

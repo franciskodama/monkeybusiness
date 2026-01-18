@@ -63,10 +63,13 @@ export function TransactionImporter({
         if (result.success && result.transactions) {
           // Use the transactions array from the result
           setReviewDataAction(result.transactions);
+          toast.success(`Statement processed for ${source}`);
         } else {
           // If failed or undefined, explicitly set to null to avoid the type error
           setReviewDataAction(null);
-          toast.error(result.error || 'Failed to process statement');
+          toast.error(
+            result.error || `Failed to process statement for ${source}`
+          );
         }
       } catch (error) {
         toast.error('An error occurred during processing.');
@@ -95,9 +98,9 @@ export function TransactionImporter({
               <SelectValue placeholder="Select the Source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Family">Family Card</SelectItem>
-              <SelectItem value="His">His Card</SelectItem>
-              <SelectItem value="Her">Her Card</SelectItem>
+              <SelectItem value="Family">Family</SelectItem>
+              <SelectItem value="His">His</SelectItem>
+              <SelectItem value="Her">Her</SelectItem>
             </SelectContent>
           </Select>
 

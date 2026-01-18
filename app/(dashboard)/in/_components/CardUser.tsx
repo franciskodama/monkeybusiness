@@ -25,7 +25,9 @@ export default function CardUser({ user }: { user: User | undefined }) {
               </span>
               {`:)`}
             </p>
-            <p className="text-sm font-normal">Welcome to an Easier Life!</p>
+            <p className="text-sm font-normal">
+              Welcome to Precision Budgeting!
+            </p>
           </>
         ) : (
           <Image
