@@ -57,7 +57,7 @@ export function DirectCodeImporter({
 
         onDataLoaded(finalData);
         setOpen(false);
-        toast.success(`Processed for ${source} Card`);
+        toast.success(`Processed for ${source}`);
       }
     } catch (e) {
       toast.error('Invalid JSON format.');
@@ -85,9 +85,9 @@ export function DirectCodeImporter({
                 <SelectValue placeholder="Who paid this statement?" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Family">Family Card</SelectItem>
-                <SelectItem value="His">His Card</SelectItem>
-                <SelectItem value="Her">Her Card</SelectItem>
+                <SelectItem value="Family">Family</SelectItem>
+                <SelectItem value="His">His</SelectItem>
+                <SelectItem value="Her">Her</SelectItem>
               </SelectContent>
             </Select>
           </div>

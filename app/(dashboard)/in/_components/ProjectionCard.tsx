@@ -16,9 +16,9 @@ export function ProjectionCard({ subcategories }: { subcategories: any[] }) {
     .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .reduce((sum, s) => sum + (s.amount || 0), 0);
 
-  // 2. Calculate Actual Spending
+  // 2. Calculate Actual Spending (Excluding Income)
   const spentSoFar = subcategories
-    .filter((s) => s.month === currentMonth)
+    .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .flatMap((s) => s.transactions || [])
     .reduce((sum, tx) => sum + tx.amount, 0);
 

@@ -121,16 +121,35 @@ export default function Planner({
     }
   };
 
-  // Example logic for planner.tsx
+  // CALCULATIONS FOR STICKY BAR (ACTUALS)
+  const totalActualIncome = currentSubcategories
+    .filter((sub) => sub.category.isIncome && sub.month === selectedMonth)
+    .reduce((sum, sub) => {
+      const actual =
+        sub.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0;
+      return sum + actual;
+    }, 0);
+
+  const totalActualExpenses = currentSubcategories
+    .filter((sub) => !sub.category.isIncome && sub.month === selectedMonth)
+    .reduce((sum, sub) => {
+      const actual =
+        sub.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0;
+      return sum + actual;
+    }, 0);
+
+  const actualNet = totalActualIncome - totalActualExpenses;
+
+  // PLANNED VALUES (FOR REFERENCE/PROGRESS)
   const totalPlannedIncome = currentSubcategories
     .filter((sub) => sub.category.isIncome && sub.month === selectedMonth)
-    .reduce((sum, sub) => sum + sub.amount, 0);
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const totalPlannedExpenses = currentSubcategories
     .filter((sub) => !sub.category.isIncome && sub.month === selectedMonth)
-    .reduce((sum, sub) => sum + sub.amount, 0);
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
-  const netBudget = totalPlannedIncome - totalPlannedExpenses;
+  const netPlannedBudget = totalPlannedIncome - totalPlannedExpenses;
 
   // 1. Get only the subcategories for the month the user is looking at
   const currentMonthSubs = currentSubcategories.filter(
@@ -141,6 +160,16 @@ export default function Planner({
   const allTransactions = currentMonthSubs.flatMap(
     (sub) => sub.transactions || []
   );
+
+  // 3. Filter for Burn by Source (Exclude Income transactions)
+  const burnTransactions = currentMonthSubs
+    .filter((sub) => !sub.category.isIncome)
+    .flatMap((sub) => sub.transactions || []);
+
+  // 4. Calculate Funding Progress by Source (For the new section)
+  const fundingTransactions = currentMonthSubs
+    .filter((sub) => sub.category.isIncome)
+    .flatMap((sub) => sub.transactions || []);
 
   //--------------------------------------------------
   // Export Budget Data
@@ -280,7 +309,7 @@ export default function Planner({
                 Income
               </span>
               <span className="font-mono text-emerald-600">
-                ${formatCurrency(totalPlannedIncome)}
+                ${formatCurrency(totalActualIncome)}
               </span>
             </div>
             <div className="flex flex-col items-center px-4">
@@ -288,7 +317,7 @@ export default function Planner({
                 Burn
               </span>
               <span className="font-mono text-slate-900">
-                ${formatCurrency(totalPlannedExpenses)}
+                ${formatCurrency(totalActualExpenses)}
               </span>
             </div>
             <div className="flex flex-col items-center pl-4 pr-1">
@@ -297,12 +326,12 @@ export default function Planner({
               </span>
               <span
                 className={`font-mono text-sm px-2 py-0.5 ${
-                  netBudget >= 0
+                  actualNet >= 0
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-rose-100 text-rose-800'
                 }`}
               >
-                ${formatCurrency(netBudget)}
+                ${formatCurrency(actualNet)}
               </span>
             </div>
           </div>
@@ -534,7 +563,69 @@ export default function Planner({
           })}
         </div>
 
-        <SourceBreakdown transactions={allTransactions} />
+        <div className="space-y-12">
+          <SourceBreakdown transactions={burnTransactions} />
+
+          {/* FUNDING PROGRESS BY SOURCE */}
+          {fundingTransactions.length > 0 && (
+            <div className="pt-8 border-t">
+              <div className="flex items-center gap-2 mb-6">
+                <div className="p-2 bg-emerald-100 rounded-lg">
+                  <span className="text-emerald-700 font-bold text-xs">$</span>
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold uppercase tracking-tight text-emerald-800">
+                    Funding Progress
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground uppercase">
+                    How much each source has contributed to the pool
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {['His', 'Her', 'Family'].map((source) => {
+                  const contributed = fundingTransactions
+                    .filter((tx) => tx.source === source)
+                    .reduce((sum, tx) => sum + tx.amount, 0);
+                  const target = currentMonthSubs
+                    .filter((sub) => sub.category.isIncome)
+                    .reduce((sum, sub) => {
+                      // This is a bit complex as we don't have per-source targets yet,
+                      // but we can show the total contributed per source cleanly.
+                      return sum;
+                    }, 0);
+
+                  if (contributed === 0) return null;
+
+                  return (
+                    <div
+                      key={source}
+                      className="flex flex-col gap-2 p-4 bg-emerald-50/50 border border-emerald-100"
+                    >
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase text-emerald-800">
+                          {source} Contribution
+                        </span>
+                        <span className="font-mono font-bold text-emerald-600">
+                          ${formatCurrency(contributed)}
+                        </span>
+                      </div>
+                      <div className="w-full h-1 bg-emerald-100">
+                        <div
+                          className="h-full bg-emerald-500"
+                          style={{
+                            width: `${Math.min((contributed / totalPlannedIncome) * 100, 100)}%`
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
         {reviewData && (
           <TransactionReviewModal
             reviewData={reviewData}
