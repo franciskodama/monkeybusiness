@@ -345,6 +345,9 @@ export const getCategories = async (householdId: string) => {
     const categories = await prisma.category.findMany({
       where: {
         householdId
+      },
+      orderBy: {
+        order: 'asc'
       }
     });
     return categories;
@@ -370,6 +373,7 @@ export async function addCategory({
   isFixed?: boolean;
 }) {
   try {
+    const count = await prisma.category.count({ where: { householdId } });
     const newCategory = await prisma.category.create({
       data: {
         name,
@@ -377,7 +381,8 @@ export async function addCategory({
         isIncome,
         isSavings,
         isFixed,
-        householdId
+        householdId,
+        order: count
       }
     });
 
@@ -432,6 +437,23 @@ export async function updateCategory(data: {
     return { success: true, category: updated };
   } catch (error) {
     console.error('❌ Error updating category:', error);
+    return { success: false };
+  }
+}
+
+export async function reorderCategories(orderedIds: string[]) {
+  try {
+    const updates = orderedIds.map((id, index) =>
+      prisma.category.update({
+        where: { id },
+        data: { order: index }
+      })
+    );
+    await prisma.$transaction(updates);
+    revalidatePath('/planner');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error reordering categories:', error);
     return { success: false };
   }
 }

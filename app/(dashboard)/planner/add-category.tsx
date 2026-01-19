@@ -1,7 +1,16 @@
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
-import { Bomb, Inbox, Trash2, Pencil, Check, X } from 'lucide-react';
+import {
+  Bomb,
+  Inbox,
+  Trash2,
+  Pencil,
+  Check,
+  X,
+  GripVertical
+} from 'lucide-react';
+import { Reorder } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,7 +47,8 @@ import {
   addCategory,
   deleteCategory,
   getCategories,
-  updateCategory
+  updateCategory,
+  reorderCategories
 } from '@/lib/actions';
 import { colors, getColorCode } from '@/lib/utils';
 import { Category, ColorEnum, User } from '@prisma/client';
@@ -188,6 +198,12 @@ export function AddCategory({
     } else {
       toast.error('Failed to update category.');
     }
+  };
+
+  const handleReorder = async (newOrder: Category[]) => {
+    setCurrentCategoriesAction(newOrder);
+    const ids = newOrder.map((c) => c.id);
+    await reorderCategories(ids);
   };
 
   return (
@@ -358,194 +374,207 @@ export function AddCategory({
 
         <div className="flex flex-col gap-2 my-12">
           <p className="text-sm font-semibold mb-4">Current Categories:</p>
+          <p className="text-[10px] text-muted-foreground uppercase mb-4 italic">
+            Drag handle to reorder
+          </p>
           {currentCategories.length > 0 ? (
-            currentCategories.map((category) => (
-              <div
-                key={category.id}
-                className="flex flex-col border p-3 rounded-none mb-2 border-slate-200"
-              >
-                {editingId === category.id ? (
-                  <div className="space-y-3">
-                    <Input
-                      value={editName}
-                      onChange={(e) => setEditName(e.target.value)}
-                      className="h-8 text-xs rounded-none"
-                    />
-                    <Select
-                      value={editColor}
-                      onValueChange={(v) => setEditColor(v as ColorEnum)}
-                    >
-                      <SelectTrigger className="h-8 text-xs rounded-none">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {colors.map((color: Color) => (
-                          <SelectItem key={color.code} value={color.name}>
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-3 h-3 rounded-none"
-                                style={{ backgroundColor: color.code }}
-                              />
-                              <p className="text-[10px] capitalize">
-                                {color.name.toLowerCase()}
-                              </p>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+            <Reorder.Group
+              values={currentCategories}
+              onReorder={handleReorder}
+              className="space-y-2"
+            >
+              {currentCategories.map((category) => (
+                <Reorder.Item
+                  key={category.id}
+                  value={category}
+                  className="flex flex-col border p-3 rounded-none mb-2 border-slate-200 bg-white"
+                >
+                  {editingId === category.id ? (
+                    <div className="space-y-3">
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="h-8 text-xs rounded-none"
+                      />
+                      <Select
+                        value={editColor}
+                        onValueChange={(v) => setEditColor(v as ColorEnum)}
+                      >
+                        <SelectTrigger className="h-8 text-xs rounded-none">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {colors.map((color: Color) => (
+                            <SelectItem key={color.code} value={color.name}>
+                              <div className="flex items-center gap-2">
+                                <div
+                                  className="w-3 h-3 rounded-none"
+                                  style={{ backgroundColor: color.code }}
+                                />
+                                <p className="text-[10px] capitalize">
+                                  {color.name.toLowerCase()}
+                                </p>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
-                    <div className="flex flex-col gap-4 py-1">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">
-                          Type
-                        </label>
-                        <div className="flex gap-1">
-                          <Button
-                            size="xs"
-                            variant={!editIsIncome ? 'default' : 'outline'}
-                            className="h-6 flex-1 text-[8px] rounded-none px-0"
-                            onClick={() => setEditIsIncome(false)}
-                          >
-                            Expense
-                          </Button>
-                          <Button
-                            size="xs"
-                            variant={editIsIncome ? 'default' : 'outline'}
-                            className={`h-6 flex-1 text-[8px] rounded-none px-0 ${editIsIncome ? 'bg-emerald-600' : ''}`}
-                            onClick={() => {
-                              setEditIsIncome(true);
-                              setEditIsFixed(false);
-                              setEditIsSavings(false);
-                            }}
-                          >
-                            Income
-                          </Button>
+                      <div className="flex flex-col gap-4 py-1">
+                        <div className="flex flex-col gap-2">
+                          <label className="text-[8px] font-black uppercase tracking-widest text-slate-400">
+                            Type
+                          </label>
+                          <div className="flex gap-1">
+                            <Button
+                              size="xs"
+                              variant={!editIsIncome ? 'default' : 'outline'}
+                              className="h-6 flex-1 text-[8px] rounded-none px-0"
+                              onClick={() => setEditIsIncome(false)}
+                            >
+                              Expense
+                            </Button>
+                            <Button
+                              size="xs"
+                              variant={editIsIncome ? 'default' : 'outline'}
+                              className={`h-6 flex-1 text-[8px] rounded-none px-0 ${editIsIncome ? 'bg-emerald-600' : ''}`}
+                              onClick={() => {
+                                setEditIsIncome(true);
+                                setEditIsFixed(false);
+                                setEditIsSavings(false);
+                              }}
+                            >
+                              Income
+                            </Button>
+                          </div>
                         </div>
+
+                        {!editIsIncome && (
+                          <div className="flex flex-col gap-2 animate-in fade-in duration-200">
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="editIsSavings"
+                                checked={editIsSavings}
+                                onCheckedChange={(checked) =>
+                                  setEditIsSavings(!!checked)
+                                }
+                              />
+                              <label
+                                htmlFor="editIsSavings"
+                                className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                              >
+                                Savings
+                              </label>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                id="editIsFixed"
+                                checked={editIsFixed}
+                                onCheckedChange={(checked) =>
+                                  setEditIsFixed(!!checked)
+                                }
+                              />
+                              <label
+                                htmlFor="editIsFixed"
+                                className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
+                              >
+                                Fixed
+                              </label>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
-                      {!editIsIncome && (
-                        <div className="flex flex-col gap-2 animate-in fade-in duration-200">
-                          <div className="flex items-center gap-2">
-                            <Checkbox
-                              id="editIsSavings"
-                              checked={editIsSavings}
-                              onCheckedChange={(checked) =>
-                                setEditIsSavings(!!checked)
-                              }
-                            />
-                            <label
-                              htmlFor="editIsSavings"
-                              className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
-                            >
-                              Savings
-                            </label>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Checkbox
-                              id="editIsFixed"
-                              checked={editIsFixed}
-                              onCheckedChange={(checked) =>
-                                setEditIsFixed(!!checked)
-                              }
-                            />
-                            <label
-                              htmlFor="editIsFixed"
-                              className="text-[10px] font-bold uppercase tracking-widest cursor-pointer"
-                            >
-                              Fixed
-                            </label>
-                          </div>
-                        </div>
-                      )}
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          size="xs"
+                          variant="ghost"
+                          className="h-7 w-7 p-0 rounded-none"
+                          onClick={() => setEditingId(null)}
+                        >
+                          <X size={14} />
+                        </Button>
+                        <Button
+                          size="xs"
+                          className="h-7 w-7 p-0 rounded-none"
+                          onClick={handleSaveEdit}
+                        >
+                          <Check size={14} />
+                        </Button>
+                      </div>
                     </div>
+                  ) : (
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <GripVertical className="w-3 h-3 text-slate-300 cursor-grab active:cursor-grabbing" />
+                        <div
+                          className="w-4 h-4 rounded-none"
+                          style={{
+                            backgroundColor: getColorCode(category.color)
+                              .backgroundColor
+                          }}
+                        />
+                        <p
+                          className={`text-sm font-medium capitalize ${category.isIncome ? 'text-emerald-700 font-black' : ''}`}
+                        >
+                          {category.name.toLowerCase()}
+                          {category.isIncome && (
+                            <span className="ml-2 bg-emerald-100 text-emerald-700 text-[8px] px-1 py-0.5 font-black uppercase">
+                              Income
+                            </span>
+                          )}
+                        </p>
+                      </div>
 
-                    <div className="flex gap-2 justify-end">
-                      <Button
-                        size="xs"
-                        variant="ghost"
-                        className="h-7 w-7 p-0 rounded-none"
-                        onClick={() => setEditingId(null)}
-                      >
-                        <X size={14} />
-                      </Button>
-                      <Button
-                        size="xs"
-                        className="h-7 w-7 p-0 rounded-none"
-                        onClick={handleSaveEdit}
-                      >
-                        <Check size={14} />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-4 h-4 rounded-none"
-                        style={{
-                          backgroundColor: getColorCode(category.color)
-                            .backgroundColor
-                        }}
-                      />
-                      <p
-                        className={`text-sm font-medium capitalize ${category.isIncome ? 'text-emerald-700 font-black' : ''}`}
-                      >
-                        {category.name.toLowerCase()}
-                        {category.isIncome && (
-                          <span className="ml-2 bg-emerald-100 text-emerald-700 text-[8px] px-1 py-0.5 font-black uppercase">
-                            Income
-                          </span>
-                        )}
-                      </p>
-                    </div>
+                      <div className="flex items-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary rounded-none"
+                          onClick={() => handleStartEdit(category)}
+                        >
+                          <Pencil size={14} />
+                        </Button>
 
-                    <div className="flex items-center">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-muted-foreground hover:text-primary rounded-none"
-                        onClick={() => handleStartEdit(category)}
-                      >
-                        <Pencil size={14} />
-                      </Button>
-
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-none"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="flex items-center gap-2">
-                              <Bomb size={20} /> Are you sure?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Deleting{' '}
-                              <span className="font-bold">{category.name}</span>{' '}
-                              will remove it from your budget view.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteCategory(category)}
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive rounded-none"
                             >
-                              Delete
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                              <Trash2 size={16} />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="flex items-center gap-2">
+                                <Bomb size={20} /> Are you sure?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Deleting{' '}
+                                <span className="font-bold">
+                                  {category.name}
+                                </span>{' '}
+                                will remove it from your budget view.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => handleDeleteCategory(category)}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            ))
+                  )}
+                </Reorder.Item>
+              ))}
+            </Reorder.Group>
           ) : (
             <div className="flex items-center gap-2 opacity-50 italic">
               <Inbox size={18} />{' '}

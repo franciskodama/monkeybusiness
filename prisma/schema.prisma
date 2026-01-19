@@ -32,6 +32,7 @@ model Category {
   isIncome      Boolean       @default(false)
   isSavings     Boolean       @default(false)
   isFixed       Boolean       @default(false)
+  order         Int           @default(0)
   householdId   String
   household     Household     @relation(fields: [householdId], references: [id])
   subcategories Subcategory[]
