@@ -5,6 +5,7 @@ import prisma from './prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { revalidatePath } from 'next/cache';
 import { auth } from './auth';
+import { resend } from './resend';
 
 // AI --------------------------------------------------------------------
 
@@ -823,10 +824,20 @@ export async function seedHouseholdBudget(
             householdId: householdId
           }
         },
-        update: {},
+        update: {
+          color: cat.color || 'BLUE',
+          isIncome: cat.isIncome || false,
+          isSavings: cat.isSavings || false,
+          isFixed: cat.isFixed || false,
+          order: cat.order || 0
+        },
         create: {
           name: cat.name,
-          color: 'BLUE',
+          color: cat.color || 'BLUE',
+          isIncome: cat.isIncome || false,
+          isSavings: cat.isSavings || false,
+          isFixed: cat.isFixed || false,
+          order: cat.order || 0,
           householdId
         }
       });
@@ -850,6 +861,98 @@ export async function seedHouseholdBudget(
     return { success: true };
   } catch (error) {
     console.error(error);
+    return { success: false };
+  }
+}
+
+// REMINDERS --------------------------------------------------------------------
+
+export async function getReminders(householdId: string) {
+  try {
+    return await prisma.reminder.findMany({
+      where: { householdId, isDone: false },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching reminders:', error);
+    return [];
+  }
+}
+
+export async function addReminder(data: {
+  text: string;
+  targetUserId: string;
+  creatorId: string;
+  householdId: string;
+}) {
+  try {
+    const reminder = await prisma.reminder.create({
+      data: {
+        text: data.text,
+        targetUserId: data.targetUserId,
+        creatorId: data.creatorId,
+        householdId: data.householdId
+      }
+    });
+
+    // Notify Target User via Email
+    const targetUser = await prisma.user.findUnique({
+      where: { uid: data.targetUserId }
+    });
+
+    if (targetUser?.name) {
+      const targetLabel = targetUser.name.split(' ')[0].toUpperCase();
+      await resend.emails.send({
+        from: 'Monkey Business <onboarding@resend.dev>',
+        to: process.env.RESEND_EMAIL_SERVER!,
+        subject: `[MONKEY BUSINESS: ${targetLabel}] New Reminder 🐒`,
+        html: `<p>Hi ${targetUser.name},</p><p>A new reminder has been added for you: <strong>"${data.text}"</strong></p><p>Check it out on your Dashboard!</p>`
+      });
+    }
+
+    revalidatePath('/in');
+    return { success: true, reminder };
+  } catch (error) {
+    console.error('❌ Error adding reminder:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteReminder(id: string) {
+  try {
+    const reminder = await prisma.reminder.findUnique({
+      where: { id }
+    });
+
+    if (!reminder) return { success: false };
+
+    // Before deleting, notify the creator that it's DONE
+    const creatorUser = await prisma.user.findUnique({
+      where: { uid: reminder.creatorId }
+    });
+
+    if (creatorUser?.name) {
+      // Get the name of the person who finished it
+      const session = await auth();
+      const finisherName = session?.user?.name || 'Someone';
+      const creatorLabel = creatorUser.name.split(' ')[0].toUpperCase();
+
+      await resend.emails.send({
+        from: 'Monkey Business <onboarding@resend.dev>',
+        to: process.env.RESEND_EMAIL_SERVER!,
+        subject: `[MONKEY BUSINESS: ${creatorLabel}] Task Completed! ✅`,
+        html: `<p>Hi ${creatorUser.name},</p><p>Good news! <strong>${finisherName}</strong> has completed the task: <strong>"${reminder.text}"</strong></p>`
+      });
+    }
+
+    await prisma.reminder.delete({
+      where: { id }
+    });
+
+    revalidatePath('/in');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error deleting reminder:', error);
     return { success: false };
   }
 }

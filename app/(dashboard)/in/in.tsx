@@ -11,8 +11,10 @@ import { BurnDownChart } from '@/components/BurnDownChart';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { tagClass } from '@/lib/classes';
 import CardStatus from './_components/CardStatus';
+import { ReminderCard } from './_components/ReminderCard';
+import { getReminders } from '@/lib/actions';
 
-export default async function In({ user }: { user: User }) {
+export default async function In({ user }: { user: any }) {
   const householdId = user?.householdId!;
   const subcategories = await getSubcategories(householdId);
   const currentMonth = new Date().getMonth() + 1;
@@ -28,6 +30,9 @@ export default async function In({ user }: { user: User }) {
     .filter((s) => s.month === currentMonth)
     .flatMap((s) => s.transactions || [])
     .filter((t) => !t.subcategoryId).length;
+
+  const reminders = await getReminders(householdId);
+  const householdUsers = user.household?.users || [];
 
   return (
     <div className="flex flex-col gap-8 p-6 mb-8">
@@ -54,18 +59,14 @@ export default async function In({ user }: { user: User }) {
           </div>
         </div>
 
-        {/* Status Card */}
+        {/* Reminder Card */}
         <div className="border border-slate-300 border-dashed p-1 bg-slate-50">
-          <div className="bg-white w-full h-full p-6 border border-slate-200 relative flex flex-col justify-center items-center">
-            <CardStatus
-              title={`🚔 Status`}
-              description={
-                pendingCount > 0
-                  ? `${pendingCount} transactions need a home.`
-                  : 'All clear! Your budget is fully mapped.'
-              }
-              buttonText="Manage Rules"
-              url="settings"
+          <div className="bg-white w-full h-full p-6 border border-slate-200 relative">
+            <ReminderCard
+              householdId={householdId}
+              currentUser={user}
+              householdUsers={householdUsers as User[]}
+              initialReminders={reminders}
             />
           </div>
         </div>
