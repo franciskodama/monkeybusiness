@@ -902,11 +902,50 @@ export async function addReminder(data: {
 
     if (targetUser?.name) {
       const targetLabel = targetUser.name.split(' ')[0].toUpperCase();
+      const logoUrl =
+        'https://monkeybusiness-olive.vercel.app/logo/logo-monkeybusiness-150x124-shaved.png';
+
       await resend.emails.send({
         from: 'Monkey Business <onboarding@resend.dev>',
         to: process.env.RESEND_EMAIL_SERVER!,
-        subject: `[MONKEY BUSINESS: ${targetLabel}] New Reminder 🐒`,
-        html: `<p>Hi ${targetUser.name},</p><p>A new reminder has been added for you: <strong>"${data.text}"</strong></p><p>Check it out on your Dashboard!</p>`
+        subject: `[MONKEY BUSINESS: ${targetLabel}] New Signal Received 📡`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; color: #0f172a;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <img src="${logoUrl}" alt="Monkey Business" width="80" />
+            </div>
+            
+            <h1 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; text-align: center;">
+              Incoming Signal 📡
+            </h1>
+            
+            <div style="background-color: #f8fafc; border-left: 4px solid #10b981; padding: 30px; margin-bottom: 30px;">
+              <p style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 10px; margin-top: 0;">
+                Message for ${targetUser.name.split(' ')[0]}
+              </p>
+              <p style="font-size: 20px; font-weight: 600; line-height: 1.4; margin: 0; color: #0f172a;">
+                "${data.text}"
+              </p>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: center;">
+              A new reminder has been added to your household dashboard. <br/>
+              Let's keep the engine running smoothly!
+            </p>
+            
+            <div style="text-align: center; margin-top: 40px;">
+              <a href="https://monkeybusiness-olive.vercel.app/in" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
+                Open Dashboard
+              </a>
+            </div>
+            
+            <div style="margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align: center;">
+              <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+                Monkey Business • Synergy Intelligence
+              </p>
+            </div>
+          </div>
+        `
       });
     }
 
@@ -936,12 +975,47 @@ export async function deleteReminder(id: string) {
       const session = await auth();
       const finisherName = session?.user?.name || 'Someone';
       const creatorLabel = creatorUser.name.split(' ')[0].toUpperCase();
+      const logoUrl =
+        'https://monkeybusiness-olive.vercel.app/logo/logo-monkeybusiness-150x124-shaved.png';
 
       await resend.emails.send({
         from: 'Monkey Business <onboarding@resend.dev>',
         to: process.env.RESEND_EMAIL_SERVER!,
-        subject: `[MONKEY BUSINESS: ${creatorLabel}] Task Completed! ✅`,
-        html: `<p>Hi ${creatorUser.name},</p><p>Good news! <strong>${finisherName}</strong> has completed the task: <strong>"${reminder.text}"</strong></p>`
+        subject: `[MONKEY BUSINESS: ${creatorLabel}] Mission Accomplished! ✅`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; color: #0f172a;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <img src="${logoUrl}" alt="Monkey Business" width="80" />
+            </div>
+            
+            <h1 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; text-align: center; color: #10b981;">
+              Task Completed ✅
+            </h1>
+            
+            <div style="text-align: center; padding: 30px; border: 1px dashed #cbd5e1; margin-bottom: 30px;">
+               <p style="font-size: 14px; color: #475569; margin-bottom: 10px;">
+                Good news, <strong>${creatorUser.name.split(' ')[0]}</strong>!
+              </p>
+              <p style="font-size: 18px; font-weight: 600; line-height: 1.4; margin: 0; color: #0f172a;">
+                <strong>${finisherName}</strong> has finished the task:
+              </p>
+              <p style="font-size: 18px; font-weight: 400; font-style: italic; color: #10b981; margin-top: 10px;">
+                "${reminder.text}"
+              </p>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: center;">
+              Your household just got a little lighter. <br/>
+              Everything is in sync! 🚀
+            </p>
+            
+            <div style="margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align: center;">
+              <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+                Monkey Business • Synergy Intelligence
+              </p>
+            </div>
+          </div>
+        `
       });
     }
 
