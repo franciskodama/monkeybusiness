@@ -23,6 +23,7 @@ model Household {
   categories    Category[]
   subcategories Subcategory[]
   transactions  Transaction[]
+  reminders     Reminder[]
 }
 
 model Category {
@@ -32,6 +33,7 @@ model Category {
   isIncome      Boolean       @default(false)
   isSavings     Boolean       @default(false)
   isFixed       Boolean       @default(false)
+  order         Int           @default(0)
   householdId   String
   household     Household     @relation(fields: [householdId], references: [id])
   subcategories Subcategory[]
@@ -64,6 +66,17 @@ model Transaction {
   subcategoryId String?
   subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id])
   createdAt DateTime @default(now())
+}
+
+model Reminder {
+  id           String    @id @default(uuid())
+  text         String
+  targetUserId String    // Who should do it (the assigned user's UID)
+  creatorId    String    // Who wrote it
+  isDone       Boolean   @default(false)
+  householdId  String
+  household    Household @relation(fields: [householdId], references: [id])
+  createdAt    DateTime  @default(now())
 }
 
 model TransactionRule {

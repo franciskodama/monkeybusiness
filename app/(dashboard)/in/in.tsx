@@ -11,8 +11,10 @@ import { BurnDownChart } from '@/components/BurnDownChart';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { tagClass } from '@/lib/classes';
 import CardStatus from './_components/CardStatus';
+import { SignalsRibbon } from './_components/SignalsRibbon';
+import { getReminders } from '@/lib/actions';
 
-export default async function In({ user }: { user: User }) {
+export default async function In({ user }: { user: any }) {
   const householdId = user?.householdId!;
   const subcategories = await getSubcategories(householdId);
   const currentMonth = new Date().getMonth() + 1;
@@ -28,6 +30,9 @@ export default async function In({ user }: { user: User }) {
     .filter((s) => s.month === currentMonth)
     .flatMap((s) => s.transactions || [])
     .filter((t) => !t.subcategoryId).length;
+
+  const reminders = await getReminders(householdId);
+  const householdUsers = user.household?.users || [];
 
   return (
     <div className="flex flex-col gap-8 p-6 mb-8">
@@ -61,14 +66,24 @@ export default async function In({ user }: { user: User }) {
               title={`🚔 Status`}
               description={
                 pendingCount > 0
-                  ? `${pendingCount} transactions need a home.`
-                  : 'All clear! Your budget is fully mapped.'
+                  ? `${pendingCount} tasks need mapping.`
+                  : 'All clear! Systems optimal.'
               }
               buttonText="Manage Rules"
               url="settings"
             />
           </div>
         </div>
+      </div>
+
+      {/* SIGNALS RIBBON */}
+      <div className="w-full">
+        <SignalsRibbon
+          householdId={householdId}
+          currentUser={user}
+          householdUsers={householdUsers as User[]}
+          initialReminders={reminders}
+        />
       </div>
 
       {/* SECTION 2: MAIN CHART ROW */}

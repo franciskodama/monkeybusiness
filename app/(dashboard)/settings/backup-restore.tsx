@@ -21,9 +21,18 @@ export function BackupRestore({
       const categoriesMap: Record<string, any> = {};
 
       currentSubcategories.forEach((sub) => {
-        const catName = sub.category?.name || 'Uncategorized';
+        const category = sub.category;
+        const catName = category?.name || 'Uncategorized';
         if (!categoriesMap[catName]) {
-          categoriesMap[catName] = { name: catName, subcategories: [] };
+          categoriesMap[catName] = {
+            name: catName,
+            color: category?.color || 'BLUE',
+            isIncome: category?.isIncome || false,
+            isSavings: category?.isSavings || false,
+            isFixed: category?.isFixed || false,
+            order: category?.order || 0,
+            subcategories: []
+          };
         }
 
         // Ensure we only grab one instance of each subcategory name for the template

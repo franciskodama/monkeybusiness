@@ -5,6 +5,7 @@ import prisma from './prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { revalidatePath } from 'next/cache';
 import { auth } from './auth';
+import { resend } from './resend';
 
 // AI --------------------------------------------------------------------
 
@@ -345,6 +346,9 @@ export const getCategories = async (householdId: string) => {
     const categories = await prisma.category.findMany({
       where: {
         householdId
+      },
+      orderBy: {
+        order: 'asc'
       }
     });
     return categories;
@@ -370,6 +374,7 @@ export async function addCategory({
   isFixed?: boolean;
 }) {
   try {
+    const count = await prisma.category.count({ where: { householdId } });
     const newCategory = await prisma.category.create({
       data: {
         name,
@@ -377,7 +382,8 @@ export async function addCategory({
         isIncome,
         isSavings,
         isFixed,
-        householdId
+        householdId,
+        order: count
       }
     });
 
@@ -432,6 +438,23 @@ export async function updateCategory(data: {
     return { success: true, category: updated };
   } catch (error) {
     console.error('❌ Error updating category:', error);
+    return { success: false };
+  }
+}
+
+export async function reorderCategories(orderedIds: string[]) {
+  try {
+    const updates = orderedIds.map((id, index) =>
+      prisma.category.update({
+        where: { id },
+        data: { order: index }
+      })
+    );
+    await prisma.$transaction(updates);
+    revalidatePath('/planner');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error reordering categories:', error);
     return { success: false };
   }
 }
@@ -801,10 +824,20 @@ export async function seedHouseholdBudget(
             householdId: householdId
           }
         },
-        update: {},
+        update: {
+          color: cat.color || 'BLUE',
+          isIncome: cat.isIncome || false,
+          isSavings: cat.isSavings || false,
+          isFixed: cat.isFixed || false,
+          order: cat.order || 0
+        },
         create: {
           name: cat.name,
-          color: 'BLUE',
+          color: cat.color || 'BLUE',
+          isIncome: cat.isIncome || false,
+          isSavings: cat.isSavings || false,
+          isFixed: cat.isFixed || false,
+          order: cat.order || 0,
           householdId
         }
       });
@@ -828,6 +861,172 @@ export async function seedHouseholdBudget(
     return { success: true };
   } catch (error) {
     console.error(error);
+    return { success: false };
+  }
+}
+
+// REMINDERS --------------------------------------------------------------------
+
+export async function getReminders(householdId: string) {
+  try {
+    return await prisma.reminder.findMany({
+      where: { householdId, isDone: false },
+      orderBy: { createdAt: 'desc' }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching reminders:', error);
+    return [];
+  }
+}
+
+export async function addReminder(data: {
+  text: string;
+  targetUserId: string;
+  creatorId: string;
+  householdId: string;
+}) {
+  try {
+    const reminder = await prisma.reminder.create({
+      data: {
+        text: data.text,
+        targetUserId: data.targetUserId,
+        creatorId: data.creatorId,
+        householdId: data.householdId
+      }
+    });
+
+    // Notify Target User via Email
+    const targetUser = await prisma.user.findUnique({
+      where: { uid: data.targetUserId }
+    });
+
+    if (targetUser?.name) {
+      const targetLabel = targetUser.name.split(' ')[0].toUpperCase();
+      const logoUrl =
+        'https://monkeybusiness-olive.vercel.app/logo/logo-monkeybusiness-150x124-shaved.png';
+
+      await resend.emails.send({
+        from: 'Monkey Business <onboarding@resend.dev>',
+        to: process.env.RESEND_EMAIL_SERVER!,
+        subject: `[MONKEY BUSINESS: ${targetLabel}] New Signal Received 📡`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; color: #0f172a;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <img src="${logoUrl}" alt="Monkey Business" width="80" />
+            </div>
+            
+            <h1 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; text-align: center;">
+              Incoming Signal 📡
+            </h1>
+            
+            <div style="background-color: #f8fafc; border-left: 4px solid #10b981; padding: 30px; margin-bottom: 30px;">
+              <p style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 10px; margin-top: 0;">
+                Message for ${targetUser.name.split(' ')[0]}
+              </p>
+              <p style="font-size: 20px; font-weight: 600; line-height: 1.4; margin: 0; color: #0f172a;">
+                "${data.text}"
+              </p>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: center;">
+              A new reminder has been added to your household dashboard. <br/>
+              Let's keep the engine running smoothly!
+            </p>
+            
+            <div style="text-align: center; margin-top: 40px;">
+              <a href="https://monkeybusiness-olive.vercel.app/in" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
+                Open Dashboard
+              </a>
+            </div>
+            
+            <div style="margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align: center;">
+              <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+                Monkey Business • Synergy Intelligence
+              </p>
+            </div>
+          </div>
+        `
+      });
+    }
+
+    revalidatePath('/in');
+    return { success: true, reminder };
+  } catch (error) {
+    console.error('❌ Error adding reminder:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteReminder(id: string) {
+  try {
+    const reminder = await prisma.reminder.findUnique({
+      where: { id }
+    });
+
+    if (!reminder) return { success: false };
+
+    // Before deleting, notify the creator that it's DONE
+    const creatorUser = await prisma.user.findUnique({
+      where: { uid: reminder.creatorId }
+    });
+
+    if (creatorUser?.name) {
+      // Get the name of the person who finished it
+      const session = await auth();
+      const finisherName = session?.user?.name || 'Someone';
+      const creatorLabel = creatorUser.name.split(' ')[0].toUpperCase();
+      const logoUrl =
+        'https://monkeybusiness-olive.vercel.app/logo/logo-monkeybusiness-150x124-shaved.png';
+
+      await resend.emails.send({
+        from: 'Monkey Business <onboarding@resend.dev>',
+        to: process.env.RESEND_EMAIL_SERVER!,
+        subject: `[MONKEY BUSINESS: ${creatorLabel}] Mission Accomplished! ✅`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; color: #0f172a;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <img src="${logoUrl}" alt="Monkey Business" width="80" />
+            </div>
+            
+            <h1 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 20px; text-align: center; color: #10b981;">
+              Task Completed ✅
+            </h1>
+            
+            <div style="text-align: center; padding: 30px; border: 1px dashed #cbd5e1; margin-bottom: 30px;">
+               <p style="font-size: 14px; color: #475569; margin-bottom: 10px;">
+                Good news, <strong>${creatorUser.name.split(' ')[0]}</strong>!
+              </p>
+              <p style="font-size: 18px; font-weight: 600; line-height: 1.4; margin: 0; color: #0f172a;">
+                <strong>${finisherName}</strong> has finished the task:
+              </p>
+              <p style="font-size: 18px; font-weight: 400; font-style: italic; color: #10b981; margin-top: 10px;">
+                "${reminder.text}"
+              </p>
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: center;">
+              Your household just got a little lighter. <br/>
+              Everything is in sync! 🚀
+            </p>
+            
+            <div style="margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align: center;">
+              <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+                Monkey Business • Synergy Intelligence
+              </p>
+            </div>
+          </div>
+        `
+      });
+    }
+
+    await prisma.reminder.delete({
+      where: { id }
+    });
+
+    revalidatePath('/in');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error deleting reminder:', error);
     return { success: false };
   }
 }
