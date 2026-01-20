@@ -30,6 +30,7 @@ export default async function Login() {
             alt="Monkey Business Logo"
             width={140}
             height={140}
+            style={{ height: 'auto' }}
           />
           <div className="flex flex-col w-full">
             <p className="text-4xl uppercase sm:text-8xl font-extrabold sm:leading-[5.5rem]">

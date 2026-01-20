@@ -981,7 +981,7 @@ export async function deleteReminder(id: string) {
       await resend.emails.send({
         from: 'Monkey Business <onboarding@resend.dev>',
         to: process.env.RESEND_EMAIL_SERVER!,
-        subject: `[MONKEY BUSINESS: ${creatorLabel}] Mission Accomplished! ✅`,
+        subject: `[MONKEY BUSINESS: HOUSEHOLD] Mission Accomplished! ✅`,
         html: `
           <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; color: #0f172a;">
             <div style="text-align: center; margin-bottom: 30px;">

@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   LineChart,
   Line,
@@ -11,6 +12,12 @@ import {
 } from 'recharts';
 
 export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -52,62 +59,71 @@ export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
     };
   });
 
+  if (!mounted) return <div className="w-full h-[300px]" />;
+
   return (
-    <ResponsiveContainer width="100%" height="90%">
-      <LineChart
-        data={chartData}
-        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+    <div className="w-full h-[300px] min-h-[300px]">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        minHeight={0}
       >
-        <CartesianGrid
-          strokeDasharray="3 3"
-          vertical={false}
-          stroke="#e2e8f0"
-        />
-        <XAxis
-          dataKey="day"
-          axisLine={false}
-          tickLine={false}
-          tick={{ fontSize: 9, fontWeight: 'bold', fill: '#64748b' }}
-          interval={2}
-        />
-        <YAxis
-          axisLine={false}
-          tickLine={false}
-          tick={{ fontSize: 9, fill: '#94a3b8' }}
-          tickFormatter={(value) => `$${value}`}
-        />
-        <Tooltip
-          contentStyle={{
-            borderRadius: '0px',
-            border: '1px solid #cbd5e1',
-            fontSize: '10px',
-            textTransform: 'uppercase',
-            fontWeight: 'bold'
-          }}
-          cursor={{ stroke: '#cbd5e1', strokeWidth: 1 }}
-        />
-        {/* Planned Path: Dashed and light */}
-        <Line
-          type="linear"
-          dataKey="planned"
-          stroke="#cbd5e1"
-          strokeDasharray="4 4"
-          dot={false}
-          strokeWidth={1}
-          name="Planned"
-          connectNulls
-        />
-        {/* Actual Path: Bold, Black, and Step-style */}
-        <Line
-          type="stepAfter"
-          dataKey="actual"
-          stroke="#0f172a"
-          strokeWidth={2}
-          dot={false}
-          activeDot={{ r: 4, strokeWidth: 0, fill: '#0f172a' }}
-          name="Actual"
-        />
-      </LineChart>
-    </ResponsiveContainer>
+        <LineChart
+          data={chartData}
+          margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+        >
+          <CartesianGrid
+            strokeDasharray="3 3"
+            vertical={false}
+            stroke="#e2e8f0"
+          />
+          <XAxis
+            dataKey="day"
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 9, fontWeight: 'bold', fill: '#64748b' }}
+            interval={2}
+          />
+          <YAxis
+            axisLine={false}
+            tickLine={false}
+            tick={{ fontSize: 9, fill: '#94a3b8' }}
+            tickFormatter={(value) => `$${value}`}
+          />
+          <Tooltip
+            contentStyle={{
+              borderRadius: '0px',
+              border: '1px solid #cbd5e1',
+              fontSize: '10px',
+              textTransform: 'uppercase',
+              fontWeight: 'bold'
+            }}
+            cursor={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+          />
+          {/* Planned Path: Dashed and light */}
+          <Line
+            type="linear"
+            dataKey="planned"
+            stroke="#cbd5e1"
+            strokeDasharray="4 4"
+            dot={false}
+            strokeWidth={1}
+            name="Planned"
+            connectNulls
+          />
+          {/* Actual Path: Bold, Black, and Step-style */}
+          <Line
+            type="stepAfter"
+            dataKey="actual"
+            stroke="#0f172a"
+            strokeWidth={2}
+            dot={false}
+            activeDot={{ r: 4, strokeWidth: 0, fill: '#0f172a' }}
+            name="Actual"
+          />
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
