@@ -57,6 +57,7 @@ export default function Footer() {
             height={75}
             alt="Logo of Monkey Business"
             className="sm:mr-4 sm:mt-4"
+            style={{ height: 'auto' }}
           />
         </div>
       </CardContent>

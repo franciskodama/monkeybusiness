@@ -79,15 +79,7 @@ export function SignalsRibbon({
 
   return (
     <div className="w-full flex items-center gap-4 bg-slate-50 border-y border-slate-200 py-3 px-6 relative overflow-hidden group">
-      {/* Label & Add Button */}
       <div className="flex items-center gap-3 shrink-0 pr-4 border-r border-slate-200">
-        <div className="flex items-center gap-2">
-          {/* <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" /> */}
-          {/* <h4 className="text-xl font-black uppercase tracking-widest text-slate-500 whitespace-nowrap">
-            🎗️
-          </h4> */}
-        </div>
-
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
             <Button

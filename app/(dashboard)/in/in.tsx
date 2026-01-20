@@ -118,7 +118,9 @@ export default async function In({ user }: { user: any }) {
               <h4 className="text-[10px] font-black uppercase tracking-widest mb-4">
                 Top Burn Sources
               </h4>
-              <SourceBurnChart subcategories={subcategories} />
+              <div className="h-[250px]">
+                <SourceBurnChart subcategories={subcategories} />
+              </div>
               <div className={tagClass}>
                 <span className="mr-2">💳</span>Sources
               </div>

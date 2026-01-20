@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import {
   BarChart,
   Bar,
@@ -13,6 +14,12 @@ import {
 import { formatCurrencyRounded } from '@/lib/utils';
 
 export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const currentMonth = new Date().getMonth() + 1;
 
   // 1. Extract transactions for the current month (EXCLUDING income categories)
@@ -22,14 +29,17 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
 
   // 2. Calculate totals per source
   const sourceData: Record<string, number> = {
-    Family: 0,
-    His: 0,
-    Her: 0
+    FAMILY: 0,
+    HIS: 0,
+    HER: 0
   };
 
   transactions.forEach((tx) => {
-    if (tx.amount > 0 && sourceData.hasOwnProperty(tx.source)) {
-      sourceData[tx.source] += tx.amount;
+    if (tx.amount > 0) {
+      const source = tx.source?.toUpperCase();
+      if (source && sourceData.hasOwnProperty(source)) {
+        sourceData[source] += tx.amount;
+      }
     }
   });
 
@@ -38,21 +48,28 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
   // 3. Transform to chart data with percentages
   const data = Object.entries(sourceData)
     .map(([name, value]) => ({
-      name: name.toUpperCase(),
+      name: name,
       value: value,
       percentage: total > 0 ? (value / total) * 100 : 0
     }))
     .sort((a, b) => b.value - a.value);
 
   const COLOR_MAP: Record<string, string> = {
-    FAMILY: '#EF4444', // Red
-    HIS: '#00FFFF', // Cyan from image
-    HER: '#F97316' // Orange
+    FAMILY: '#EF4444',
+    HIS: '#00FFFF',
+    HER: '#F97316'
   };
 
+  if (!mounted) return <div className="w-full h-[250px]" />;
+
   return (
-    <div className="w-full h-[250px] mt-4">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-[250px] min-h-[250px] mt-4 overflow-hidden">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        minWidth={0}
+        minHeight={0}
+      >
         <BarChart
           data={data}
           layout="vertical"

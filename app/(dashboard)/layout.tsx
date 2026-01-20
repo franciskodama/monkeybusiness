@@ -60,6 +60,7 @@ export function DesktopNav() {
             width={150}
             height={124}
             className="w-[5em]"
+            style={{ height: 'auto' }}
           />
         </Link>
 
