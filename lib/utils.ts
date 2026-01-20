@@ -74,8 +74,8 @@ export const formatCurrencyRounded = (amount: number) => {
 
 export const getSourceColor = (source: string) => {
   const s = source.toUpperCase();
-  if (s.includes('HIS')) return '#00FFFF';
-  if (s.includes('HER')) return '#F97316';
+  if (s.includes('HIS') || s.includes('FRANCIS')) return '#00FFFF';
+  if (s.includes('HER') || s.includes('MARIANA')) return '#F97316';
   if (s.includes('FAMILY')) return '#EF4444';
   return '#64748B';
 };

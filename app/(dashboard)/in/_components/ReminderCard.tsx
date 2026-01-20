@@ -9,6 +9,7 @@ import {
   User as UserIcon,
   Plus
 } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -22,6 +23,7 @@ import { toast } from 'sonner';
 import { addReminder, deleteReminder } from '@/lib/actions';
 import { tagClass } from '@/lib/classes';
 import { User, Reminder } from '@prisma/client';
+import { getSourceColor } from '@/lib/utils';
 
 export function ReminderCard({
   householdId,
@@ -138,14 +140,16 @@ export function ReminderCard({
                 .find((u) => u.uid === r.targetUserId)
                 ?.name.split(' ')[0] || 'User';
 
+            const userColor = getSourceColor(targetName);
+
             return (
               <div
                 key={r.id}
-                className={`group relative p-3 border transition-all ${
-                  isForMe
-                    ? 'border-emerald-200 bg-emerald-50/50'
-                    : 'border-slate-200 bg-white'
-                }`}
+                className="group relative p-3 border transition-all"
+                style={{
+                  borderColor: isForMe ? `${userColor}40` : '#e2e8f0',
+                  backgroundColor: isForMe ? `${userColor}05` : '#ffffff'
+                }}
               >
                 <div className="flex justify-between items-start gap-4">
                   <div className="space-y-1 grow">
@@ -154,11 +158,11 @@ export function ReminderCard({
                     </p>
                     <div className="flex items-center gap-2">
                       <span
-                        className={`text-[8px] font-black uppercase px-1.5 py-0.5 ${
-                          isForMe
-                            ? 'bg-emerald-600 text-white'
-                            : 'bg-slate-100 text-slate-500'
-                        }`}
+                        className="text-[8px] font-black uppercase px-1.5 py-0.5"
+                        style={{
+                          backgroundColor: userColor,
+                          color: userColor === '#00FFFF' ? '#000000' : '#ffffff'
+                        }}
                       >
                         {targetName}
                       </span>
