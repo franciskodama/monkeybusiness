@@ -11,7 +11,7 @@ import { BurnDownChart } from '@/components/BurnDownChart';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { tagClass } from '@/lib/classes';
 import CardStatus from './_components/CardStatus';
-import { ReminderCard } from './_components/ReminderCard';
+import { SignalsRibbon } from './_components/SignalsRibbon';
 import { getReminders } from '@/lib/actions';
 
 export default async function In({ user }: { user: any }) {
@@ -59,17 +59,31 @@ export default async function In({ user }: { user: any }) {
           </div>
         </div>
 
-        {/* Reminder Card */}
+        {/* Status Card */}
         <div className="border border-slate-300 border-dashed p-1 bg-slate-50">
-          <div className="bg-white w-full h-full p-6 border border-slate-200 relative">
-            <ReminderCard
-              householdId={householdId}
-              currentUser={user}
-              householdUsers={householdUsers as User[]}
-              initialReminders={reminders}
+          <div className="bg-white w-full h-full p-6 border border-slate-200 relative flex flex-col justify-center items-center">
+            <CardStatus
+              title={`🚔 Status`}
+              description={
+                pendingCount > 0
+                  ? `${pendingCount} tasks need mapping.`
+                  : 'All clear! Systems optimal.'
+              }
+              buttonText="Manage Rules"
+              url="settings"
             />
           </div>
         </div>
+      </div>
+
+      {/* SIGNALS RIBBON */}
+      <div className="w-full">
+        <SignalsRibbon
+          householdId={householdId}
+          currentUser={user}
+          householdUsers={householdUsers as User[]}
+          initialReminders={reminders}
+        />
       </div>
 
       {/* SECTION 2: MAIN CHART ROW */}
