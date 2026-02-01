@@ -72,19 +72,20 @@ export function AddTransactionModal({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Description</label>
-            <Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="space-y-">
             <label className="text-sm font-medium">Amount</label>
             <Input
               type="number"
               placeholder="0.00"
+              autoFocus
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Description</label>
+            <Input
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           <div className="space-y-2">
