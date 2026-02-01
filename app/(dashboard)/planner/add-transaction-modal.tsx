@@ -35,7 +35,7 @@ export function AddTransactionModal({
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState(itemName);
-  const [source, setSource] = useState('');
+  const [source, setSource] = useState('Family');
 
   const handleSubmit = async () => {
     const res = await addTransaction({
