@@ -124,19 +124,19 @@ export default function SettingsClient({
             </div>
           </div>
 
-          <Tabs defaultValue="household" className="w-full space-y-6">
+          <Tabs defaultValue="rules" className="w-full space-y-6">
             <TabsList className="flex w-full sm:w-[600px] bg-muted border border-slate-300 border-dashed p-1 h-12 rounded-none">
-              <TabsTrigger
-                value="household"
-                className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
-              >
-                Household
-              </TabsTrigger>
               <TabsTrigger
                 value="rules"
                 className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
               >
                 Rules
+              </TabsTrigger>
+              <TabsTrigger
+                value="household"
+                className="flex-1 uppercase text-sm font-bold tracking-widest data-[state=active]:bg-primary data-[state=active]:text-white rounded-none h-full"
+              >
+                Household
               </TabsTrigger>
               <TabsTrigger
                 value="backup"
@@ -146,6 +146,14 @@ export default function SettingsClient({
               </TabsTrigger>
             </TabsList>
 
+            <TabsContent value="rules" className="outline-none">
+              <div className="stripe-border w-full min-h-[30em] p-1 border border-slate-300 border-dashed">
+                <div className="bg-white w-full h-full min-h-[30em] overflow-hidden">
+                  <RulesManager rules={rules} />
+                </div>
+              </div>
+            </TabsContent>
+
             <TabsContent value="household" className="outline-none">
               <div className="stripe-border w-full min-h-[30em] p-1 border border-slate-300 border-dashed">
                 <div className="bg-white w-full h-full min-h-[30em] p-8">
@@ -153,14 +161,6 @@ export default function SettingsClient({
                     household={user.household}
                     currentUserId={user.uid}
                   />
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="rules" className="outline-none">
-              <div className="stripe-border w-full min-h-[30em] p-1 border border-slate-300 border-dashed">
-                <div className="bg-white w-full h-full min-h-[30em] overflow-hidden">
-                  <RulesManager rules={rules} />
                 </div>
               </div>
             </TabsContent>

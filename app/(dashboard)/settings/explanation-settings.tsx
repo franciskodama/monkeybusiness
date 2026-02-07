@@ -23,19 +23,19 @@ export default function ExplanationSettings({
   const contentTwo = (
     <div className="space-y-3 text-primary">
       <p className="font-bold uppercase tracking-wider">
-        - Household sync:
-        <span className="font-normal block normal-case tracking-normal mt-1">
-          Invite members to your household so you can track shared expenses and
-          income together in real-time.
-        </span>
-      </p>
-      <p className="font-bold uppercase tracking-wider">
         - Smart Rules:
         <span className="font-normal block normal-case tracking-normal mt-1">
           Manage the automated patterns the system uses to recognize your
           expenses. You can edit, delete, or manually add rules here to improve
           your
           <b>Smart Coverage</b>.
+        </span>
+      </p>
+      <p className="font-bold uppercase tracking-wider">
+        - Household sync:
+        <span className="font-normal block normal-case tracking-normal mt-1">
+          Invite members to your household so you can track shared expenses and
+          income together in real-time.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
