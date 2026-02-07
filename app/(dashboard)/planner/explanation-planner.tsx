@@ -36,22 +36,23 @@ export default function ExplanationPlanner({
       <p className="font-bold uppercase tracking-wider">
         2. Sync Transactions:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Use the <b>Direct Code</b> or <b>PDF Importer</b> to bring in bank
-          data. The AI will try to match them to our categories automatically.
+          Use the <b>PDF Importer</b> or paste JSON/Text with the{' '}
+          <b>Direct Code</b> tool.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        3. Review & Save:
+        3. Review & Automate:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Confirm the AI's matches. Once saved, the "Actual" column updates
-          instantly to show our progress.
+          Confirm matches. Set "Smart Rules" to automate future entries—even
+          after picking a category, the rule settings stay open for your final
+          check.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        4. Watch the Burn:
+        4. Course Correct:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Check the status pill (e.g., "$50 left") to see if we are staying
-          under budget.
+          Noticed a mistake? Click on any <b>Actual</b> value to see the full
+          list and delete individual transactions in one click.
         </span>
       </p>
     </div>
@@ -62,22 +63,23 @@ export default function ExplanationPlanner({
       <p className="font-bold uppercase tracking-wider">
         - Total Awareness:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Stop wondering "where did the money go?" by seeing real-time tracking
-          against your goals.
+          The <b>Sticky Command Center</b> keeps your Income, Burn, and Net
+          Result always in view as you scroll.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        - Smart Automation:
+        - Smarter Matching:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          The more we use it, the smarter it gets. Create "Smart Rules" during
-          import to never categorize the same store twice.
+          The system uses "Match Patterns" to recognize merchants. Check for the
+          green <b>Matched by Rule</b> badge during import to see automation in
+          action.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        - Multi-Month Flex:
+        - Precise Control:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Switch between months easily. Your budget stays organized even if a
-          bank statement spans two different months.
+          Whether importing a batch or fixing a single entry, you have full
+          control over what hits your budget.
         </span>
       </p>
     </div>
