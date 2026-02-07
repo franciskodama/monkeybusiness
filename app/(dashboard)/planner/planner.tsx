@@ -41,7 +41,7 @@ import { AddTransactionModal } from './add-transaction-modal';
 import { TransactionImporter } from './transaction-importer';
 import { DirectCodeImporter } from './transaction-direct-code-importer';
 import { TransactionReviewModal } from './transaction-review-modal';
-import { deleteSubcategory } from '@/lib/actions';
+import { deleteSubcategory, deleteTransaction } from '@/lib/actions';
 import { AddSubcategory } from './add-subcategory';
 import { SourceBreakdown } from '@/components/SourceBreakdown';
 
@@ -175,6 +175,10 @@ export default function Planner({
   // Export Budget Data
   //--------------------------------------------------
 
+  //--------------------------------------------------
+  // Export Budget Data
+  //--------------------------------------------------
+
   const exportBudgetData = () => {
     const categoriesMap: Record<string, any> = {};
 
@@ -214,6 +218,29 @@ export default function Planner({
     URL.revokeObjectURL(url);
 
     toast.success('Backup file downloaded!');
+  };
+
+  const handleDeleteTransaction = async (transactionId: string) => {
+    const res = await deleteTransaction(transactionId, householdId);
+    if (res.success && res.updatedItems) {
+      setCurrentSubcategoriesAction(res.updatedItems);
+      if (selectedDetails) {
+        const filtered = selectedDetails.transactions.filter(
+          (tx: any) => tx.id !== transactionId
+        );
+        if (filtered.length === 0) {
+          setSelectedDetails(null);
+        } else {
+          setSelectedDetails({
+            ...selectedDetails,
+            transactions: filtered
+          });
+        }
+      }
+      toast.success('Transaction deleted');
+    } else {
+      toast.error('Failed to delete transaction');
+    }
   };
 
   return (
@@ -642,7 +669,7 @@ export default function Planner({
         open={!!selectedDetails}
         onOpenChange={(open) => !open && setSelectedDetails(null)}
       >
-        <DialogContent className="rounded-none border-slate-300 sm:max-w-md max-h-[70vh] flex flex-col p-0 overflow-hidden [&_[data-slot=dialog-close]]:text-white">
+        <DialogContent className="rounded-none border-slate-300 sm:max-w-md max-h-[70vh] flex flex-col p-0 overflow-hidden [&_[data-slot=dialog-close]]:text-white shadow-2xl">
           <DialogHeader className="p-6 bg-slate-900 text-white rounded-none">
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
@@ -657,7 +684,7 @@ export default function Planner({
               {selectedDetails?.transactions.map((tx: any, idx: number) => (
                 <div
                   key={idx}
-                  className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors"
+                  className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors group"
                 >
                   <div className="flex flex-col gap-1">
                     <span className="text-xs font-black uppercase tracking-widest">
@@ -674,14 +701,24 @@ export default function Planner({
                       </span>
                     </div>
                   </div>
-                  <span
-                    className={`font-mono font-bold text-sm ${
-                      tx.amount < 0 ? 'text-emerald-600' : 'text-slate-900'
-                    }`}
-                  >
-                    {tx.amount < 0 ? '+' : ''}$
-                    {formatCurrency(Math.abs(tx.amount))}
-                  </span>
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={`font-mono font-bold text-sm ${
+                        tx.amount < 0 ? 'text-emerald-600' : 'text-slate-900'
+                      }`}
+                    >
+                      {tx.amount < 0 ? '+' : ''}$
+                      {formatCurrency(Math.abs(tx.amount))}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive/30 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all rounded-none"
+                      onClick={() => handleDeleteTransaction(tx.id)}
+                    >
+                      <Trash2 size={12} />
+                    </Button>
+                  </div>
                 </div>
               ))}
             </div>

@@ -223,35 +223,58 @@ export function TransactionReviewModal({
                       </Select>
                     </div>
 
-                    {!tx.subcategoryId && !tx.ignored && (
-                      <div className="flex flex-col gap-3 p-4 bg-blue-50/30 border border-blue-100 rounded-none">
-                        <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`rule-${index}`}
-                            className="rounded-none border-blue-400 data-[state=checked]:bg-blue-600"
-                            checked={rulesToSave[index] || false}
-                            onCheckedChange={(checked) => {
-                              setRulesToSave((prev) => ({
-                                ...prev,
-                                [index]: !!checked
-                              }));
-                            }}
-                          />
-                          <label
-                            htmlFor={`rule-${index}`}
-                            className="text-[10px] text-blue-900 uppercase font-black cursor-pointer tracking-widest"
-                          >
-                            Automate future {tx.description}
-                          </label>
+                    {!tx.ignored && (
+                      <div
+                        className={`flex flex-col gap-3 p-4 border rounded-none transition-colors ${
+                          tx.ruleMatched
+                            ? 'bg-emerald-50/30 border-emerald-100'
+                            : !tx.subcategoryId
+                              ? 'bg-amber-50/50 border-amber-200'
+                              : 'bg-blue-50/30 border-blue-100'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`rule-${index}`}
+                              className={`rounded-none border-blue-400 data-[state=checked]:bg-blue-600 ${tx.ruleMatched ? 'border-emerald-400 data-[state=checked]:bg-emerald-600' : ''}`}
+                              checked={rulesToSave[index] || false}
+                              onCheckedChange={(checked) => {
+                                setRulesToSave((prev) => ({
+                                  ...prev,
+                                  [index]: !!checked
+                                }));
+                              }}
+                            />
+                            <label
+                              htmlFor={`rule-${index}`}
+                              className={`text-[10px] uppercase font-black cursor-pointer tracking-widest ${tx.ruleMatched ? 'text-emerald-800' : 'text-blue-900'}`}
+                            >
+                              {tx.ruleMatched
+                                ? 'Update existing rule'
+                                : 'Automate future occurrences'}
+                            </label>
+                          </div>
+                          {tx.ruleMatched && (
+                            <span className="text-[8px] bg-emerald-500 text-white px-1.5 py-0.5 font-bold uppercase tracking-widest">
+                              Matched by Rule
+                            </span>
+                          )}
                         </div>
 
                         <div className="flex flex-col gap-1.5 ml-6">
-                          <span className="text-[9px] text-blue-700/70 uppercase font-bold">
+                          <span
+                            className={`text-[9px] uppercase font-bold ${tx.ruleMatched ? 'text-emerald-700/70' : 'text-blue-700/70'}`}
+                          >
                             Match Pattern:
                           </span>
                           <input
                             type="text"
-                            className="text-xs bg-white border border-blue-200 rounded-none px-3 py-2 focus:ring-1 focus:ring-blue-500 outline-none font-mono uppercase"
+                            className={`text-xs bg-white border rounded-none px-3 py-2 outline-none font-mono uppercase transition-colors ${
+                              tx.ruleMatched
+                                ? 'border-emerald-200 focus:ring-emerald-500'
+                                : 'border-blue-200 focus:ring-blue-500'
+                            } focus:ring-1`}
                             value={
                               tx.pattern !== undefined
                                 ? tx.pattern

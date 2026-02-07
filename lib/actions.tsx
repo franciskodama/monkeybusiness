@@ -41,7 +41,13 @@ export async function matchTransactionsWithRules(
       const targetSub = allSubcategories.find(
         (s) => s.name === foundRule.subcategory.name && s.month === txMonth
       );
-      if (targetSub) return { ...tx, subcategoryId: targetSub.id };
+      if (targetSub)
+        return {
+          ...tx,
+          subcategoryId: targetSub.id,
+          ruleMatched: true,
+          pattern: foundRule.pattern
+        };
     }
 
     // 3. If there's an existing ID (from AI or manual input), pivot it to the current month to ensure it shows up in the dropdown
@@ -735,6 +741,28 @@ export async function bulkAddTransactions(
     };
   } catch (error) {
     console.error('--- ❌ Bulk Save Error:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteTransaction(
+  transactionId: string,
+  householdId: string
+) {
+  try {
+    await prisma.transaction.delete({
+      where: {
+        id: transactionId,
+        householdId: householdId
+      }
+    });
+
+    const updatedItems = await getSubcategories(householdId);
+    revalidatePath('/planner');
+
+    return { success: true, updatedItems };
+  } catch (error) {
+    console.error('--- ❌ Delete Transaction Error:', error);
     return { success: false };
   }
 }
