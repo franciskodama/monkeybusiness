@@ -11,21 +11,9 @@ export default async function YearlyPage() {
   const allSubcategories = await getSubcategories(householdId);
 
   return (
-    <div className="p-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight uppercase">
-          Yearly Overview
-        </h1>
-        <p className="text-muted-foreground text-sm lowercase">
-          <span className="uppercase">A</span> full picture of your financial
-          year.
-        </p>
-      </div>
-
-      <YearlyTable
-        categories={categories || []}
-        initialSubcategories={allSubcategories || []}
-      />
-    </div>
+    <YearlyTable
+      categories={categories || []}
+      initialSubcategories={allSubcategories || []}
+    />
   );
 }
