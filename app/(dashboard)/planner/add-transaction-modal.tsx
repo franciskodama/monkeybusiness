@@ -1,9 +1,11 @@
+'use client';
+
 import { useState, useEffect } from 'react';
 import { Plus, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addTransaction } from '@/lib/actions';
-import { months } from '@/lib/utils';
+import { months, getSourceColor } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
   Dialog,
@@ -95,17 +97,17 @@ export function AddTransactionModal({
           <Plus size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 rounded-none shadow-2xl">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl">
         <DialogHeader className="p-6 bg-slate-900 text-white space-y-1">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-black uppercase tracking-tight">
               Add Expense
             </DialogTitle>
-            <div className="flex items-center gap-2 text-primary bg-accent border border-primary/30 px-3 py-1 mr-6">
+            <div className="flex items-center gap-2 text-primary bg-accent px-3 py-1">
               <span className="text-[10px] uppercase tracking-widest font-bold">
                 Month:
               </span>
-              <span className="text-sm font-black uppercase">
+              <span className="text-sm font-black uppercase text-primary">
                 {months[selectedMonth - 1]}
               </span>
             </div>
@@ -171,19 +173,43 @@ export function AddTransactionModal({
               Source
             </label>
             <Select onValueChange={setSource} value={source}>
-              <SelectTrigger className="h-12 border-slate-200 focus:ring-0 rounded-none text-sm font-bold bg-slate-50">
+              <SelectTrigger
+                className="h-12 border-slate-200 focus:ring-0 rounded-none text-sm font-black uppercase tracking-widest transition-all"
+                style={{
+                  backgroundColor: getSourceColor(source),
+                  color: source === 'His' ? 'black' : 'white'
+                }}
+              >
                 <SelectValue placeholder="Select the Source" />
               </SelectTrigger>
-              <SelectContent className="rounded-none border-slate-300">
-                <SelectItem value="Family">Family</SelectItem>
-                <SelectItem value="His">His</SelectItem>
-                <SelectItem value="Her">Her</SelectItem>
+              <SelectContent className="rounded-none border-slate-300 p-1 bg-slate-900">
+                <SelectItem
+                  value="Family"
+                  className="rounded-none mb-1 py-3 font-black uppercase tracking-widest text-white focus:bg-red-600 focus:text-white data-[state=checked]:bg-[#EF4444] data-[state=checked]:text-white transition-colors"
+                  style={{ backgroundColor: '#EF4444' }}
+                >
+                  Family
+                </SelectItem>
+                <SelectItem
+                  value="His"
+                  className="rounded-none mb-1 py-3 font-black uppercase tracking-widest text-black focus:bg-cyan-300 focus:text-black data-[state=checked]:bg-[#00FFFF] data-[state=checked]:text-black transition-colors"
+                  style={{ backgroundColor: '#00FFFF' }}
+                >
+                  His
+                </SelectItem>
+                <SelectItem
+                  value="Her"
+                  className="rounded-none py-3 font-black uppercase tracking-widest text-white focus:bg-orange-600 focus:text-white data-[state=checked]:bg-[#F97316] data-[state=checked]:text-white transition-colors"
+                  style={{ backgroundColor: '#F97316' }}
+                >
+                  Her
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <Button
-            className="w-full h-14 text-sm font-black uppercase tracking-widest rounded-none hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            className="w-full h-14 text-sm font-black uppercase tracking-widest rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
             onClick={handleSubmit}
           >
             Save Transaction
