@@ -688,7 +688,7 @@ export default function Planner({
           <DialogHeader className="p-6 bg-slate-900 text-white rounded-none">
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
-              <span className="text-sm font-mono opacity-50 leading-none">
+              <span className="text-sm font-mono leading-none bg-accent text-primary py-2 px-4">
                 {selectedDetails ? months[selectedDetails.month - 1] : ''} 2026
               </span>
             </DialogTitle>
@@ -730,14 +730,43 @@ export default function Planner({
                       {tx.amount < 0 ? '+' : ''}$
                       {formatCurrency(Math.abs(tx.amount))}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive/30 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all rounded-none"
-                      onClick={() => handleDeleteTransaction(tx.id)}
-                    >
-                      <Trash2 size={12} />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive/30 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all rounded-none"
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-none border-slate-300">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="uppercase font-black text-xl tracking-wide">
+                            Delete Transaction?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-slate-500">
+                            This will permanently remove the record for{' '}
+                            <strong className="text-slate-900 uppercase">
+                              "{tx.description}"
+                            </strong>{' '}
+                            (${formatCurrency(Math.abs(tx.amount))}). This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="rounded-none uppercase font-bold text-xs tracking-widest">
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteTransaction(tx.id)}
+                            className="bg-destructive hover:bg-destructive/90 rounded-none uppercase font-bold text-xs tracking-widest"
+                          >
+                            Confirm Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}
