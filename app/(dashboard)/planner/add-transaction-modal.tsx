@@ -276,7 +276,7 @@ export function AddTransactionModal({
           </div>
 
           <Button
-            className="w-full h-14 text-sm font-black uppercase tracking-widest rounded-none shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-all"
+            className="w-full h-14 text-sm font-black uppercase tracking-widest"
             onClick={handleSubmit}
           >
             Save Transaction
