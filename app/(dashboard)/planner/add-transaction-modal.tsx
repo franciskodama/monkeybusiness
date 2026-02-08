@@ -98,12 +98,15 @@ export function AddTransactionModal({
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl text-white">
-        <DialogHeader className="p-6 bg-slate-900 text-white space-y-1">
-          <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-black uppercase tracking-tight">
-              Add Expense
-            </DialogTitle>
-            <div className="flex items-center gap-2 text-primary bg-accent px-3 py-1 mr-16">
+        <DialogHeader className="flex flex-col items-start p-6 bg-slate-900 text-white space-y-1">
+          <DialogTitle className="text-xl font-black uppercase tracking-tight">
+            Add Expense
+          </DialogTitle>
+          <div className="flex justify-between items-center w-full">
+            <p className="text-xs text-slate-400 font-medium">
+              Recording for <span className="text-white ml-1">{itemName}</span>
+            </p>
+            <div className="flex items-center gap-2 text-primary bg-accent px-3 py-1">
               <span className="text-[10px] uppercase tracking-widest font-bold">
                 Month:
               </span>
@@ -112,9 +115,6 @@ export function AddTransactionModal({
               </span>
             </div>
           </div>
-          <p className="text-xs text-slate-400 font-medium">
-            Recording for <span className="text-white">{itemName}</span>
-          </p>
         </DialogHeader>
 
         <div className="p-6 space-y-6 bg-white">
