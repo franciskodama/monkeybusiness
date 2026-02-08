@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Calendar as CalendarIcon } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addTransaction } from '@/lib/actions';
@@ -27,12 +27,14 @@ export function AddTransactionModal({
   householdId,
   itemName,
   selectedMonth,
+  allAvailableSubcategories,
   onSuccess
 }: {
   subcategoryId: string;
   householdId: string;
   itemName: string;
   selectedMonth: number;
+  allAvailableSubcategories: any[];
   onSuccess: (updatedItems: any[]) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -49,6 +51,8 @@ export function AddTransactionModal({
       : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
 
   const [date, setDate] = useState(initialDate);
+  const [isMonthMismatch, setIsMonthMismatch] = useState(false);
+  const [targetMonthName, setTargetMonthName] = useState('');
 
   // Sync date when selectedMonth changes or modal opens
   useEffect(() => {
@@ -63,10 +67,49 @@ export function AddTransactionModal({
     }
   }, [open, selectedMonth, itemName]);
 
+  // Handle month mismatch detection
+  useEffect(() => {
+    const dateParts = date.split('-');
+    if (dateParts.length === 3) {
+      const monthFromDate = parseInt(dateParts[1], 10);
+      if (monthFromDate !== selectedMonth) {
+        setIsMonthMismatch(true);
+        setTargetMonthName(months[monthFromDate - 1]);
+      } else {
+        setIsMonthMismatch(false);
+      }
+    }
+  }, [date, selectedMonth]);
+
   const handleSubmit = async () => {
     if (!amount || isNaN(parseFloat(amount))) {
       toast.error('Please enter a valid amount');
       return;
+    }
+
+    let finalSubcategoryId = subcategoryId;
+
+    // Smart Pivot: If there's a mismatch, find the ID for the same subcategory in the target month
+    if (isMonthMismatch) {
+      const dateParts = date.split('-');
+      const monthFromDate = parseInt(dateParts[1], 10);
+      const yearFromDate = parseInt(dateParts[0], 10);
+
+      const targetSub = allAvailableSubcategories.find(
+        (s) =>
+          s.name === itemName &&
+          s.month === monthFromDate &&
+          s.year === yearFromDate
+      );
+
+      if (targetSub) {
+        finalSubcategoryId = targetSub.id;
+      } else {
+        toast.error(
+          `Could not find "${itemName}" in ${targetMonthName}. Please create it first.`
+        );
+        return;
+      }
     }
 
     const res = await addTransaction({
@@ -74,12 +117,16 @@ export function AddTransactionModal({
       amount: parseFloat(amount),
       date: new Date(date + 'T12:00:00'), // Use noon to avoid timezone shifts
       householdId,
-      subcategoryId,
+      subcategoryId: finalSubcategoryId,
       source
     });
 
     if (res.success) {
-      toast.success('Transaction added!');
+      toast.success(
+        isMonthMismatch
+          ? `Added to ${targetMonthName} successfully!`
+          : 'Transaction added!'
+      );
       onSuccess(res.updatedItems || []);
       setOpen(false);
       setAmount('');
@@ -118,6 +165,26 @@ export function AddTransactionModal({
         </DialogHeader>
 
         <div className="p-6 space-y-6 bg-white">
+          {isMonthMismatch && (
+            <div className="bg-amber-50 border-l-4 border-amber-500 p-4 animate-in fade-in slide-in-from-top-2">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="text-amber-600 shrink-0" size={18} />
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-tight text-amber-800">
+                    Month Mismatch Detected
+                  </p>
+                  <p className="text-[11px] text-amber-700 leading-relaxed">
+                    You are currently in{' '}
+                    <strong>{months[selectedMonth - 1]}</strong>, but the date
+                    is in <strong>{targetMonthName}</strong>. This expense will
+                    be automatically "teleported" to your{' '}
+                    <strong>{targetMonthName}</strong> budget.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
