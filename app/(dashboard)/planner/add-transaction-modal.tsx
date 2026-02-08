@@ -97,7 +97,7 @@ export function AddTransactionModal({
           <Plus size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl text-white">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl">
         <DialogHeader className="flex flex-col items-start p-6 bg-slate-900 text-white space-y-1">
           <DialogTitle className="text-xl font-black uppercase tracking-tight">
             Add Expense
