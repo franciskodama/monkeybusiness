@@ -500,6 +500,7 @@ export default function Planner({
                                 subcategoryId={item.id}
                                 householdId={householdId}
                                 itemName={item.name}
+                                selectedMonth={selectedMonth}
                                 onSuccess={(updatedItems) =>
                                   setCurrentSubcategoriesAction(updatedItems)
                                 }
