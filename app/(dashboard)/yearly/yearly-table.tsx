@@ -37,34 +37,82 @@ export function YearlyTable({
     transactions: any[];
   } | null>(null);
 
+  const now = new Date();
+  const currentMonth = now.getMonth() + 1;
+  const currentYear = 2026; // Hardcoded to match the project's current scope
+
+  const getMonthStatus = (month: number) => {
+    if (month < currentMonth) return 'PAST';
+    if (month === currentMonth) return 'CURRENT';
+    return 'FUTURE';
+  };
+
   const getSubData = (subName: string, month: number) => {
     return subcategories.find(
-      (s) => s.name === subName && s.month === month && s.year === 2026
+      (s) => s.name === subName && s.month === month && s.year === currentYear
     );
   };
 
-  // Helper to get total income for a specific month
-  const getMonthlyIncome = (month: number) => {
-    return subcategories
-      .filter((s) => s.category?.isIncome && s.month === month)
-      .reduce((sum, s) => sum + (s.amount || 0), 0);
+  const getDisplayValue = (subName: string, month: number) => {
+    const data = getSubData(subName, month);
+    const status = getMonthStatus(month);
+
+    if (status !== 'FUTURE') {
+      return (
+        data?.transactions?.reduce(
+          (sum: number, tx: any) => sum + (tx.amount || 0),
+          0
+        ) || 0
+      );
+    }
+    return data?.amount || 0;
   };
 
-  // Helper to get net cash flow (Income - Expenses)
-  const getMonthlyNet = (month: number) => {
+  // Helper to get total income for a specific month using hybrid logic
+  const getMonthlyIncome = (month: number) => {
+    const status = getMonthStatus(month);
     return subcategories
-      .filter((s) => s.month === month && s.year === 2026)
+      .filter((s) => s.category?.isIncome && s.month === month)
+      .reduce((sum, s) => {
+        if (status !== 'FUTURE') {
+          const actual =
+            s.transactions?.reduce(
+              (s: number, t: any) => s + (t.amount || 0),
+              0
+            ) || 0;
+          return sum + actual;
+        }
+        return sum + (s.amount || 0);
+      }, 0);
+  };
+
+  // Helper to get net cash flow (Income - Expenses) using hybrid logic
+  const getMonthlyNet = (month: number) => {
+    const status = getMonthStatus(month);
+    return subcategories
+      .filter((s) => s.month === month && s.year === currentYear)
       .reduce((acc, s) => {
         const isIncome = s.category?.isIncome;
-        const amount = s.amount || 0;
+        let amount = 0;
+        if (status !== 'FUTURE') {
+          amount =
+            s.transactions?.reduce(
+              (sum: number, t: any) => sum + (t.amount || 0),
+              0
+            ) || 0;
+        } else {
+          amount = s.amount || 0;
+        }
         return isIncome ? acc + amount : acc - amount;
       }, 0);
   };
+
   // Helper to get total spending by source for a month (Excluding Income)
   const getMonthlySourceTotal = (month: number, source: string) => {
     return subcategories
       .filter(
-        (s) => s.month === month && s.year === 2026 && !s.category?.isIncome
+        (s) =>
+          s.month === month && s.year === currentYear && !s.category?.isIncome
       )
       .reduce((acc, s) => {
         const sourceTotal = (s.transactions || [])
@@ -115,14 +163,34 @@ export function YearlyTable({
                 <th className="sticky left-0 z-20 bg-secondary/30 p-4 text-left text-[10px] font-base uppercase border-r w-[220px]">
                   Category / Subcategory
                 </th>
-                {months.map((m) => (
-                  <th
-                    key={m}
-                    className="p-4 text-center text-xs font-bold uppercase border-r min-w-[110px]"
-                  >
-                    {m}
-                  </th>
-                ))}
+                {months.map((m, i) => {
+                  const status = getMonthStatus(i + 1);
+                  return (
+                    <th
+                      key={m}
+                      className={`p-4 text-center text-[12px] font-black uppercase border-r min-w-[110px] ${
+                        status === 'PAST'
+                          ? 'bg-slate-200/60'
+                          : status === 'CURRENT'
+                            ? 'bg-primary/20 text-primary'
+                            : ''
+                      }`}
+                    >
+                      {m}
+                      <div className="text-[8px] font-normal tracking-widest pt-1">
+                        {status === 'PAST' ? (
+                          <span className="opacity-60">Actual</span>
+                        ) : status === 'CURRENT' ? (
+                          <span className="text-primary font-bold bg-accent px-2 py-1">
+                            In progress
+                          </span>
+                        ) : (
+                          <span className="opacity-60">Forecast</span>
+                        )}
+                      </div>
+                    </th>
+                  );
+                })}
                 <th className="p-4 text-center text-xs font-bold uppercase bg-primary/5">
                   Total YTD
                 </th>
@@ -160,9 +228,21 @@ export function YearlyTable({
                         </span>
                       </td>
 
-                      {months.map((_, i) => (
-                        <td key={i} className="border-r border-secondary/20" />
-                      ))}
+                      {months.map((_, i) => {
+                        const status = getMonthStatus(i + 1);
+                        return (
+                          <td
+                            key={i}
+                            className={`border-r border-secondary/20 ${
+                              status === 'PAST'
+                                ? 'bg-slate-100/60'
+                                : status === 'CURRENT'
+                                  ? 'bg-primary/10'
+                                  : ''
+                            }`}
+                          />
+                        );
+                      })}
 
                       <td className="bg-primary/5 border-l border-secondary/20" />
                     </tr>
@@ -179,14 +259,22 @@ export function YearlyTable({
                           </td>
                           {months.map((_, i) => {
                             const data = getSubData(name, i + 1);
-                            const val = data?.amount || 0;
+                            const val = getDisplayValue(name, i + 1);
+                            const status = getMonthStatus(i + 1);
                             subYtd += val;
+
                             return (
                               <td
                                 key={i}
                                 className={`p-3 text-center border-r font-mono transition-all group relative ${
+                                  status === 'PAST'
+                                    ? 'bg-slate-100/60'
+                                    : status === 'CURRENT'
+                                      ? 'bg-primary/10 text-primary font-bold'
+                                      : ''
+                                } ${
                                   (data?.transactions?.length ?? 0) > 0
-                                    ? 'cursor-pointer hover:bg-primary/5 hover:text-primary font-bold'
+                                    ? 'cursor-pointer hover:bg-primary/10 hover:text-primary font-bold'
                                     : ''
                                 }`}
                                 onClick={() => {
@@ -200,7 +288,15 @@ export function YearlyTable({
                                 }}
                               >
                                 <div className="flex flex-col items-center gap-1">
-                                  <span>${formatCurrency(val)}</span>
+                                  <span
+                                    className={
+                                      status === 'CURRENT'
+                                        ? 'underline decoration-dotted underline-offset-4'
+                                        : ''
+                                    }
+                                  >
+                                    ${formatCurrency(val)}
+                                  </span>
                                   {(data?.transactions?.length ?? 0) > 0 && (
                                     <div className="flex items-center gap-1 text-[8px] uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-0.5 whitespace-nowrap bg-primary text-white px-1">
                                       <Info size={8} />{' '}
@@ -223,16 +319,34 @@ export function YearlyTable({
                         Total {category.name}
                       </td>
                       {months.map((_, i) => {
+                        const status = getMonthStatus(i + 1);
                         const catMonthTotal = subcategories
                           .filter(
                             (s) =>
                               s.categoryId === category.id && s.month === i + 1
                           )
-                          .reduce((sum, s) => sum + (s.amount || 0), 0);
+                          .reduce((sum, s) => {
+                            if (status !== 'FUTURE') {
+                              return (
+                                sum +
+                                (s.transactions?.reduce(
+                                  (ts: number, t: any) => ts + (t.amount || 0),
+                                  0
+                                ) || 0)
+                              );
+                            }
+                            return sum + (s.amount || 0);
+                          }, 0);
                         return (
                           <td
                             key={i}
-                            className="p-3 text-center border-r font-mono"
+                            className={`p-3 text-center border-r font-mono ${
+                              status === 'PAST'
+                                ? 'bg-slate-200/60'
+                                : status === 'CURRENT'
+                                  ? 'bg-primary/20'
+                                  : ''
+                            }`}
                           >
                             ${formatCurrency(catMonthTotal)}
                           </td>
@@ -241,9 +355,29 @@ export function YearlyTable({
                       <td className="p-3 text-center bg-primary/10 font-mono text-primary">
                         $
                         {formatCurrency(
-                          subcategories
-                            .filter((s) => s.categoryId === category.id)
-                            .reduce((sum, s) => sum + (s.amount || 0), 0)
+                          months.reduce((sum, _, i) => {
+                            const status = getMonthStatus(i + 1);
+                            const monthSum = subcategories
+                              .filter(
+                                (s) =>
+                                  s.categoryId === category.id &&
+                                  s.month === i + 1
+                              )
+                              .reduce((msum, s) => {
+                                if (status !== 'FUTURE') {
+                                  return (
+                                    msum +
+                                    (s.transactions?.reduce(
+                                      (ts: number, t: any) =>
+                                        ts + (t.amount || 0),
+                                      0
+                                    ) || 0)
+                                  );
+                                }
+                                return msum + (s.amount || 0);
+                              }, 0);
+                            return sum + monthSum;
+                          }, 0)
                         )}
                       </td>
                     </tr>
@@ -260,10 +394,17 @@ export function YearlyTable({
                 </td>
                 {months.map((_, i) => {
                   const net = getMonthlyNet(i + 1);
+                  const status = getMonthStatus(i + 1);
                   return (
                     <td
                       key={i}
-                      className="p-4 text-center border-r font-mono text-sm"
+                      className={`p-4 text-center border-r font-mono text-sm ${
+                        status === 'PAST'
+                          ? 'bg-slate-950 font-black'
+                          : status === 'CURRENT'
+                            ? 'bg-primary/30 text-slate-900 border-x border-primary font-black'
+                            : ''
+                      }`}
                     >
                       {net < 0 ? '-' : ''}${formatCurrency(Math.abs(net))}
                     </td>
@@ -286,11 +427,18 @@ export function YearlyTable({
                   const income = getMonthlyIncome(i + 1);
                   const net = getMonthlyNet(i + 1);
                   const percentage = income > 0 ? (net / income) * 100 : 0;
+                  const status = getMonthStatus(i + 1);
 
                   return (
                     <td
                       key={i}
-                      className="p-3 text-center border-r font-mono text-xs"
+                      className={`p-3 text-center border-r font-mono text-xs ${
+                        status === 'PAST'
+                          ? 'bg-emerald-700'
+                          : status === 'CURRENT'
+                            ? 'bg-emerald-400 text-emerald-950 underline decoration-white underline-offset-4'
+                            : ''
+                      }`}
                     >
                       {percentage > 0 ? percentage.toFixed(1) : '0.0'}%
                     </td>
@@ -298,9 +446,10 @@ export function YearlyTable({
                 })}
                 <td className="p-3 text-center bg-emerald-700 font-mono text-xs">
                   {(() => {
-                    const totalIncome = subcategories
-                      .filter((s) => s.category?.isIncome)
-                      .reduce((sum, s) => sum + (s.amount || 0), 0);
+                    const totalIncome = months.reduce(
+                      (sum, _, i) => sum + getMonthlyIncome(i + 1),
+                      0
+                    );
                     const totalNet = months.reduce(
                       (acc, _, i) => acc + getMonthlyNet(i + 1),
                       0
@@ -337,10 +486,17 @@ export function YearlyTable({
                     </td>
                     {months.map((_, i) => {
                       const val = getMonthlySourceTotal(i + 1, source);
+                      const status = getMonthStatus(i + 1);
                       return (
                         <td
                           key={i}
-                          className="p-3 text-center border-r font-mono italic"
+                          className={`p-3 text-center border-r font-mono italic ${
+                            status === 'PAST'
+                              ? 'bg-slate-200/40'
+                              : status === 'CURRENT'
+                                ? 'bg-primary/5'
+                                : ''
+                          }`}
                         >
                           ${formatCurrency(val)}
                         </td>
