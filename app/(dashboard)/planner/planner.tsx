@@ -158,7 +158,11 @@ export default function Planner({
 
   // 2. Flatten all transactions from those subcategories into one list
   const allTransactions = currentMonthSubs.flatMap(
-    (sub) => sub.transactions || []
+    (sub) =>
+      sub.transactions?.map((tx: any) => ({
+        ...tx,
+        subcategoryName: sub.name
+      })) || []
   );
 
   // 3. Filter for Burn by Source (Exclude Income transactions)
@@ -501,6 +505,8 @@ export default function Planner({
                                 householdId={householdId}
                                 itemName={item.name}
                                 selectedMonth={selectedMonth}
+                                allAvailableSubcategories={currentSubcategories}
+                                isIncome={item.category.isIncome}
                                 onSuccess={(updatedItems) =>
                                   setCurrentSubcategoriesAction(updatedItems)
                                 }
@@ -592,7 +598,16 @@ export default function Planner({
         </div>
 
         <div className="space-y-12">
-          <SourceBreakdown transactions={burnTransactions} />
+          <SourceBreakdown
+            transactions={allTransactions}
+            onSourceClick={(source, txs) =>
+              setSelectedDetails({
+                name: `${source} Activity`,
+                month: selectedMonth,
+                transactions: txs
+              })
+            }
+          />
 
           {/* FUNDING PROGRESS BY SOURCE */}
           {fundingTransactions.length > 0 && (
@@ -674,7 +689,7 @@ export default function Planner({
           <DialogHeader className="p-6 bg-slate-900 text-white rounded-none">
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
-              <span className="text-sm font-mono opacity-50 leading-none">
+              <span className="text-sm font-mono leading-none bg-accent text-primary py-2 px-4">
                 {selectedDetails ? months[selectedDetails.month - 1] : ''} 2026
               </span>
             </DialogTitle>
@@ -693,8 +708,13 @@ export default function Planner({
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
-                        {tx.source}
+                        {tx.subcategoryName || tx.source}
                       </span>
+                      {tx.subcategoryName && (
+                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
+                          • {tx.source}
+                        </span>
+                      )}
                       <span className="text-[9px] text-muted-foreground font-mono">
                         {tx.date instanceof Date
                           ? tx.date.toLocaleDateString()
@@ -711,33 +731,95 @@ export default function Planner({
                       {tx.amount < 0 ? '+' : ''}$
                       {formatCurrency(Math.abs(tx.amount))}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-destructive/30 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all rounded-none"
-                      onClick={() => handleDeleteTransaction(tx.id)}
-                    >
-                      <Trash2 size={12} />
-                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive/30 hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-all rounded-none"
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent className="rounded-none border-slate-300">
+                        <AlertDialogHeader>
+                          <AlertDialogTitle className="uppercase font-black text-xl tracking-wide">
+                            Delete Transaction?
+                          </AlertDialogTitle>
+                          <AlertDialogDescription className="text-slate-500">
+                            This will permanently remove the record for{' '}
+                            <strong className="text-slate-900 uppercase">
+                              "{tx.description}"
+                            </strong>{' '}
+                            (${formatCurrency(Math.abs(tx.amount))}). This
+                            action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="rounded-none uppercase font-bold text-xs tracking-widest">
+                            Cancel
+                          </AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteTransaction(tx.id)}
+                            className="bg-destructive hover:bg-destructive/90 rounded-none uppercase font-bold text-xs tracking-widest"
+                          >
+                            Confirm Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="p-6 bg-slate-50 border-t flex justify-between items-center">
-            <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">
-              Total Actual
-            </span>
-            <span className="font-mono font-black text-lg">
-              $
-              {formatCurrency(
-                selectedDetails?.transactions.reduce(
-                  (sum: number, tx: any) => sum + (tx.amount || 0),
-                  0
-                ) || 0
-              )}
-            </span>
+          <div className="px-6 py-4 bg-slate-50 border-t space-y-2">
+            {/* Split Breakdown */}
+            <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-slate-400">
+              <span>1st - 15th</span>
+              <span className="font-mono">
+                $
+                {formatCurrency(
+                  selectedDetails?.transactions
+                    .filter((tx: any) => new Date(tx.date).getDate() <= 15)
+                    .reduce(
+                      (sum: number, tx: any) => sum + (tx.amount || 0),
+                      0
+                    ) || 0
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-slate-400">
+              <span>16th - End</span>
+              <span className="font-mono">
+                $
+                {formatCurrency(
+                  selectedDetails?.transactions
+                    .filter((tx: any) => new Date(tx.date).getDate() > 15)
+                    .reduce(
+                      (sum: number, tx: any) => sum + (tx.amount || 0),
+                      0
+                    ) || 0
+                )}
+              </span>
+            </div>
+
+            {/* Total Row */}
+            <div className="flex justify-between items-center pt-2 border-t border-slate-200">
+              <span className="text-[10px] uppercase font-black tracking-widest text-slate-600">
+                Total Actual
+              </span>
+              <span className="font-mono font-black text-lg text-slate-900">
+                $
+                {formatCurrency(
+                  selectedDetails?.transactions.reduce(
+                    (sum: number, tx: any) => sum + (tx.amount || 0),
+                    0
+                  ) || 0
+                )}
+              </span>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

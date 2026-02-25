@@ -3,20 +3,29 @@
 import { CreditCard, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { getSourceColor } from '@/lib/utils';
 
-export function SourceBreakdown({ transactions }: { transactions: any[] }) {
+export function SourceBreakdown({
+  transactions,
+  onSourceClick
+}: {
+  transactions: any[];
+  onSourceClick?: (source: string, transactions: any[]) => void;
+}) {
   // Grouping logic
   const sourceTotals = transactions.reduce(
-    (acc: Record<string, number>, tx) => {
+    (acc: Record<string, { total: number; txs: any[] }>, tx) => {
       const sourceName = tx.source || 'Other/Unknown';
-      // If it's income (amount < 0 in our system), we still want to see the total deposited
-      acc[sourceName] = (acc[sourceName] || 0) + tx.amount;
+      if (!acc[sourceName]) {
+        acc[sourceName] = { total: 0, txs: [] };
+      }
+      acc[sourceName].total += tx.amount;
+      acc[sourceName].txs.push(tx);
       return acc;
     },
     {}
   );
 
   const sortedSources = Object.entries(sourceTotals).sort(
-    (a, b) => Math.abs(b[1]) - Math.abs(a[1])
+    (a, b) => Math.abs(b[1].total) - Math.abs(a[1].total)
   );
 
   if (transactions.length === 0) return null;
@@ -32,23 +41,24 @@ export function SourceBreakdown({ transactions }: { transactions: any[] }) {
             Account Activity
           </h3>
           <p className="text-[10px] text-muted-foreground uppercase">
-            Summary of spending and income by source
+            Summary of spending and income by source (Click to see details)
           </p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {sortedSources.map(([source, amount]) => {
-          const isIncome = amount < 0;
+        {sortedSources.map(([source, { total, txs }]) => {
+          const isIncome = total < 0;
           const sourceColor = getSourceColor(source);
           return (
             <div
               key={source}
-              className="p-3 border bg-background shadow-sm hover:shadow-md transition-shadow relative overflow-hidden"
+              className="p-3 border bg-background shadow-sm hover:shadow-md hover:bg-slate-50 transition-all relative overflow-hidden cursor-pointer group"
               style={{ borderTop: `3px solid ${sourceColor}` }}
+              onClick={() => onSourceClick?.(source, txs)}
             >
-              <div className="flex justify-between items-start mb-2">
-                <span className="text-[9px] font-black uppercase text-muted-foreground truncate max-w-[100px]">
+              <div className="flex justify-between items-start mb-2 text-muted-foreground group-hover:text-foreground">
+                <span className="text-[9px] font-black uppercase truncate max-w-[100px]">
                   {source}
                 </span>
                 {isIncome ? (
@@ -62,7 +72,7 @@ export function SourceBreakdown({ transactions }: { transactions: any[] }) {
                   className={`text-md font-mono font-bold ${isIncome ? 'text-emerald-600' : 'text-foreground'}`}
                 >
                   {isIncome ? '' : '$'}
-                  {Math.abs(amount).toLocaleString(undefined, {
+                  {Math.abs(total).toLocaleString(undefined, {
                     minimumFractionDigits: 2
                   })}
                 </span>
