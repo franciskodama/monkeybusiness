@@ -160,7 +160,7 @@ export function YearlyTable({
           <table className="w-full border-collapse min-w-[1600px]">
             <thead>
               <tr className="bg-secondary/30">
-                <th className="sticky left-0 z-20 bg-secondary/30 p-4 text-left text-[10px] font-base uppercase border-r w-[220px]">
+                <th className="sticky left-0 z-20 bg-slate-100 p-4 text-left text-[10px] font-black uppercase border-r w-[220px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   Category / Subcategory
                 </th>
                 {months.map((m, i) => {
@@ -181,7 +181,7 @@ export function YearlyTable({
                         {status === 'PAST' ? (
                           <span className="opacity-60">Actual</span>
                         ) : status === 'CURRENT' ? (
-                          <span className="text-primary font-bold bg-accent px-2 py-1">
+                          <span className="text-white font-bold bg-primary px-2 py-1">
                             In progress
                           </span>
                         ) : (
@@ -215,7 +215,13 @@ export function YearlyTable({
                       }}
                       className="border-b"
                     >
-                      <td className="sticky left-0 z-10 p-3 font-bold text-sm border-r flex items-center gap-3">
+                      <td
+                        className="sticky left-0 z-10 p-3 font-bold text-sm border-r flex items-center gap-3 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                        style={{
+                          backgroundColor: 'white',
+                          borderLeft: `4px solid ${getColorCode(category.color).backgroundColor}`
+                        }}
+                      >
                         <div
                           className="w-3 h-3 shadow-sm"
                           style={{
@@ -254,7 +260,7 @@ export function YearlyTable({
                           key={name}
                           className="hover:bg-secondary/5 border-b transition-colors text-xs text-muted-foreground"
                         >
-                          <td className="sticky left-0 z-10 bg-background p-3 border-r pl-8 text-sm font-semibold text-primary">
+                          <td className="sticky left-0 z-10 bg-white p-3 border-r pl-8 text-sm font-semibold text-primary shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                             {name}
                           </td>
                           {months.map((_, i) => {
@@ -315,7 +321,7 @@ export function YearlyTable({
                     })}
 
                     <tr className="bg-secondary/10 border-b font-bold text-xs">
-                      <td className="sticky left-0 z-10 bg-secondary/10 p-3 border-r pl-8 italic">
+                      <td className="sticky left-0 z-10 bg-slate-100 p-3 border-r pl-8 italic shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                         Total {category.name}
                       </td>
                       {months.map((_, i) => {
@@ -389,7 +395,7 @@ export function YearlyTable({
             <tfoot>
               {/* NET CASH FLOW ROW */}
               <tr className="bg-slate-900 text-white font-bold">
-                <td className="sticky left-0 z-10 bg-slate-900 p-4 border-r uppercase text-xs">
+                <td className="sticky left-0 z-10 bg-slate-900 p-4 border-r uppercase text-xs shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   Net Cash Flow
                 </td>
                 {months.map((_, i) => {
@@ -420,7 +426,7 @@ export function YearlyTable({
 
               {/* NEW: SAVINGS GOAL % ROW */}
               <tr className="bg-emerald-600 text-white font-bold border-t border-emerald-500">
-                <td className="sticky left-0 z-10 bg-emerald-600 p-3 border-r uppercase text-[10px]">
+                <td className="sticky left-0 z-10 bg-emerald-600 p-3 border-r uppercase text-[10px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                   Savings Rate (%)
                 </td>
                 {months.map((_, i) => {
@@ -479,8 +485,11 @@ export function YearlyTable({
                     className="border-b text-xs text-muted-foreground font-medium"
                   >
                     <td
-                      style={{ borderLeft: `4px solid ${sourceColor}` }}
-                      className="sticky left-0 z-10 bg-inherit p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black"
+                      style={{
+                        borderLeft: `4px solid ${sourceColor}`,
+                        backgroundColor: 'white'
+                      }}
+                      className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                     >
                       Total {source}
                     </td>

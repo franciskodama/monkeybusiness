@@ -28,6 +28,7 @@ export function AddTransactionModal({
   itemName,
   selectedMonth,
   allAvailableSubcategories,
+  isIncome = false,
   onSuccess
 }: {
   subcategoryId: string;
@@ -35,6 +36,7 @@ export function AddTransactionModal({
   itemName: string;
   selectedMonth: number;
   allAvailableSubcategories: any[];
+  isIncome?: boolean;
   onSuccess: (updatedItems: any[]) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -125,7 +127,9 @@ export function AddTransactionModal({
       toast.success(
         isMonthMismatch
           ? `Added to ${targetMonthName} successfully!`
-          : 'Transaction added!'
+          : isIncome
+            ? 'Income recorded!'
+            : 'Expense recorded!'
       );
       onSuccess(res.updatedItems || []);
       setOpen(false);
@@ -139,15 +143,23 @@ export function AddTransactionModal({
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50 rounded-none border border-transparent hover:border-green-200"
+          className={`h-8 w-8 rounded-none border border-transparent transition-colors ${
+            isIncome
+              ? 'text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 hover:border-emerald-200'
+              : 'text-green-600 hover:text-green-700 hover:bg-green-50 hover:border-green-200'
+          }`}
         >
           <Plus size={16} />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl">
-        <DialogHeader className="flex flex-col items-start p-6 bg-slate-900 text-white space-y-1">
+        <DialogHeader
+          className={`flex flex-col items-start p-6 text-white space-y-1 ${
+            isIncome ? 'bg-emerald-700' : 'bg-slate-900'
+          }`}
+        >
           <DialogTitle className="text-xl font-black uppercase tracking-tight">
-            Add Expense
+            {isIncome ? 'Add Income' : 'Add Expense'}
           </DialogTitle>
           <div className="flex justify-between items-center w-full">
             <p className="text-xs text-slate-400 font-medium">
@@ -279,7 +291,7 @@ export function AddTransactionModal({
             className="w-full h-14 text-sm font-black uppercase tracking-widest"
             onClick={handleSubmit}
           >
-            Save Transaction
+            {isIncome ? 'Record Income' : 'Record Expense'}
           </Button>
         </div>
       </DialogContent>
