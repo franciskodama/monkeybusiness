@@ -1058,3 +1058,27 @@ export async function deleteReminder(id: string) {
     return { success: false };
   }
 }
+
+// CURRENCIES --------------------------------------------------------------------
+
+export const getCurrenciesFromApi = async (): Promise<{
+  data: Record<string, number>;
+} | null> => {
+  try {
+    const data = await fetch(
+      `https://api.freecurrencyapi.com/v1/latest?apikey=${process.env.FREECURRENCYAPI_KEY}`,
+      {
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+          Expires: '0'
+        }
+      }
+    ).then((res) => res.json());
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    return null;
+  }
+};
