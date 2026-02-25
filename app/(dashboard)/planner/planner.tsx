@@ -49,12 +49,14 @@ export default function Planner({
   user,
   householdId,
   categories,
-  subcategories
+  subcategories,
+  brlRate
 }: {
   user: User;
   householdId: string;
   categories: Category[];
   subcategories: any[];
+  brlRate: number;
 }) {
   const [openAction, setOpenAction] = useState(false);
   const [currentSubcategories, setCurrentSubcategoriesAction] =
@@ -653,9 +655,12 @@ export default function Planner({
                     R${' '}
                     {formatCurrency(
                       allTransactions.reduce((sum, tx) => sum + tx.amount, 0) *
-                        4.15
+                        brlRate
                     )}
                   </span>
+                  <p className="text-[10px] text-emerald-600/60 uppercase font-black tracking-tighter mt-1">
+                    Rate: 1 CAD = {brlRate.toFixed(2)} BRL
+                  </p>
                 </div>
               </div>
             </div>

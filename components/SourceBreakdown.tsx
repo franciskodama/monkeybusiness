@@ -115,7 +115,7 @@ export function SourceBreakdown({
               ))}
             </tr>
 
-            <tr className="bg-slate-900 text-white font-black group">
+            <tr className="bg-slate-800 text-white font-black group">
               <td className="p-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-4 mt-1">
                 <Award size={18} className="text-white" />
                 Total Contribution
