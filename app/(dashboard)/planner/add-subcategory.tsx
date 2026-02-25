@@ -124,7 +124,9 @@ export function AddSubcategory({
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline">Add Subcategory</Button>
+        <Button size="xs" variant="outline">
+          Add Subcategory
+        </Button>
       </SheetTrigger>
       <SheetContent
         side="right"

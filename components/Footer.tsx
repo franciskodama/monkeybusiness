@@ -3,7 +3,14 @@ import Image from 'next/image';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { menuItems } from '@/lib/menu';
-import { Handshake, PocketKnife, Shield, Terminal, X } from 'lucide-react';
+import {
+  Handshake,
+  PocketKnife,
+  Settings,
+  Shield,
+  Terminal,
+  X
+} from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -47,6 +54,11 @@ export default function Footer() {
                 </p>
               </Link>
             ))}
+            <Link href="/settings">
+              <p className="text-white text-left w-[20ch] underline-offset-4 hover:underline">
+                Settings
+              </p>
+            </Link>
           </div>
         </div>
 
