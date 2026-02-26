@@ -14,7 +14,17 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import { Info } from 'lucide-react';
+import {
+  Info,
+  Landmark,
+  Scale,
+  Award,
+  TrendingUp,
+  Target,
+  Plus,
+  Minus,
+  Equal
+} from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AnimatePresence, motion } from 'framer-motion';
 import Help from '@/components/Help';
@@ -120,6 +130,164 @@ export function YearlyTable({
           .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
         return acc + sourceTotal;
       }, 0);
+  };
+
+  //--- YEARLY SETTLEMENT LOGIC (Hybrid: Actuals for Past/Current, Target for Future) ---
+  const calculateYearlySettlement = () => {
+    let yearlyLivingExpenses = 0;
+    let yearlyInvestments = 0;
+    let hisYearlyEffort = 0;
+    let herYearlyEffort = 0;
+    let yearlyCredits = 0;
+
+    for (let m = 1; m <= 12; m++) {
+      const status = getMonthStatus(m);
+      const monthSubs = subcategories.filter(
+        (s) => s.month === m && s.year === currentYear
+      );
+
+      monthSubs.forEach((sub) => {
+        const isIncome = sub.category?.isIncome;
+        const isSavings = sub.category?.isSavings;
+
+        let amount = 0;
+        if (status !== 'FUTURE') {
+          amount =
+            sub.transactions?.reduce(
+              (sum: number, t: any) => sum + (t.amount || 0),
+              0
+            ) || 0;
+        } else {
+          amount = sub.amount || 0;
+        }
+
+        if (isIncome) {
+          yearlyCredits += amount;
+          // Contribution: Funding portion
+          const hisFunding = (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'His' && status !== 'FUTURE')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          const herFunding = (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'Her' && status !== 'FUTURE')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+
+          hisYearlyEffort += hisFunding;
+          herYearlyEffort += herFunding;
+        } else if (isSavings) {
+          yearlyInvestments += amount;
+          // Contribution: Investment portion (Spending)
+          if (status !== 'FUTURE') {
+            hisYearlyEffort += (sub.transactions || [])
+              .filter((tx: any) => tx.source === 'His')
+              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            herYearlyEffort += (sub.transactions || [])
+              .filter((tx: any) => tx.source === 'Her')
+              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          }
+        } else {
+          yearlyLivingExpenses += amount;
+          // Contribution: Living Expense portion (Spending)
+          if (status !== 'FUTURE') {
+            hisYearlyEffort += (sub.transactions || [])
+              .filter((tx: any) => tx.source === 'His')
+              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            herYearlyEffort += (sub.transactions || [])
+              .filter((tx: any) => tx.source === 'Her')
+              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          }
+        }
+      });
+    }
+
+    const balanceBeforeInvestments = yearlyCredits - yearlyLivingExpenses;
+    const finalBalance = balanceBeforeInvestments - yearlyInvestments;
+
+    return {
+      yearlyLivingExpenses,
+      yearlyInvestments,
+      yearlyCredits,
+      hisYearlyEffort,
+      herYearlyEffort,
+      balanceBeforeInvestments,
+      finalBalance
+    };
+  };
+
+  const settlement = calculateYearlySettlement();
+
+  //--- MONTHLY SETTLEMENT LOGIC (For the grid rows) ---
+  const calculateMonthlySettlement = (month: number) => {
+    let livingExpenses = 0;
+    let investments = 0;
+    let hisEffort = 0;
+    let herEffort = 0;
+    let credits = 0;
+
+    const status = getMonthStatus(month);
+    const monthSubs = subcategories.filter(
+      (s) => s.month === month && s.year === currentYear
+    );
+
+    monthSubs.forEach((sub) => {
+      const isIncome = sub.category?.isIncome;
+      const isSavings = sub.category?.isSavings;
+
+      let amount = 0;
+      if (status !== 'FUTURE') {
+        amount =
+          sub.transactions?.reduce(
+            (sum: number, t: any) => sum + (t.amount || 0),
+            0
+          ) || 0;
+      } else {
+        amount = sub.amount || 0;
+      }
+
+      if (isIncome) {
+        credits += amount;
+        if (status !== 'FUTURE') {
+          hisEffort += (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'His')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          herEffort += (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'Her')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+        }
+      } else if (isSavings) {
+        investments += amount;
+        if (status !== 'FUTURE') {
+          hisEffort += (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'His')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          herEffort += (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'Her')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+        }
+      } else {
+        livingExpenses += amount;
+        if (status !== 'FUTURE') {
+          hisEffort += (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'His')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          herEffort += (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'Her')
+            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+        }
+      }
+    });
+
+    const balanceBeforeInvestments = credits - livingExpenses;
+    const finalBalance = balanceBeforeInvestments - investments;
+
+    return {
+      hisEffort,
+      herEffort,
+      credits,
+      livingExpenses,
+      balanceBeforeInvestments,
+      investments,
+      finalBalance
+    };
   };
   return (
     <Card className="m-6 border-none shadow-none bg-transparent">
@@ -530,18 +698,290 @@ export function YearlyTable({
                   </tr>
                 );
               })}
+
               {/* SPACER GAP */}
               <tr className="h-2 bg-gray-200">
                 <td colSpan={14} className="border-y border-secondary/20" />
               </tr>
+
+              {/* NEW SETTLEMENT GRID ROWS */}
+              {[
+                {
+                  label: 'His Contribution',
+                  key: 'hisEffort',
+                  color: getSourceColor('His')
+                },
+                {
+                  label: 'Her Contribution',
+                  key: 'herEffort',
+                  color: getSourceColor('Her')
+                },
+                { label: 'Total Credits', key: 'credits', color: '#10B981' },
+                {
+                  label: 'Total Expenses',
+                  key: 'livingExpenses',
+                  color: '#EF4444'
+                },
+                {
+                  label: 'Balance Before Investments',
+                  key: 'balanceBeforeInvestments',
+                  color: '#F59E0B'
+                },
+                {
+                  label: 'Total Invested',
+                  key: 'investments',
+                  color: '#3B82F6'
+                },
+                {
+                  label: 'Final Balance',
+                  key: 'finalBalance',
+                  color: '#6366F1'
+                }
+              ].map((row, idx) => (
+                <tr
+                  key={row.key}
+                  className={`border-b text-[10px] font-bold ${idx >= 4 ? 'bg-slate-50' : ''}`}
+                >
+                  <td
+                    className="sticky left-0 z-10 bg-white p-3 border-r pl-8 uppercase tracking-widest font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                    style={{ borderLeft: `4px solid ${row.color}` }}
+                  >
+                    {row.label}
+                  </td>
+                  {months.map((_, i) => {
+                    const monthlyData = calculateMonthlySettlement(i + 1);
+                    const val = (monthlyData as any)[row.key];
+                    const status = getMonthStatus(i + 1);
+                    return (
+                      <td
+                        key={i}
+                        className={`p-3 text-center border-r font-mono ${status === 'CURRENT' ? 'bg-primary/5 font-black text-primary' : ''}`}
+                      >
+                        ${formatCurrency(val)}
+                      </td>
+                    );
+                  })}
+                  <td className="p-3 text-center font-mono font-black bg-slate-100 border-l">
+                    $
+                    {formatCurrency(
+                      months.reduce(
+                        (acc, _, i) =>
+                          acc +
+                          (calculateMonthlySettlement(i + 1) as any)[row.key],
+                        0
+                      )
+                    )}
+                  </td>
+                </tr>
+              ))}
             </tfoot>
           </table>
+        </div>
+
+        {/* YEARLY SETTLEMENT SUMMARY */}
+        <div className="mt-16 border-t pt-12">
+          <div className="flex items-center gap-3 mb-10">
+            <div className="p-2.5 bg-slate-900 rounded-xl">
+              <Scale size={20} className="text-white" />
+            </div>
+            <div>
+              <h3 className="text-lg font-black uppercase tracking-tight">
+                Yearly Settlement
+              </h3>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                Aggregated Financial Logic (YTD + Forecast)
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Logic Rows */}
+            <div className="lg:col-span-9 space-y-6">
+              {/* Row 1: Credits & Expenses */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm flex justify-between items-center group hover:border-emerald-200 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                      <Landmark size={24} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
+                        Total Credits
+                      </span>
+                      <span className="text-2xl font-mono font-black text-slate-900">
+                        ${formatCurrency(settlement.yearlyCredits)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Plus size={20} />
+                  </div>
+                </div>
+
+                <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm flex justify-between items-center group hover:border-rose-200 transition-colors">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-rose-50 text-rose-600 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition-all">
+                      <TrendingUp size={24} className="rotate-90" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
+                        Total Expenses
+                      </span>
+                      <span className="text-2xl font-mono font-black text-slate-900">
+                        ${formatCurrency(settlement.yearlyLivingExpenses)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Minus size={20} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 2: Surplus & Investments */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="p-6 bg-emerald-50 border border-emerald-100 rounded-2xl shadow-sm flex justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white text-emerald-600 rounded-xl shadow-sm">
+                      <Equal size={24} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-black text-emerald-700 tracking-widest block mb-1">
+                        Balance Before Investments
+                      </span>
+                      <span className="text-2xl font-mono font-black text-emerald-900">
+                        ${formatCurrency(settlement.balanceBeforeInvestments)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl shadow-sm flex justify-between items-center">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white text-blue-600 rounded-xl shadow-sm">
+                      <Target size={24} />
+                    </div>
+                    <div>
+                      <span className="text-[10px] uppercase font-black text-blue-700 tracking-widest block mb-1">
+                        Total Invested (YTD)
+                      </span>
+                      <span className="text-2xl font-mono font-black text-blue-900">
+                        ${formatCurrency(settlement.yearlyInvestments)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Row 3: Contributions */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div
+                  className="p-5 bg-white border-l-4 rounded-2xl shadow-sm flex justify-between items-center"
+                  style={{ borderLeftColor: getSourceColor('His') }}
+                >
+                  <div>
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
+                      His Contribution
+                    </span>
+                    <span className="text-2xl font-mono font-black text-slate-900">
+                      ${formatCurrency(settlement.hisYearlyEffort)}
+                    </span>
+                  </div>
+                  <div className="p-2 bg-slate-100 rounded-full text-slate-400">
+                    <Award size={20} />
+                  </div>
+                </div>
+
+                <div
+                  className="p-5 bg-white border-l-4 rounded-2xl shadow-sm flex justify-between items-center"
+                  style={{ borderLeftColor: getSourceColor('Her') }}
+                >
+                  <div>
+                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
+                      Her Contribution
+                    </span>
+                    <span className="text-2xl font-mono font-black text-slate-900">
+                      ${formatCurrency(settlement.herYearlyEffort)}
+                    </span>
+                  </div>
+                  <div className="p-2 bg-slate-100 rounded-full text-slate-400">
+                    <Award size={20} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Final Balance Sidebar */}
+            <div className="lg:col-span-3">
+              <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl border border-slate-800 h-full flex flex-col justify-between">
+                <div>
+                  <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
+                    Annual Result
+                  </span>
+                  <div className="space-y-6">
+                    <div>
+                      <span
+                        className={`text-4xl font-mono font-black block ${settlement.finalBalance < 0 ? 'text-rose-500' : 'text-emerald-400'}`}
+                      >
+                        ${formatCurrency(settlement.finalBalance)}
+                      </span>
+                      <p className="text-[10px] text-slate-500 mt-2 leading-relaxed uppercase font-bold">
+                        {settlement.finalBalance < 0
+                          ? 'Negative Year Projection'
+                          : 'Positive Year Projection'}
+                      </p>
+                    </div>
+
+                    <div className="pt-6 border-t border-slate-800 space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] uppercase font-bold text-slate-500">
+                          Savings Rate
+                        </span>
+                        <span className="font-mono text-sm text-emerald-400">
+                          {settlement.yearlyCredits > 0
+                            ? (
+                                (settlement.yearlyInvestments /
+                                  settlement.yearlyCredits) *
+                                100
+                              ).toFixed(1)
+                            : '0.0'}
+                          %
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-[9px] uppercase font-bold text-slate-500">
+                          Living Efficiency
+                        </span>
+                        <span className="font-mono text-sm text-blue-400">
+                          {settlement.yearlyCredits > 0
+                            ? (
+                                (1 -
+                                  settlement.yearlyLivingExpenses /
+                                    settlement.yearlyCredits) *
+                                100
+                              ).toFixed(1)
+                            : '0.0'}
+                          %
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 text-center bg-white/5 p-4 rounded-xl border border-white/10">
+                  <p className="text-[9px] uppercase font-black text-slate-400 tracking-widest">
+                    Target: $0.00 Balance
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
 
       <Dialog
         open={!!selectedDetails}
-        onOpenChange={(open) => !open && setSelectedDetails(null)}
+        onOpenChange={(open: boolean) => !open && setSelectedDetails(null)}
       >
         <DialogContent className="rounded-none border-slate-300 sm:max-w-md max-h-[70vh] flex flex-col p-0 overflow-hidden [&_[data-slot=dialog-close]]:text-white">
           <DialogHeader className="p-6 bg-slate-900 text-white rounded-none">
