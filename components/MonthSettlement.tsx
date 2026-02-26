@@ -277,7 +277,7 @@ export function MonthSettlement({
               <Operator icon={Equal} />
               <div className="col-span-4 transition-all duration-500">
                 <EquationBox
-                  title="Balance before Investments"
+                  title="Ready to Invest"
                   value={balanceBeforeInvestments}
                   color={balanceBeforeInvestments >= 0 ? 'emerald' : 'red'}
                 />

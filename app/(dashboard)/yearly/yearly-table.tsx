@@ -585,7 +585,7 @@ export function YearlyTable({
                   color: '#EF4444'
                 },
                 {
-                  label: 'Balance Before Investments',
+                  label: 'Ready to Invest',
                   key: 'balanceBeforeInvestments',
                   color: '#F59E0B'
                 },
@@ -800,7 +800,7 @@ export function YearlyTable({
                     </div>
                     <div>
                       <span className="text-[10px] uppercase font-black text-emerald-700 tracking-widest block mb-1">
-                        Balance Before Investments
+                        Ready to Invest
                       </span>
                       <span className="text-2xl font-mono font-black text-emerald-900">
                         ${formatCurrency(settlement.balanceBeforeInvestments)}
