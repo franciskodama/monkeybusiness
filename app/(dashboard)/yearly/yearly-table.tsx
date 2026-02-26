@@ -668,7 +668,7 @@ export function YearlyTable({
                         status === 'PAST'
                           ? 'bg-slate-950 font-black'
                           : status === 'CURRENT'
-                            ? 'bg-primary/30 text-slate-900 border-x border-primary font-black'
+                            ? 'bg-primary/30 text-white border-x border-primary font-black'
                             : ''
                       }`}
                     >
