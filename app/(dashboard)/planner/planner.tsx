@@ -43,7 +43,7 @@ import { DirectCodeImporter } from './transaction-direct-code-importer';
 import { TransactionReviewModal } from './transaction-review-modal';
 import { deleteSubcategory, deleteTransaction } from '@/lib/actions';
 import { AddSubcategory } from './add-subcategory';
-import { SourceBreakdown } from '@/components/SourceBreakdown';
+import { MonthSettlement } from '@/components/MonthSettlement';
 
 export default function Planner({
   user,
@@ -164,6 +164,7 @@ export default function Planner({
       sub.transactions?.map((tx: any) => ({
         ...tx,
         isIncome: sub.category.isIncome,
+        isSavings: sub.category.isSavings,
         subcategoryName: sub.name
       })) || []
   );
@@ -601,8 +602,9 @@ export default function Planner({
         </div>
 
         <div className="space-y-12">
-          <SourceBreakdown
+          <MonthSettlement
             transactions={allTransactions}
+            brlRate={brlRate}
             onSourceClick={(source, txs) =>
               setSelectedDetails({
                 name: `${source} Activity`,
@@ -611,60 +613,6 @@ export default function Planner({
               })
             }
           />
-
-          {/* GRAND TOTAL CONTRIBUTION (CAD/BRL) */}
-          <div className="pt-8 border-t">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-slate-900 rounded-lg">
-                  <Award size={20} className="text-white" />
-                </div>
-                <div>
-                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
-                    Grand Total Contribution
-                  </h3>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">
-                    Combined family effort for {months[selectedMonth - 1]}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex flex-col md:flex-row items-end md:items-center gap-4 md:gap-8 w-full md:w-auto">
-                <div className="flex flex-col items-end w-[12em] bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
-                      Total CAD
-                    </span>
-                    <div className="flex flex-col leading-[2px]">🇨🇦</div>
-                  </div>
-                  <span className="text-xl font-mono font-black text-emerald-800 pb-5">
-                    {formatCurrency(
-                      allTransactions.reduce((sum, tx) => sum + tx.amount, 0)
-                    )}
-                  </span>
-                </div>
-
-                <div className="flex flex-col items-end w-[12em] bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
-                      Total BRL
-                    </span>
-                    <div className="flex flex-col leading-[2px]">🇧🇷</div>
-                  </div>
-                  <span className="text-xl font-mono font-black text-emerald-800">
-                    R${' '}
-                    {formatCurrency(
-                      allTransactions.reduce((sum, tx) => sum + tx.amount, 0) *
-                        brlRate
-                    )}
-                  </span>
-                  <p className="text-[10px] text-emerald-600/60 uppercase font-black tracking-tighter mt-1">
-                    Rate: 1 CAD = {brlRate.toFixed(2)} BRL
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
         {reviewData && (
           <TransactionReviewModal
