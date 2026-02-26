@@ -561,81 +561,6 @@ export function YearlyTable({
             </tbody>
 
             <tfoot>
-              {/* NET CASH FLOW ROW */}
-              <tr className="bg-slate-900 text-white font-bold">
-                <td className="sticky left-0 z-10 bg-slate-900 p-4 border-r uppercase text-xs shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                  Net Cash Flow
-                </td>
-                {months.map((_, i) => {
-                  const net = getMonthlyNet(i + 1);
-                  const status = getMonthStatus(i + 1);
-                  return (
-                    <td
-                      key={i}
-                      className={`p-4 text-center border-r font-mono text-sm ${
-                        status === 'PAST'
-                          ? 'bg-slate-950 font-black'
-                          : status === 'CURRENT'
-                            ? 'bg-primary/30 text-slate-900 border-x border-primary font-black'
-                            : ''
-                      }`}
-                    >
-                      {net < 0 ? '-' : ''}${formatCurrency(Math.abs(net))}
-                    </td>
-                  );
-                })}
-                <td className="p-4 text-center bg-slate-800 font-mono text-sm">
-                  $
-                  {formatCurrency(
-                    months.reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
-                  )}
-                </td>
-              </tr>
-
-              {/* NEW: SAVINGS GOAL % ROW */}
-              <tr className="bg-emerald-600 text-white font-bold border-t border-emerald-500">
-                <td className="sticky left-0 z-10 bg-emerald-600 p-3 border-r uppercase text-[10px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
-                  Savings Rate (%)
-                </td>
-                {months.map((_, i) => {
-                  const income = getMonthlyIncome(i + 1);
-                  const net = getMonthlyNet(i + 1);
-                  const percentage = income > 0 ? (net / income) * 100 : 0;
-                  const status = getMonthStatus(i + 1);
-
-                  return (
-                    <td
-                      key={i}
-                      className={`p-3 text-center border-r font-mono text-xs ${
-                        status === 'PAST'
-                          ? 'bg-emerald-700'
-                          : status === 'CURRENT'
-                            ? 'bg-emerald-400 text-emerald-950 underline decoration-white underline-offset-4'
-                            : ''
-                      }`}
-                    >
-                      {percentage > 0 ? percentage.toFixed(1) : '0.0'}%
-                    </td>
-                  );
-                })}
-                <td className="p-3 text-center bg-emerald-700 font-mono text-xs">
-                  {(() => {
-                    const totalIncome = months.reduce(
-                      (sum, _, i) => sum + getMonthlyIncome(i + 1),
-                      0
-                    );
-                    const totalNet = months.reduce(
-                      (acc, _, i) => acc + getMonthlyNet(i + 1),
-                      0
-                    );
-                    return totalIncome > 0
-                      ? ((totalNet / totalIncome) * 100).toFixed(1)
-                      : '0.0';
-                  })()}
-                  %
-                </td>
-              </tr>
-
               {/* SPACER GAP */}
               <tr className="h-2 bg-gray-200">
                 <td colSpan={14} className="border-y border-secondary/20" />
@@ -668,11 +593,6 @@ export function YearlyTable({
                   label: 'Investments',
                   key: 'investments',
                   color: '#3B82F6'
-                },
-                {
-                  label: 'Final Balance',
-                  key: 'finalBalance',
-                  color: '#6366F1'
                 }
               ].map((row) => (
                 <tr
@@ -729,6 +649,84 @@ export function YearlyTable({
                   </td>
                 </tr>
               ))}
+              <tr className="h-2 bg-gray-200">
+                <td colSpan={14} className="border-y border-secondary/20" />
+              </tr>
+
+              {/* NET CASH FLOW ROW */}
+              <tr className="bg-slate-900 text-white font-bold">
+                <td className="sticky left-0 z-10 bg-slate-900 p-4 border-r uppercase text-xs shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                  Net Cash Flow
+                </td>
+                {months.map((_, i) => {
+                  const net = getMonthlyNet(i + 1);
+                  const status = getMonthStatus(i + 1);
+                  return (
+                    <td
+                      key={i}
+                      className={`p-4 text-center border-r font-mono text-sm ${
+                        status === 'PAST'
+                          ? 'bg-slate-950 font-black'
+                          : status === 'CURRENT'
+                            ? 'bg-primary/30 text-slate-900 border-x border-primary font-black'
+                            : ''
+                      }`}
+                    >
+                      {net < 0 ? '-' : ''}${formatCurrency(Math.abs(net))}
+                    </td>
+                  );
+                })}
+                <td className="p-4 text-center bg-slate-800 font-mono text-sm">
+                  $
+                  {formatCurrency(
+                    months.reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
+                  )}
+                </td>
+              </tr>
+
+              {/* SAVINGS GOAL % ROW */}
+              <tr className="bg-emerald-600 text-white font-bold border-t border-emerald-500">
+                <td className="sticky left-0 z-10 bg-emerald-600 p-3 border-r uppercase text-[10px] shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                  Savings Rate (%)
+                </td>
+                {months.map((_, i) => {
+                  const income = getMonthlyIncome(i + 1);
+                  const net = getMonthlyNet(i + 1);
+                  const percentage = income > 0 ? (net / income) * 100 : 0;
+                  const status = getMonthStatus(i + 1);
+
+                  return (
+                    <td
+                      key={i}
+                      className={`p-3 text-center border-r font-mono text-xs ${
+                        status === 'PAST'
+                          ? 'bg-emerald-700'
+                          : status === 'CURRENT'
+                            ? 'bg-emerald-400 text-emerald-950 underline decoration-white underline-offset-4'
+                            : ''
+                      }`}
+                    >
+                      {percentage > 0 ? percentage.toFixed(1) : '0.0'}%
+                    </td>
+                  );
+                })}
+                <td className="p-3 text-center bg-emerald-700 font-mono text-xs">
+                  {(() => {
+                    const totalIncome = months.reduce(
+                      (sum, _, i) => sum + getMonthlyIncome(i + 1),
+                      0
+                    );
+                    const totalNet = months.reduce(
+                      (acc, _, i) => acc + getMonthlyNet(i + 1),
+                      0
+                    );
+                    return totalIncome > 0
+                      ? ((totalNet / totalIncome) * 100).toFixed(1)
+                      : '0.0';
+                  })()}
+                  %
+                </td>
+              </tr>
             </tfoot>
           </table>
         </div>
