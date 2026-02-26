@@ -641,69 +641,6 @@ export function YearlyTable({
                 <td colSpan={14} className="border-y border-secondary/20" />
               </tr>
 
-              {/* SOURCE BREAKDOWN ROWS */}
-              {['Family', 'His', 'Her'].map((source) => {
-                const sourceColor = getSourceColor(source);
-                return (
-                  <tr
-                    key={source}
-                    style={{
-                      backgroundColor: `${sourceColor}08`
-                    }}
-                    className="border-b text-xs text-muted-foreground font-medium"
-                  >
-                    <td
-                      style={{
-                        borderLeft: `4px solid ${sourceColor}`,
-                        backgroundColor: 'white'
-                      }}
-                      className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
-                    >
-                      Total {source}
-                    </td>
-                    {months.map((_, i) => {
-                      const val = getMonthlySourceTotal(i + 1, source);
-                      const status = getMonthStatus(i + 1);
-                      return (
-                        <td
-                          key={i}
-                          className={`p-3 text-center border-r font-mono italic ${
-                            status === 'PAST'
-                              ? 'bg-slate-200/40'
-                              : status === 'CURRENT'
-                                ? 'bg-primary/5'
-                                : ''
-                          }`}
-                        >
-                          ${formatCurrency(val)}
-                        </td>
-                      );
-                    })}
-                    <td
-                      className="p-3 text-center font-mono font-black border-l"
-                      style={{
-                        backgroundColor: `${sourceColor}15`,
-                        color: sourceColor
-                      }}
-                    >
-                      {(() => {
-                        const total = months.reduce(
-                          (acc, _, i) =>
-                            acc + getMonthlySourceTotal(i + 1, source),
-                          0
-                        );
-                        return `$${formatCurrency(total)}`;
-                      })()}
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {/* SPACER GAP */}
-              <tr className="h-2 bg-gray-200">
-                <td colSpan={14} className="border-y border-secondary/20" />
-              </tr>
-
               {/* NEW SETTLEMENT GRID ROWS */}
               {[
                 {
@@ -728,7 +665,7 @@ export function YearlyTable({
                   color: '#F59E0B'
                 },
                 {
-                  label: 'Total Invested',
+                  label: 'Investments',
                   key: 'investments',
                   color: '#3B82F6'
                 },
@@ -737,14 +674,20 @@ export function YearlyTable({
                   key: 'finalBalance',
                   color: '#6366F1'
                 }
-              ].map((row, idx) => (
+              ].map((row) => (
                 <tr
                   key={row.key}
-                  className={`border-b text-[10px] font-bold ${idx >= 4 ? 'bg-slate-50' : ''}`}
+                  style={{
+                    backgroundColor: `${row.color}08`
+                  }}
+                  className="border-b text-xs text-muted-foreground font-medium"
                 >
                   <td
-                    className="sticky left-0 z-10 bg-white p-3 border-r pl-8 uppercase tracking-widest font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
-                    style={{ borderLeft: `4px solid ${row.color}` }}
+                    style={{
+                      borderLeft: `4px solid ${row.color}`,
+                      backgroundColor: 'white'
+                    }}
+                    className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                   >
                     {row.label}
                   </td>
@@ -755,13 +698,25 @@ export function YearlyTable({
                     return (
                       <td
                         key={i}
-                        className={`p-3 text-center border-r font-mono ${status === 'CURRENT' ? 'bg-primary/5 font-black text-primary' : ''}`}
+                        className={`p-3 text-center border-r font-mono italic ${
+                          status === 'PAST'
+                            ? 'bg-slate-200/40'
+                            : status === 'CURRENT'
+                              ? 'bg-primary/5'
+                              : ''
+                        }`}
                       >
                         ${formatCurrency(val)}
                       </td>
                     );
                   })}
-                  <td className="p-3 text-center font-mono font-black bg-slate-100 border-l">
+                  <td
+                    className="p-3 text-center font-mono font-black border-l"
+                    style={{
+                      backgroundColor: `${row.color}15`,
+                      color: row.color
+                    }}
+                  >
                     $
                     {formatCurrency(
                       months.reduce(
