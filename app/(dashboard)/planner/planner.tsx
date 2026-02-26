@@ -630,21 +630,21 @@ export default function Planner({
               </div>
 
               <div className="flex flex-col md:flex-row items-end md:items-center gap-4 md:gap-8 w-full md:w-auto">
-                <div className="flex flex-col items-end bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
+                <div className="flex flex-col items-end w-[12em] bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
                       Total CAD
                     </span>
                     <div className="flex flex-col leading-[2px]">🇨🇦</div>
                   </div>
-                  <span className="text-xl font-mono font-black text-emerald-800">
+                  <span className="text-xl font-mono font-black text-emerald-800 pb-5">
                     {formatCurrency(
                       allTransactions.reduce((sum, tx) => sum + tx.amount, 0)
                     )}
                   </span>
                 </div>
 
-                <div className="flex flex-col items-end bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
+                <div className="flex flex-col items-end w-[12em] bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
                   <div className="flex items-center gap-2 mb-0.5">
                     <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
                       Total BRL
