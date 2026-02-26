@@ -1,7 +1,13 @@
 'use client';
 
-import { CreditCard, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
-import { getSourceColor } from '@/lib/utils';
+import {
+  CreditCard,
+  ArrowUpRight,
+  Wallet,
+  Landmark,
+  Award
+} from 'lucide-react';
+import { getSourceColor, formatCurrency } from '@/lib/utils';
 
 export function SourceBreakdown({
   transactions,
@@ -10,29 +16,36 @@ export function SourceBreakdown({
   transactions: any[];
   onSourceClick?: (source: string, transactions: any[]) => void;
 }) {
-  // Grouping logic
-  const sourceTotals = transactions.reduce(
-    (acc: Record<string, { total: number; txs: any[] }>, tx) => {
-      const sourceName = tx.source || 'Other/Unknown';
-      if (!acc[sourceName]) {
-        acc[sourceName] = { total: 0, txs: [] };
-      }
-      acc[sourceName].total += tx.amount;
-      acc[sourceName].txs.push(tx);
-      return acc;
-    },
-    {}
-  );
+  const sources = ['His', 'Her', 'Family'];
 
-  const sortedSources = Object.entries(sourceTotals).sort(
-    (a, b) => Math.abs(b[1].total) - Math.abs(a[1].total)
-  );
+  // Initialize data for the three sources
+  const data: Record<
+    string,
+    { spending: number; funding: number; txs: any[] }
+  > = {
+    His: { spending: 0, funding: 0, txs: [] },
+    Her: { spending: 0, funding: 0, txs: [] },
+    Family: { spending: 0, funding: 0, txs: [] }
+  };
+
+  // Populate data from transactions
+  transactions.forEach((tx) => {
+    const s = tx.source;
+    if (data[s]) {
+      if (tx.isIncome) {
+        data[s].funding += tx.amount;
+      } else {
+        data[s].spending += tx.amount;
+      }
+      data[s].txs.push(tx);
+    }
+  });
 
   if (transactions.length === 0) return null;
 
   return (
     <div className="mt-12 pt-8 border-t">
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-8">
         <div className="p-2 bg-primary/10 rounded-lg">
           <CreditCard size={18} className="text-primary" />
         </div>
@@ -41,48 +54,84 @@ export function SourceBreakdown({
             Account Activity
           </h3>
           <p className="text-[10px] text-muted-foreground uppercase">
-            Summary of spending and income by source (Click to see details)
+            Settlement Summary (Click source column for details)
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3">
-        {sortedSources.map(([source, { total, txs }]) => {
-          const isIncome = total < 0;
-          const sourceColor = getSourceColor(source);
-          return (
-            <div
-              key={source}
-              className="p-3 border bg-background shadow-sm hover:shadow-md hover:bg-slate-50 transition-all relative overflow-hidden cursor-pointer group"
-              style={{ borderTop: `3px solid ${sourceColor}` }}
-              onClick={() => onSourceClick?.(source, txs)}
-            >
-              <div className="flex justify-between items-start mb-2 text-muted-foreground group-hover:text-foreground">
-                <span className="text-[9px] font-black uppercase truncate max-w-[100px]">
-                  {source}
-                </span>
-                {isIncome ? (
-                  <ArrowDownLeft size={12} className="text-emerald-500" />
-                ) : (
-                  <ArrowUpRight size={12} style={{ color: sourceColor }} />
-                )}
-              </div>
-              <div className="flex flex-col">
-                <span
-                  className={`text-md font-mono font-bold ${isIncome ? 'text-emerald-600' : 'text-foreground'}`}
+      <div className="overflow-hidden border border-slate-200">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-slate-50 border-b">
+              <th className="p-4 text-left text-[10px] uppercase font-black tracking-widest text-slate-400 w-1/4">
+                Movement Type
+              </th>
+              {sources.map((source) => {
+                const sourceColor = getSourceColor(source);
+                const isHis = source === 'His';
+                return (
+                  <th
+                    key={source}
+                    className={`p-4 text-center text-xs font-black uppercase tracking-widest cursor-pointer transition-all border-l ${
+                      isHis ? 'text-slate-900' : 'text-white'
+                    } hover:opacity-90`}
+                    style={{ backgroundColor: sourceColor }}
+                    onClick={() => onSourceClick?.(source, data[source].txs)}
+                  >
+                    {source}
+                  </th>
+                );
+              })}
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="border-b group hover:bg-slate-50 transition-colors">
+              <td className="p-4 text-xs font-bold uppercase tracking-widest text-slate-500 flex items-center gap-4">
+                <Wallet size={18} className="text-slate-400" />
+                Total Spending
+              </td>
+              {sources.map((source) => (
+                <td
+                  key={source}
+                  className="p-4 text-center font-mono font-bold text-sm border-l"
                 >
-                  {isIncome ? '' : '$'}
-                  {Math.abs(total).toLocaleString(undefined, {
-                    minimumFractionDigits: 2
-                  })}
-                </span>
-                <span className="text-[8px] uppercase text-muted-foreground font-medium">
-                  {isIncome ? 'Total Deposits' : 'Total Charges'}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+                  ${formatCurrency(data[source].spending)}
+                </td>
+              ))}
+            </tr>
+
+            <tr className="border-b group hover:bg-emerald-50/30 transition-colors text-slate-500">
+              <td className="p-4 text-xs font-bold uppercase tracking-widest flex items-center gap-4">
+                <Landmark size={18} className="text-slate-400" />
+                Pool Funding
+              </td>
+              {sources.map((source) => (
+                <td
+                  key={source}
+                  className="p-4 text-center font-mono font-bold text-sm border-l"
+                >
+                  ${formatCurrency(data[source].funding)}
+                </td>
+              ))}
+            </tr>
+
+            <tr className="bg-slate-800 text-white font-black group">
+              <td className="p-4 text-xs font-bold uppercase tracking-[0.2em] flex items-center gap-4 mt-1">
+                <Award size={18} className="text-white" />
+                Total Contribution
+              </td>
+              {sources.map((source) => (
+                <td
+                  key={source}
+                  className="p-4 text-center font-mono text-lg border-l border-slate-700"
+                >
+                  $
+                  {formatCurrency(data[source].spending + data[source].funding)}
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );

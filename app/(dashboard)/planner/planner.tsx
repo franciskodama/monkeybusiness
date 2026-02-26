@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Trash2 } from 'lucide-react';
+import { Download, Trash2, Award } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
@@ -49,12 +49,14 @@ export default function Planner({
   user,
   householdId,
   categories,
-  subcategories
+  subcategories,
+  brlRate
 }: {
   user: User;
   householdId: string;
   categories: Category[];
   subcategories: any[];
+  brlRate: number;
 }) {
   const [openAction, setOpenAction] = useState(false);
   const [currentSubcategories, setCurrentSubcategoriesAction] =
@@ -161,6 +163,7 @@ export default function Planner({
     (sub) =>
       sub.transactions?.map((tx: any) => ({
         ...tx,
+        isIncome: sub.category.isIncome,
         subcategoryName: sub.name
       })) || []
   );
@@ -609,65 +612,59 @@ export default function Planner({
             }
           />
 
-          {/* FUNDING PROGRESS BY SOURCE */}
-          {fundingTransactions.length > 0 && (
-            <div className="pt-8 border-t">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="p-2 bg-emerald-100 rounded-lg">
-                  <span className="text-emerald-700 font-bold text-xs">$</span>
+          {/* GRAND TOTAL CONTRIBUTION (CAD/BRL) */}
+          <div className="pt-8 border-t">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-slate-900 rounded-lg">
+                  <Award size={20} className="text-white" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold uppercase tracking-tight text-emerald-800">
-                    Funding Progress
+                  <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
+                    Grand Total Contribution
                   </h3>
-                  <p className="text-[10px] text-muted-foreground uppercase">
-                    How much each source has contributed to the pool
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-tight">
+                    Combined family effort for {months[selectedMonth - 1]}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {['His', 'Her', 'Family'].map((source) => {
-                  const contributed = fundingTransactions
-                    .filter((tx) => tx.source === source)
-                    .reduce((sum, tx) => sum + tx.amount, 0);
-                  const target = currentMonthSubs
-                    .filter((sub) => sub.category.isIncome)
-                    .reduce((sum, sub) => {
-                      // This is a bit complex as we don't have per-source targets yet,
-                      // but we can show the total contributed per source cleanly.
-                      return sum;
-                    }, 0);
+              <div className="flex flex-col md:flex-row items-end md:items-center gap-4 md:gap-8 w-full md:w-auto">
+                <div className="flex flex-col items-end w-[12em] bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
+                      Total CAD
+                    </span>
+                    <div className="flex flex-col leading-[2px]">🇨🇦</div>
+                  </div>
+                  <span className="text-xl font-mono font-black text-emerald-800 pb-5">
+                    {formatCurrency(
+                      allTransactions.reduce((sum, tx) => sum + tx.amount, 0)
+                    )}
+                  </span>
+                </div>
 
-                  if (contributed === 0) return null;
-
-                  return (
-                    <div
-                      key={source}
-                      className="flex flex-col gap-2 p-4 bg-emerald-50/50 border border-emerald-100"
-                    >
-                      <div className="flex justify-between items-center">
-                        <span className="text-[10px] font-black uppercase text-emerald-800">
-                          {source} Contribution
-                        </span>
-                        <span className="font-mono font-bold text-emerald-600">
-                          ${formatCurrency(contributed)}
-                        </span>
-                      </div>
-                      <div className="w-full h-1 bg-emerald-100">
-                        <div
-                          className="h-full bg-emerald-500"
-                          style={{
-                            width: `${Math.min((contributed / totalPlannedIncome) * 100, 100)}%`
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                <div className="flex flex-col items-end w-[12em] bg-emerald-50 border-l-4 border-yellow-400 p-3 pr-4">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-xs font-black uppercase tracking-widest text-emerald-700">
+                      Total BRL
+                    </span>
+                    <div className="flex flex-col leading-[2px]">🇧🇷</div>
+                  </div>
+                  <span className="text-xl font-mono font-black text-emerald-800">
+                    R${' '}
+                    {formatCurrency(
+                      allTransactions.reduce((sum, tx) => sum + tx.amount, 0) *
+                        brlRate
+                    )}
+                  </span>
+                  <p className="text-[10px] text-emerald-600/60 uppercase font-black tracking-tighter mt-1">
+                    Rate: 1 CAD = {brlRate.toFixed(2)} BRL
+                  </p>
+                </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
         {reviewData && (
           <TransactionReviewModal
