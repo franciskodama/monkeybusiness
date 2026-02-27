@@ -269,39 +269,45 @@ export default function Planner({
               clarity!
             </p>
           </div>
-          <div
-            className={`${barlow.className} flex gap-4 capitalize mt-8 sm:mt-0 w-full sm:w-[18ch]`}
-          >
-            <TransactionImporter
-              householdId={householdId}
-              categories={currentCategories}
-              subcategoriesForCurrentMonth={currentSubcategories.filter(
-                (i) => i.month === selectedMonth
-              )}
-              setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
-              setReviewDataAction={setReviewData}
-            />
-            <DirectCodeImporter
-              householdId={householdId}
-              onDataLoaded={(data) => setReviewData(data)}
-            />
-            <AddCategory
-              user={user}
-              householdId={householdId}
-              currentCategories={currentCategories}
-              setCurrentCategoriesAction={setCurrentCategoriesAction}
-            />
-            <Button
-              variant="outline"
-              className="gap-2"
-              onClick={exportBudgetData}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-end flex-1 w-full gap-4 mt-8 lg:mt-0">
+            <div
+              className={`${barlow.className} flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto overflow-hidden`}
             >
-              <Download size={16} />
-              JSON
-            </Button>
-          </div>
-          <div className="hidden sm:block">
-            {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+              <div className="grid grid-cols-1 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
+                <TransactionImporter
+                  householdId={householdId}
+                  categories={currentCategories}
+                  subcategoriesForCurrentMonth={currentSubcategories.filter(
+                    (i) => i.month === selectedMonth
+                  )}
+                  setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
+                  setReviewDataAction={setReviewData}
+                />
+                <DirectCodeImporter
+                  householdId={householdId}
+                  onDataLoaded={(data) => setReviewData(data)}
+                />
+              </div>
+              <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
+                <AddCategory
+                  user={user}
+                  householdId={householdId}
+                  currentCategories={currentCategories}
+                  setCurrentCategoriesAction={setCurrentCategoriesAction}
+                />
+                <Button
+                  variant="outline"
+                  className="gap-2 w-full sm:w-auto"
+                  onClick={exportBudgetData}
+                >
+                  <Download size={16} />
+                  JSON
+                </Button>
+              </div>
+            </div>
+            <div className="hidden sm:block">
+              {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+            </div>
           </div>
         </CardTitle>
       </CardHeader>
@@ -323,13 +329,13 @@ export default function Planner({
         </AnimatePresence>
 
         {/* STICKY COMMAND CENTER */}
-        <div className="sticky top-0 z-20 bg-white/80 backdrop-blur-md -mx-6 px-6 py-4 border-b mb-8 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex justify-between w-full md:w-auto overflow-x-auto no-scrollbar gap-1">
+        <div className="sticky top-0 z-20 bg-white/90 backdrop-blur-md -mx-6 px-4 sm:px-6 py-4 border-b mb-8 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 sm:gap-6">
+          <div className="flex justify-start w-full lg:w-auto overflow-x-auto no-scrollbar gap-1 pb-1 lg:pb-0">
             {months.map((monthName, index) => (
               <Button
                 key={monthName}
                 variant={selectedMonth === index + 1 ? 'default' : 'ghost'}
-                className={`px-4 h-8 text-[12px] font-black uppercase tracking-widest rounded-none ${selectedMonth === index + 1 ? 'shadow-md' : ''}`}
+                className={`px-3 sm:px-4 h-8 text-[11px] sm:text-[12px] font-black uppercase tracking-widest rounded-none whitespace-nowrap ${selectedMonth === index + 1 ? 'shadow-md' : ''}`}
                 size="xs"
                 onClick={() => setSelectedMonth(index + 1)}
               >
@@ -338,29 +344,29 @@ export default function Planner({
             ))}
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-bold divide-x divide-slate-200">
-            <div className="flex flex-col items-center px-4">
-              <span className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+          <div className="grid grid-cols-3 items-center text-xs font-bold sm:divide-x sm:divide-slate-200 bg-slate-50 lg:bg-transparent rounded-xl lg:rounded-none p-2 lg:p-0">
+            <div className="flex flex-col items-center px-1 sm:px-4">
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
                 Income
               </span>
-              <span className="font-mono text-emerald-600">
+              <span className="font-mono text-emerald-600 text-[10px] sm:text-xs">
                 ${formatCurrency(totalActualIncome)}
               </span>
             </div>
-            <div className="flex flex-col items-center px-4">
-              <span className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+            <div className="flex flex-col items-center px-1 sm:px-4 border-x sm:border-x-0 border-slate-200">
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
                 Burn
               </span>
-              <span className="font-mono text-slate-900">
+              <span className="font-mono text-slate-900 text-[10px] sm:text-xs">
                 ${formatCurrency(totalActualExpenses)}
               </span>
             </div>
-            <div className="flex flex-col items-center pl-4 pr-1">
-              <span className="text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
+            <div className="flex flex-col items-center px-1 sm:px-4">
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
                 Net Result
               </span>
               <span
-                className={`font-mono text-sm px-2 py-0.5 ${
+                className={`font-mono text-[10px] sm:text-sm px-1 sm:px-2 py-0.5 ${
                   actualNet >= 0
                     ? 'bg-emerald-100 text-emerald-800'
                     : 'bg-rose-100 text-rose-800'

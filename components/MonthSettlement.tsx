@@ -115,7 +115,7 @@ export function MonthSettlement({
           {title}
         </span>
         <span
-          className={`font-mono font-black ${isCurrency ? 'text-lg' : 'text-xl'}`}
+          className={`font-mono font-black ${isCurrency ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}
         >
           {isCurrency ? `$${formatCurrency(value)}` : value}
         </span>
@@ -130,12 +130,16 @@ export function MonthSettlement({
 
   const Operator = ({
     icon: Icon,
-    color = 'slate-400'
+    color = 'slate-400',
+    className = ''
   }: {
     icon: any;
     color?: string;
+    className?: string;
   }) => (
-    <div className={`flex items-center justify-center p-2 ${color}`}>
+    <div
+      className={`flex items-center justify-center p-2 ${color} ${className}`}
+    >
       <Icon size={16} strokeWidth={3} />
     </div>
   );
@@ -166,8 +170,8 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 1: Living Expenses
             </span>
-            <div className="grid grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-              <div className="col-span-2">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="w-full md:col-span-2">
                 <EquationBox
                   title="His Payments"
                   value={data.His.livingExpenses}
@@ -180,8 +184,11 @@ export function MonthSettlement({
                   }
                 />
               </div>
-              <Operator icon={Plus} />
-              <div className="col-span-2">
+              <Operator
+                icon={Plus}
+                className="rotate-90 md:rotate-0 py-1 md:py-2"
+              />
+              <div className="w-full md:col-span-2">
                 <EquationBox
                   title="Her Payments"
                   value={data.Her.livingExpenses}
@@ -194,8 +201,11 @@ export function MonthSettlement({
                   }
                 />
               </div>
-              <Operator icon={Plus} />
-              <div className="col-span-1">
+              <Operator
+                icon={Plus}
+                className="rotate-90 md:rotate-0 py-1 md:py-2"
+              />
+              <div className="w-full md:col-span-1">
                 <EquationBox
                   title="Family Payments"
                   value={data.Family.livingExpenses}
@@ -216,8 +226,8 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 2: Pool Funding (Credits)
             </span>
-            <div className="grid grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-              <div className="col-span-3">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Deposits"
                   value={data.His.deposits}
@@ -230,8 +240,11 @@ export function MonthSettlement({
                   }
                 />
               </div>
-              <Operator icon={Plus} />
-              <div className="col-span-3">
+              <Operator
+                icon={Plus}
+                className="rotate-90 md:rotate-0 py-1 md:py-2"
+              />
+              <div className="w-full md:col-span-3">
                 <EquationBox
                   title="Her Deposits"
                   value={data.Her.deposits}
@@ -252,8 +265,8 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 3: Individual Effort (Spending + Funding)
             </span>
-            <div className="grid grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-              <div className="col-span-3">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Contribution"
                   value={hisTotalContribution}
@@ -261,8 +274,11 @@ export function MonthSettlement({
                   onClick={() => onSourceClick?.('His', data.His.txs)}
                 />
               </div>
-              <Operator icon={Plus} />
-              <div className="col-span-3">
+              <Operator
+                icon={Plus}
+                className="rotate-90 md:rotate-0 py-1 md:py-2"
+              />
+              <div className="w-full md:col-span-3">
                 <EquationBox
                   title="Her Contribution"
                   value={herTotalContribution}
@@ -278,30 +294,37 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 4: Calculating Surplus
             </span>
-            <div className="grid grid-cols-10 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-              <div className="col-span-2">
+            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="w-full md:col-span-2">
                 <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Effort
                   </span>
-                  <span className="font-mono font-black text-emerald-800">
+                  <span className="font-mono font-black text-emerald-800 text-base sm:text-lg">
                     ${formatCurrency(grandTotalContribution)}
                   </span>
                 </div>
               </div>
-              <Operator icon={Minus} color="text-rose-500" />
-              <div className="col-span-2">
+              <Operator
+                icon={Minus}
+                color="text-rose-500"
+                className="rotate-90 md:rotate-0 py-1 md:py-2"
+              />
+              <div className="w-full md:col-span-2">
                 <div className="p-4 rounded-xl border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Expenses
                   </span>
-                  <span className="font-mono font-black text-rose-800">
+                  <span className="font-mono font-black text-rose-800 text-base sm:text-lg">
                     ${formatCurrency(totalLivingExpenses)}
                   </span>
                 </div>
               </div>
-              <Operator icon={Equal} />
-              <div className="col-span-4 transition-all duration-500">
+              <Operator
+                icon={Equal}
+                className="rotate-90 md:rotate-0 py-1 md:py-2"
+              />
+              <div className="w-full md:col-span-4 transition-all duration-500">
                 <EquationBox
                   title="Ready to Invest"
                   value={balanceBeforeInvestments}
