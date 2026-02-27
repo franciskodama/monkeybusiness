@@ -63,21 +63,21 @@ export function MonthSettlement({
     }
   });
 
-  const totalLivingExpenses =
-    data.His.livingExpenses +
-    data.Her.livingExpenses +
-    data.Family.livingExpenses;
-  const totalDeposits = data.His.deposits + data.Her.deposits;
-  const balanceBeforeInvestments = totalDeposits - totalLivingExpenses;
-  const totalInvested =
-    data.His.investments + data.Her.investments + data.Family.investments;
-  const finalBalance = balanceBeforeInvestments - totalInvested;
-
   const hisTotalContribution =
     data.His.livingExpenses + data.His.investments + data.His.deposits;
   const herTotalContribution =
     data.Her.livingExpenses + data.Her.investments + data.Her.deposits;
   const grandTotalContribution = hisTotalContribution + herTotalContribution;
+
+  const totalLivingExpenses =
+    data.His.livingExpenses +
+    data.Her.livingExpenses +
+    data.Family.livingExpenses;
+
+  const balanceBeforeInvestments = grandTotalContribution - totalLivingExpenses;
+  const totalInvested =
+    data.His.investments + data.Her.investments + data.Family.investments;
+  const finalBalance = balanceBeforeInvestments - totalInvested;
 
   if (transactions.length === 0) return null;
 
@@ -247,48 +247,10 @@ export function MonthSettlement({
             </div>
           </div>
 
-          {/* Row 3: Logic Result */}
+          {/* Row 3: Total Effort (Contribution) */}
           <div className="flex flex-col gap-2">
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Step 3: Calculating Surplus
-            </span>
-            <div className="grid grid-cols-10 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-              <div className="col-span-2">
-                <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
-                  <span className="text-[8px] uppercase font-black text-emerald-700 tracking-tighter">
-                    Total Credits
-                  </span>
-                  <span className="font-mono font-black text-emerald-800">
-                    ${formatCurrency(totalDeposits)}
-                  </span>
-                </div>
-              </div>
-              <Operator icon={Minus} color="text-rose-500" />
-              <div className="col-span-2">
-                <div className="p-4 rounded-xl border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
-                  <span className="text-[8px] uppercase font-black text-rose-700 tracking-tighter">
-                    Total Expenses
-                  </span>
-                  <span className="font-mono font-black text-rose-800">
-                    ${formatCurrency(totalLivingExpenses)}
-                  </span>
-                </div>
-              </div>
-              <Operator icon={Equal} />
-              <div className="col-span-4 transition-all duration-500">
-                <EquationBox
-                  title="Ready to Invest"
-                  value={balanceBeforeInvestments}
-                  color={balanceBeforeInvestments >= 0 ? 'emerald' : 'red'}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 4: Total Effort (Contribution) */}
-          <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Individual Effort (Spending + Funding)
+              Step 3: Individual Effort (Spending + Funding)
             </span>
             <div className="grid grid-cols-2 gap-4">
               <div
@@ -328,6 +290,44 @@ export function MonthSettlement({
                     <Award size={16} />
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Row 4: Logic Result */}
+          <div className="flex flex-col gap-2">
+            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
+              Step 4: Calculating Surplus
+            </span>
+            <div className="grid grid-cols-10 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="col-span-2">
+                <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
+                  <span className="text-[8px] uppercase font-black text-emerald-700 tracking-tighter">
+                    Total Effort
+                  </span>
+                  <span className="font-mono font-black text-emerald-800">
+                    ${formatCurrency(grandTotalContribution)}
+                  </span>
+                </div>
+              </div>
+              <Operator icon={Minus} color="text-rose-500" />
+              <div className="col-span-2">
+                <div className="p-4 rounded-xl border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
+                  <span className="text-[8px] uppercase font-black text-rose-700 tracking-tighter">
+                    Total Expenses
+                  </span>
+                  <span className="font-mono font-black text-rose-800">
+                    ${formatCurrency(totalLivingExpenses)}
+                  </span>
+                </div>
+              </div>
+              <Operator icon={Equal} />
+              <div className="col-span-4 transition-all duration-500">
+                <EquationBox
+                  title="Ready to Invest"
+                  value={balanceBeforeInvestments}
+                  color={balanceBeforeInvestments >= 0 ? 'emerald' : 'red'}
+                />
               </div>
             </div>
           </div>

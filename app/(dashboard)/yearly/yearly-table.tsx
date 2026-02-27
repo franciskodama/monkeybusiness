@@ -199,7 +199,8 @@ export function YearlyTable({
       });
     }
 
-    const balanceBeforeInvestments = yearlyCredits - yearlyLivingExpenses;
+    const balanceBeforeInvestments =
+      hisYearlyEffort + herYearlyEffort - yearlyLivingExpenses;
     const finalBalance = balanceBeforeInvestments - yearlyInvestments;
 
     return {
@@ -276,7 +277,7 @@ export function YearlyTable({
       }
     });
 
-    const balanceBeforeInvestments = credits - livingExpenses;
+    const balanceBeforeInvestments = hisEffort + herEffort - livingExpenses;
     const finalBalance = balanceBeforeInvestments - investments;
 
     return {
@@ -759,10 +760,14 @@ export function YearlyTable({
                     </div>
                     <div>
                       <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
-                        Total Credits
+                        Total Effort
                       </span>
                       <span className="text-2xl font-mono font-black text-slate-900">
-                        ${formatCurrency(settlement.yearlyCredits)}
+                        $
+                        {formatCurrency(
+                          settlement.hisYearlyEffort +
+                            settlement.herYearlyEffort
+                        )}
                       </span>
                     </div>
                   </div>
