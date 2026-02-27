@@ -52,7 +52,7 @@ model Subcategory {
   household        Household         @relation(fields: [householdId], references: [id])
   transactions     Transaction[]
   transactionRules TransactionRule[]
-  @@unique([name, month, year, householdId])
+  @@unique([name, month, year, householdId, categoryId], name: "subcategory_unique_auth")
 }
 
 model Transaction {

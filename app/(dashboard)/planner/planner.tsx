@@ -434,6 +434,7 @@ export default function Planner({
                             initialName={item.name}
                             householdId={householdId}
                             year={2026}
+                            categoryId={item.categoryId}
                             onUpdateSuccess={(newName) =>
                               handleRenameSubcategory(item.name, newName)
                             }

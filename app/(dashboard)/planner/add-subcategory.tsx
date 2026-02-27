@@ -99,7 +99,10 @@ export function AddSubcategory({
       setOpen(false);
       setApplyToFuture(false);
 
-      toast.success('Added successfully! 🎉', {
+      const categoryName =
+        currentCategories.find((c) => c.id === categoryId)?.name || 'Budget';
+
+      toast.success(`${name} added to ${categoryName}! 🎉`, {
         description: applyToFuture
           ? `Recurring item created through December.`
           : 'Budget item created.'

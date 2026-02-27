@@ -39,7 +39,10 @@ export async function matchTransactionsWithRules(
 
     if (foundRule) {
       const targetSub = allSubcategories.find(
-        (s) => s.name === foundRule.subcategory.name && s.month === txMonth
+        (s) =>
+          s.name === foundRule.subcategory.name &&
+          s.month === txMonth &&
+          s.categoryId === foundRule.subcategory.categoryId
       );
       if (targetSub)
         return {
@@ -55,7 +58,10 @@ export async function matchTransactionsWithRules(
       const aiPickedSub = allSubcategories.find((s) => s.id === currentId);
       if (aiPickedSub) {
         const targetSub = allSubcategories.find(
-          (s) => s.name === aiPickedSub.name && s.month === txMonth
+          (s) =>
+            s.name === aiPickedSub.name &&
+            s.month === txMonth &&
+            s.categoryId === aiPickedSub.categoryId
         );
         if (targetSub) return { ...tx, subcategoryId: targetSub.id };
       }
@@ -520,16 +526,16 @@ export async function addSubcategory(data: {
         // Use 'upsert' to create if new, or update amount if it already exists
         await prisma.subcategory.upsert({
           where: {
-            name_month_year_householdId: {
-              // This matches your unique constraint
+            subcategory_unique_auth: {
               name: data.name,
               month: m,
               year: data.year,
-              householdId: data.householdId
+              householdId: data.householdId,
+              categoryId: data.categoryId
             }
           },
           update: {
-            amount: data.amount // Update the amount if it's already there
+            amount: data.amount
           },
           create: {
             name: data.name,
@@ -545,11 +551,12 @@ export async function addSubcategory(data: {
       // Single month safe creation
       await prisma.subcategory.upsert({
         where: {
-          name_month_year_householdId: {
+          subcategory_unique_auth: {
             name: data.name,
             month: data.month,
             year: data.year,
-            householdId: data.householdId
+            householdId: data.householdId,
+            categoryId: data.categoryId
           }
         },
         update: { amount: data.amount },
@@ -603,7 +610,8 @@ export async function updateSubcategoryAmount(
           name: currentItem.name,
           householdId: currentItem.householdId,
           year: currentItem.year,
-          month: { gte: currentItem.month }
+          month: { gte: currentItem.month },
+          categoryId: currentItem.categoryId
         },
         data: { amount }
       });
@@ -625,13 +633,26 @@ export async function renameSubcategory(data: {
   oldName: string;
   newName: string;
   year: number;
+  categoryId?: string;
 }) {
   try {
+    const itemToRename = await prisma.subcategory.findFirst({
+      where: {
+        name: data.oldName,
+        householdId: data.householdId,
+        year: data.year,
+        ...(data.categoryId && { categoryId: data.categoryId })
+      }
+    });
+
+    if (!itemToRename) return { success: false };
+
     await prisma.subcategory.updateMany({
       where: {
         name: data.oldName,
         householdId: data.householdId,
-        year: data.year
+        year: data.year,
+        categoryId: itemToRename.categoryId
       },
       data: {
         name: data.newName
@@ -663,13 +684,19 @@ export async function deleteSubcategory(
           name: item.name,
           householdId,
           year: item.year,
-          month: { gte: item.month }
+          month: { gte: item.month },
+          categoryId: item.categoryId
         }
       });
     } else if (mode === 'ALL') {
       // Delete months 1 through 12
       await prisma.subcategory.deleteMany({
-        where: { name: item.name, householdId, year: item.year }
+        where: {
+          name: item.name,
+          householdId,
+          year: item.year,
+          categoryId: item.categoryId
+        }
       });
     }
     return { success: true };
