@@ -209,6 +209,7 @@ export function YearlyTable({
       yearlyCredits,
       hisYearlyEffort,
       herYearlyEffort,
+      totalEffort: hisYearlyEffort + herYearlyEffort,
       balanceBeforeInvestments,
       finalBalance
     };
@@ -284,6 +285,7 @@ export function YearlyTable({
       hisEffort,
       herEffort,
       credits,
+      totalEffort: hisEffort + herEffort,
       livingExpenses,
       balanceBeforeInvestments,
       investments,
@@ -579,7 +581,7 @@ export function YearlyTable({
                   key: 'herEffort',
                   color: getSourceColor('Her')
                 },
-                { label: 'Total Credits', key: 'credits', color: '#10B981' },
+                { label: 'Total Effort', key: 'totalEffort', color: '#10B981' },
                 {
                   label: 'Total Expenses',
                   key: 'livingExpenses',

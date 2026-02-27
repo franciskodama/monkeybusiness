@@ -169,7 +169,7 @@ export function MonthSettlement({
             <div className="grid grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
               <div className="col-span-2">
                 <EquationBox
-                  title="His Paid"
+                  title="His Payments"
                   value={data.His.livingExpenses}
                   color="cyan"
                   onClick={() =>
@@ -183,7 +183,7 @@ export function MonthSettlement({
               <Operator icon={Plus} />
               <div className="col-span-2">
                 <EquationBox
-                  title="Her Paid"
+                  title="Her Payments"
                   value={data.Her.livingExpenses}
                   color="orange"
                   onClick={() =>
@@ -197,7 +197,7 @@ export function MonthSettlement({
               <Operator icon={Plus} />
               <div className="col-span-1">
                 <EquationBox
-                  title="Family"
+                  title="Family Payments"
                   value={data.Family.livingExpenses}
                   color="red"
                   onClick={() =>
@@ -219,7 +219,7 @@ export function MonthSettlement({
             <div className="grid grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
               <div className="col-span-3">
                 <EquationBox
-                  title="His Deposited"
+                  title="His Deposits"
                   value={data.His.deposits}
                   color="cyan"
                   onClick={() =>
@@ -233,7 +233,7 @@ export function MonthSettlement({
               <Operator icon={Plus} />
               <div className="col-span-3">
                 <EquationBox
-                  title="Her Deposited"
+                  title="Her Deposits"
                   value={data.Her.deposits}
                   color="orange"
                   onClick={() =>
@@ -252,44 +252,23 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 3: Individual Effort (Spending + Funding)
             </span>
-            <div className="grid grid-cols-2 gap-4">
-              <div
-                className="p-4 rounded-2xl border-l-4 shadow-sm bg-white cursor-pointer hover:bg-slate-50 transition-colors"
-                style={{ borderLeftColor: getSourceColor('His') }}
-                onClick={() => onSourceClick?.('His', data.His.txs)}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-[9px] uppercase font-black text-slate-400 tracking-widest">
-                      His Contribution
-                    </span>
-                    <h4 className="text-xl font-mono font-black text-slate-900">
-                      ${formatCurrency(hisTotalContribution)}
-                    </h4>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-cyan-100 flex items-center justify-center text-cyan-700">
-                    <Award size={16} />
-                  </div>
-                </div>
+            <div className="grid grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+              <div className="col-span-3">
+                <EquationBox
+                  title="His Contribution"
+                  value={hisTotalContribution}
+                  color="cyan"
+                  onClick={() => onSourceClick?.('His', data.His.txs)}
+                />
               </div>
-              <div
-                className="p-4 rounded-2xl border-l-4 shadow-sm bg-white cursor-pointer hover:bg-slate-50 transition-colors"
-                style={{ borderLeftColor: getSourceColor('Her') }}
-                onClick={() => onSourceClick?.('Her', data.Her.txs)}
-              >
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-[9px] uppercase font-black text-slate-400 tracking-widest">
-                      Her Contribution
-                    </span>
-                    <h4 className="text-xl font-mono font-black text-slate-900">
-                      ${formatCurrency(herTotalContribution)}
-                    </h4>
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-700">
-                    <Award size={16} />
-                  </div>
-                </div>
+              <Operator icon={Plus} />
+              <div className="col-span-3">
+                <EquationBox
+                  title="Her Contribution"
+                  value={herTotalContribution}
+                  color="orange"
+                  onClick={() => onSourceClick?.('Her', data.Her.txs)}
+                />
               </div>
             </div>
           </div>
@@ -302,7 +281,7 @@ export function MonthSettlement({
             <div className="grid grid-cols-10 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
               <div className="col-span-2">
                 <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
-                  <span className="text-[8px] uppercase font-black text-emerald-700 tracking-tighter">
+                  <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Effort
                   </span>
                   <span className="font-mono font-black text-emerald-800">
@@ -313,7 +292,7 @@ export function MonthSettlement({
               <Operator icon={Minus} color="text-rose-500" />
               <div className="col-span-2">
                 <div className="p-4 rounded-xl border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
-                  <span className="text-[8px] uppercase font-black text-rose-700 tracking-tighter">
+                  <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Expenses
                   </span>
                   <span className="font-mono font-black text-rose-800">
