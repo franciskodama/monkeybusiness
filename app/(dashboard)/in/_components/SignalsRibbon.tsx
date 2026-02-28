@@ -1,7 +1,14 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { CheckCircle2, Plus, X } from 'lucide-react';
+import {
+  AlarmClockCheck,
+  CheckCircle2,
+  CheckLine,
+  ListCheck,
+  Plus,
+  X
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,6 +86,9 @@ export function SignalsRibbon({
 
   return (
     <div className="w-full flex items-center gap-4 bg-slate-50 border-y border-slate-200 py-3 px-6 relative overflow-hidden group">
+      <p className="text-[10px] w-[10ch] leading-2 font-black uppercase text-slate-500 tracking-widest">
+        Live Signals
+      </p>
       <div className="flex items-center gap-3 shrink-0 pr-4 border-r border-slate-200">
         <Popover open={isOpen} onOpenChange={setIsOpen}>
           <PopoverTrigger asChild>
