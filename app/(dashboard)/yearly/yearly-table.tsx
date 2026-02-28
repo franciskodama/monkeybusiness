@@ -662,8 +662,10 @@ export function YearlyTable({
                   Net Cash Flow
                 </td>
                 {months.map((_, i) => {
-                  const net = getMonthlyNet(i + 1);
+                  const settlement = calculateMonthlySettlement(i + 1);
+                  const net = settlement.finalBalance;
                   const status = getMonthStatus(i + 1);
+
                   return (
                     <td
                       key={i}
@@ -682,7 +684,11 @@ export function YearlyTable({
                 <td className="p-4 text-center bg-slate-800 font-mono text-sm">
                   $
                   {formatCurrency(
-                    months.reduce((acc, _, i) => acc + getMonthlyNet(i + 1), 0)
+                    months.reduce(
+                      (acc, _, i) =>
+                        acc + calculateMonthlySettlement(i + 1).finalBalance,
+                      0
+                    )
                   )}
                 </td>
               </tr>
@@ -693,9 +699,12 @@ export function YearlyTable({
                   Savings Rate (%)
                 </td>
                 {months.map((_, i) => {
-                  const income = getMonthlyIncome(i + 1);
-                  const net = getMonthlyNet(i + 1);
-                  const percentage = income > 0 ? (net / income) * 100 : 0;
+                  const settlement = calculateMonthlySettlement(i + 1);
+                  const totalSavings =
+                    settlement.finalBalance + settlement.investments;
+                  const income = settlement.totalEffort;
+                  const percentage =
+                    income > 0 ? (totalSavings / income) * 100 : 0;
                   const status = getMonthStatus(i + 1);
 
                   return (
@@ -715,19 +724,21 @@ export function YearlyTable({
                 })}
                 <td className="p-3 text-center bg-emerald-700 font-mono text-xs">
                   {(() => {
-                    const totalIncome = months.reduce(
-                      (sum, _, i) => sum + getMonthlyIncome(i + 1),
+                    const monthsData = months.map((_, i) =>
+                      calculateMonthlySettlement(i + 1)
+                    );
+                    const totalIncome = monthsData.reduce(
+                      (sum, d) => sum + d.totalEffort,
                       0
                     );
-                    const totalNet = months.reduce(
-                      (acc, _, i) => acc + getMonthlyNet(i + 1),
+                    const totalSaved = monthsData.reduce(
+                      (sum, d) => sum + d.finalBalance + d.investments,
                       0
                     );
-                    return totalIncome > 0
-                      ? ((totalNet / totalIncome) * 100).toFixed(1)
-                      : '0.0';
+                    const avgPercentage =
+                      totalIncome > 0 ? (totalSaved / totalIncome) * 100 : 0;
+                    return `${avgPercentage.toFixed(1)}%`;
                   })()}
-                  %
                 </td>
               </tr>
             </tfoot>

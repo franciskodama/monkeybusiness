@@ -1,16 +1,12 @@
 'use client';
 
 import {
-  Wallet,
-  Landmark,
   TrendingUp,
-  Scale,
-  Award,
   Plus,
   Minus,
   Equal,
-  ArrowRight,
-  CheckCircle2
+  CheckCircle2,
+  Rocket
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getSourceColor, formatCurrency } from '@/lib/utils';
@@ -148,7 +144,7 @@ export function MonthSettlement({
     <div className="mt-16 pt-12 border-t border-slate-100">
       <div className="flex items-center gap-3 mb-10">
         <div className="p-2.5 bg-slate-900 rounded-xl">
-          <Scale size={20} className="text-white" />
+          <Rocket size={20} className="text-white" />
         </div>
         <div>
           <h3
