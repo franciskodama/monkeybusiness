@@ -1,6 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import { Info, Award, AlertCircle, Rocket } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+
 import { Category } from '@prisma/client';
 import {
   getColorCode,
@@ -14,21 +17,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import {
-  Info,
-  Landmark,
-  Scale,
-  Award,
-  TrendingUp,
-  Target,
-  Plus,
-  Minus,
-  Equal,
-  AlertCircle
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnimatePresence, motion } from 'framer-motion';
 import Help from '@/components/Help';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ExplanationYearly from './explanation-yearly';
 
 interface YearlyTableProps {
@@ -737,7 +727,7 @@ export function YearlyTable({
         <div className="mt-16 border-t pt-12">
           <div className="flex items-center gap-3 mb-20">
             <div className="p-2.5 bg-slate-900 rounded-none">
-              <Scale size={20} className="text-white" />
+              <Award size={20} className="text-white" />
             </div>
             <div>
               <h3 className="text-lg font-black uppercase tracking-tight">
@@ -772,15 +762,6 @@ export function YearlyTable({
                     </span>
                   </div>
                   <div className="flex flex-col gap-2 h-full">
-                    {settlement.forecast.expenses >
-                      settlement.forecast.effort && (
-                      <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
-                        <AlertCircle size={10} className="text-white" />
-                        <span className="text-[8px] font-black uppercase tracking-widest text-white">
-                          Plan Deficit Warning
-                        </span>
-                      </div>
-                    )}
                     <div
                       className={`p-6 border-2 flex flex-col gap-1 flex-1 transition-colors duration-500 shadow-[4px_4px_0px_rgba(241,245,249,1)] ${
                         settlement.forecast.expenses >
@@ -806,6 +787,15 @@ export function YearlyTable({
                         ${formatCurrency(settlement.forecast.expenses)}
                       </span>
                     </div>
+                    {settlement.forecast.expenses >
+                      settlement.forecast.effort && (
+                      <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                        <AlertCircle size={10} className="text-white" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          Plan Deficit Warning
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
@@ -884,16 +874,45 @@ export function YearlyTable({
                       ${formatCurrency(settlement.reality.effort)}
                     </span>
                   </div>
-                  <div className="p-6 bg-rose-50 border-2 border-rose-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(255,241,242,1)]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1.5 h-1.5 bg-rose-400" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-rose-700">
-                        Total Expenses
+                  <div className="flex flex-col gap-2 h-full">
+                    <div
+                      className={`p-6 border-2 flex flex-col gap-1 flex-1 transition-colors duration-500 shadow-[4px_4px_0px_rgba(241,245,249,1)] ${
+                        settlement.reality.expenses > settlement.reality.effort
+                          ? 'bg-rose-50 border-rose-200 shadow-[4px_4px_0px_rgba(251,113,133,0.1)]'
+                          : 'bg-white border-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 mb-1">
+                          <div
+                            className={`w-1.5 h-1.5 ${settlement.reality.expenses > settlement.reality.effort ? 'bg-rose-400' : 'bg-slate-300'}`}
+                          />
+                          <span
+                            className={`text-[9px] font-black uppercase tracking-widest ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-700' : 'text-slate-400'}`}
+                          >
+                            Total Expenses
+                          </span>
+                        </div>
+                        {settlement.reality.expenses >
+                          settlement.reality.effort && (
+                          <AlertCircle size={12} className="text-rose-500" />
+                        )}
+                      </div>
+                      <span
+                        className={`text-xl font-mono font-black ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-900' : 'text-slate-900'}`}
+                      >
+                        ${formatCurrency(settlement.reality.expenses)}
                       </span>
                     </div>
-                    <span className="text-xl font-mono font-black text-rose-900">
-                      ${formatCurrency(settlement.reality.expenses)}
-                    </span>
+                    {settlement.reality.expenses >
+                      settlement.reality.effort && (
+                      <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                        <AlertCircle size={10} className="text-white" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          Reality Deficit Warning
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="p-6 bg-blue-50 border-2 border-blue-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(239,246,255,1)]">
                     <div className="flex items-center gap-2 mb-1">
