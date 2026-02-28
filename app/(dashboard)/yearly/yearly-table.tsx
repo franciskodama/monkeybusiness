@@ -748,7 +748,7 @@ export function YearlyTable({
         {/* YEARLY SETTLEMENT SUMMARY */}
         <div className="mt-16 border-t pt-12">
           <div className="flex items-center gap-3 mb-10">
-            <div className="p-2.5 bg-slate-900 rounded-xl">
+            <div className="p-2.5 bg-slate-900 rounded-none">
               <Scale size={20} className="text-white" />
             </div>
             <div>
@@ -766,9 +766,9 @@ export function YearlyTable({
             <div className="lg:col-span-9 space-y-6">
               {/* Row 1: Credits & Expenses */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm flex justify-between items-center group hover:border-emerald-200 transition-colors">
+                <div className="p-6 bg-white border-2 border-slate-100 rounded-none shadow-sm flex justify-between items-center group hover:border-emerald-200 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-xl group-hover:bg-emerald-600 group-hover:text-white transition-all">
+                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-none group-hover:bg-emerald-600 group-hover:text-white transition-all">
                       <Landmark size={24} />
                     </div>
                     <div>
@@ -789,9 +789,9 @@ export function YearlyTable({
                   </div>
                 </div>
 
-                <div className="p-6 bg-white border border-slate-100 rounded-2xl shadow-sm flex justify-between items-center group hover:border-rose-200 transition-colors">
+                <div className="p-6 bg-white border-2 border-slate-100 rounded-none shadow-sm flex justify-between items-center group hover:border-rose-200 transition-colors">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-rose-50 text-rose-600 rounded-xl group-hover:bg-rose-600 group-hover:text-white transition-all">
+                    <div className="p-3 bg-rose-50 text-rose-600 rounded-none group-hover:bg-rose-600 group-hover:text-white transition-all">
                       <TrendingUp size={24} className="rotate-90" />
                     </div>
                     <div>
@@ -811,9 +811,9 @@ export function YearlyTable({
 
               {/* Row 2: Surplus & Investments */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 bg-emerald-50 border border-emerald-100 rounded-2xl shadow-sm flex justify-between items-center">
+                <div className="p-6 bg-emerald-50 border-2 border-emerald-100 rounded-none shadow-sm flex justify-between items-center">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white text-emerald-600 rounded-xl shadow-sm">
+                    <div className="p-3 bg-white text-emerald-600 rounded-none shadow-sm">
                       <Equal size={24} />
                     </div>
                     <div>
@@ -827,9 +827,9 @@ export function YearlyTable({
                   </div>
                 </div>
 
-                <div className="p-6 bg-blue-50 border border-blue-100 rounded-2xl shadow-sm flex justify-between items-center">
+                <div className="p-6 bg-blue-50 border-2 border-blue-100 rounded-none shadow-sm flex justify-between items-center">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white text-blue-600 rounded-xl shadow-sm">
+                    <div className="p-3 bg-white text-blue-600 rounded-none shadow-sm">
                       <Target size={24} />
                     </div>
                     <div>
@@ -847,7 +847,7 @@ export function YearlyTable({
               {/* Row 3: Contributions */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div
-                  className="p-5 bg-white border-l-4 rounded-2xl shadow-sm flex justify-between items-center"
+                  className="p-5 bg-white border-l-4 rounded-none border-2 border-slate-100 shadow-sm flex justify-between items-center"
                   style={{ borderLeftColor: getSourceColor('His') }}
                 >
                   <div>
@@ -858,13 +858,13 @@ export function YearlyTable({
                       ${formatCurrency(settlement.hisYearlyEffort)}
                     </span>
                   </div>
-                  <div className="p-2 bg-slate-100 rounded-full text-slate-400">
+                  <div className="p-2 bg-slate-100 rounded-none text-slate-400">
                     <Award size={20} />
                   </div>
                 </div>
 
                 <div
-                  className="p-5 bg-white border-l-4 rounded-2xl shadow-sm flex justify-between items-center"
+                  className="p-5 bg-white border-l-4 rounded-none border-2 border-slate-100 shadow-sm flex justify-between items-center"
                   style={{ borderLeftColor: getSourceColor('Her') }}
                 >
                   <div>
@@ -875,7 +875,7 @@ export function YearlyTable({
                       ${formatCurrency(settlement.herYearlyEffort)}
                     </span>
                   </div>
-                  <div className="p-2 bg-slate-100 rounded-full text-slate-400">
+                  <div className="p-2 bg-slate-100 rounded-none text-slate-400">
                     <Award size={20} />
                   </div>
                 </div>
@@ -884,7 +884,7 @@ export function YearlyTable({
 
             {/* Final Balance Sidebar */}
             <div className="lg:col-span-3">
-              <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-xl border border-slate-800 h-full flex flex-col justify-between">
+              <div className="bg-slate-900 rounded-none p-8 text-white shadow-xl border-2 border-slate-800 h-full flex flex-col justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
                     Annual Result
@@ -939,7 +939,7 @@ export function YearlyTable({
                   </div>
                 </div>
 
-                <div className="mt-8 text-center bg-white/5 p-4 rounded-xl border border-white/10">
+                <div className="mt-8 text-center bg-white/5 p-4 rounded-none border border-white/10">
                   <p className="text-[9px] uppercase font-black text-slate-400 tracking-widest">
                     Target: $0.00 Balance
                   </p>

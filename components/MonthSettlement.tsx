@@ -105,7 +105,7 @@ export function MonthSettlement({
       <motion.div
         whileHover={onClick ? { scale: 1.02, y: -2 } : {}}
         onClick={onClick}
-        className={`p-4 border rounded-xl flex flex-col justify-center items-center text-center transition-all ${onClick ? 'cursor-pointer hover:shadow-md' : ''} ${colors[color]}`}
+        className={`p-4 border-2 rounded-none flex flex-col justify-center items-center text-center transition-all ${onClick ? 'cursor-pointer hover:shadow-md' : ''} ${colors[color]}`}
       >
         <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
           {title}
@@ -143,7 +143,7 @@ export function MonthSettlement({
   return (
     <div className="mt-16 pt-12 border-t border-slate-100">
       <div className="flex items-center gap-3 mb-10">
-        <div className="p-2.5 bg-slate-900 rounded-xl">
+        <div className="p-2.5 bg-slate-900 rounded-none">
           <Rocket size={20} className="text-white" />
         </div>
         <div>
@@ -166,7 +166,7 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 1: Living Expenses
             </span>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-2">
                 <EquationBox
                   title="His Payments"
@@ -222,7 +222,7 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 2: Pool Funding (Credits)
             </span>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Deposits"
@@ -261,7 +261,7 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 3: Individual Effort (Spending + Funding)
             </span>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Contribution"
@@ -290,9 +290,9 @@ export function MonthSettlement({
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
               Step 4: Calculating Surplus
             </span>
-            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-2">
-                <div className="p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
+                <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Effort
                   </span>
@@ -307,7 +307,7 @@ export function MonthSettlement({
                 className="rotate-90 md:rotate-0 py-1 md:py-2"
               />
               <div className="w-full md:col-span-2">
-                <div className="p-4 rounded-xl border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
+                <div className="p-4 rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Expenses
                   </span>
@@ -333,7 +333,7 @@ export function MonthSettlement({
 
         {/* Final Result Sidebar */}
         <div className="lg:col-span-3 h-full">
-          <div className="bg-slate-900 rounded-3xl p-6 text-white h-full flex flex-col shadow-xl border border-slate-800">
+          <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col shadow-xl border-2 border-slate-800">
             <div className="flex-1 space-y-8">
               <div>
                 <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-3">
@@ -359,7 +359,7 @@ export function MonthSettlement({
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-slate-800/50 border border-slate-700/50">
+              <div className="p-4 rounded-none bg-slate-800/50 border border-slate-700/50">
                 <div className="flex items-center gap-2 mb-2">
                   <TrendingUp size={14} className="text-blue-400" />
                   <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
@@ -372,7 +372,7 @@ export function MonthSettlement({
               </div>
 
               <div
-                className={`p-5 rounded-2xl border-2 transition-all duration-1000 ${
+                className={`p-5 rounded-none border-2 transition-all duration-1000 ${
                   Math.abs(finalBalance) < 0.01
                     ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
                     : 'bg-white/5 border-white/10'
