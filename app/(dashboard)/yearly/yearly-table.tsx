@@ -23,7 +23,8 @@ import {
   Target,
   Plus,
   Minus,
-  Equal
+  Equal,
+  AlertCircle
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -770,13 +771,41 @@ export function YearlyTable({
                       ${formatCurrency(settlement.forecast.effort)}
                     </span>
                   </div>
-                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      Total Expenses
-                    </span>
-                    <span className="text-xl font-mono font-black text-slate-900">
-                      ${formatCurrency(settlement.forecast.expenses)}
-                    </span>
+                  <div className="flex flex-col gap-2 h-full">
+                    {settlement.forecast.expenses >
+                      settlement.forecast.effort && (
+                      <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                        <AlertCircle size={10} className="text-white" />
+                        <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          Plan Deficit Warning
+                        </span>
+                      </div>
+                    )}
+                    <div
+                      className={`p-6 border-2 flex flex-col gap-1 flex-1 transition-colors duration-500 shadow-[4px_4px_0px_rgba(241,245,249,1)] ${
+                        settlement.forecast.expenses >
+                        settlement.forecast.effort
+                          ? 'bg-rose-50 border-rose-200 shadow-[4px_4px_0px_rgba(251,113,133,0.1)]'
+                          : 'bg-white border-slate-100'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span
+                          className={`text-[9px] font-black uppercase tracking-widest ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-600' : 'text-slate-400'}`}
+                        >
+                          Total Expenses
+                        </span>
+                        {settlement.forecast.expenses >
+                          settlement.forecast.effort && (
+                          <AlertCircle size={12} className="text-rose-500" />
+                        )}
+                      </div>
+                      <span
+                        className={`text-xl font-mono font-black ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-900' : 'text-slate-900'}`}
+                      >
+                        ${formatCurrency(settlement.forecast.expenses)}
+                      </span>
+                    </div>
                   </div>
                   <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
