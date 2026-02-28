@@ -734,7 +734,7 @@ export function YearlyTable({
 
         {/* YEARLY SETTLEMENT SUMMARY */}
         <div className="mt-16 border-t pt-12">
-          <div className="flex items-center gap-3 mb-10">
+          <div className="flex items-center gap-3 mb-20">
             <div className="p-2.5 bg-slate-900 rounded-none">
               <Scale size={20} className="text-white" />
             </div>
@@ -754,7 +754,7 @@ export function YearlyTable({
               {/* 1 - FORECAST */}
               <section>
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="w-8 h-8 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[10px]">
+                  <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                     1
                   </div>
                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
@@ -792,7 +792,7 @@ export function YearlyTable({
               {/* 2 - REALITY */}
               <section>
                 <div className="flex items-center gap-2 mb-6">
-                  <div className="w-8 h-8 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[10px]">
+                  <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
                     2
                   </div>
                   <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">

@@ -146,7 +146,7 @@ export function MonthSettlement({
 
   return (
     <div className="mt-16 pt-12 border-t border-slate-100">
-      <div className="flex items-center gap-3 mb-10">
+      <div className="flex items-center gap-3 mb-20">
         <div className="p-2.5 bg-slate-900 rounded-none">
           <Rocket size={20} className="text-white" />
         </div>
@@ -168,14 +168,14 @@ export function MonthSettlement({
           {/* Row 1: Expenses */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[9px]">
+              <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                 1
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 Step 1: Living Expenses
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none">
               <div className="w-full md:col-span-2">
                 <EquationBox
                   title="His Payments"
@@ -229,14 +229,14 @@ export function MonthSettlement({
           {/* Row 2: Credits */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[9px]">
+              <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                 2
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 Step 2: Pool Funding (Credits)
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none">
               <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Deposits"
@@ -273,14 +273,14 @@ export function MonthSettlement({
           {/* Row 3: Total Effort (Contribution) */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[9px]">
+              <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                 3
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
                 Step 3: Individual Effort (Spending + Funding)
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none">
               <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Contribution"
@@ -307,14 +307,14 @@ export function MonthSettlement({
           {/* Row 4: Logic Result */}
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-6 h-6 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
+              <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
                 4
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
                 Step 4: Calculating Surplus
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
+            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-none">
               <div className="w-full md:col-span-2">
                 <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(209,250,229,0.5)]">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
