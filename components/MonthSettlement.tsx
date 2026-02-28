@@ -76,6 +76,29 @@ export function MonthSettlement({
     data.His.investments + data.Her.investments + data.Family.investments;
   const finalBalance = balanceBeforeInvestments - totalInvested;
 
+  // Performance Metrics
+  const savingsRate =
+    grandTotalContribution > 0
+      ? (totalInvested / grandTotalContribution) * 100
+      : 0;
+
+  const livingEfficiency =
+    grandTotalContribution > 0
+      ? (1 - totalLivingExpenses / grandTotalContribution) * 100
+      : 0;
+
+  const dailyBurn = totalLivingExpenses / 30;
+
+  const hisSplit =
+    grandTotalContribution > 0
+      ? (hisTotalContribution / grandTotalContribution) * 100
+      : 0;
+
+  const herSplit =
+    grandTotalContribution > 0
+      ? (herTotalContribution / grandTotalContribution) * 100
+      : 0;
+
   if (transactions.length === 0) return null;
 
   const EquationBox = ({
@@ -356,62 +379,131 @@ export function MonthSettlement({
           </div>
         </div>
 
-        {/* Final Result Sidebar */}
         <div className="lg:col-span-3 h-full">
-          <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col border-2 border-slate-800 shadow-[6px_6px_0px_rgba(15,23,42,0.3)]">
+          <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col border-2 border-slate-800 shadow-[6px_6px_0px_rgba(15,23,42,0.3)] min-h-[600px]">
             <div className="flex-1 space-y-8">
+              {/* 1. Score: Grand Total */}
               <div>
                 <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-3">
-                  Grand Total Effort
+                  Monthly Effort
                 </span>
                 <div className="space-y-1">
                   <div className="flex items-end gap-2">
                     <span className="text-2xl font-mono font-black text-emerald-400">
                       ${formatCurrency(grandTotalContribution)}
                     </span>
-                    <span className="text-sm font-bold text-slate-500 mb-1.5 underline decoration-emerald-500/30">
+                    <span className="text-xs font-bold text-slate-500 mb-1 underline decoration-emerald-500/30">
                       CAD
                     </span>
                   </div>
-                  <div className="flex items-end gap-2 opacity-80">
-                    <span className="text-lg font-mono font-black text-slate-300">
+                  <div className="flex items-end gap-2 opacity-60">
+                    <span className="text-base font-mono font-black text-slate-400">
                       R$ {formatCurrency(grandTotalContribution * brlRate)}
                     </span>
-                    <span className="text-sm font-bold text-slate-500 mb-1.5">
+                    <span className="text-[10px] font-bold text-slate-400 mb-0.5">
                       BRL
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="p-4 rounded-none bg-slate-800/50 border border-slate-700/50">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp size={14} className="text-blue-400" />
-                  <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                    Total Invested
-                  </span>
+              {/* 2. Funding Split Bar */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
+                  <span>His {Math.round(hisSplit)}%</span>
+                  <span>Her {Math.round(herSplit)}%</span>
                 </div>
-                <span className="text-xl font-mono font-black text-blue-400">
-                  ${formatCurrency(totalInvested)}
-                </span>
+                <div className="h-1.5 w-full bg-slate-800 flex rounded-none overflow-hidden">
+                  <div
+                    className="h-full bg-cyan-500 transition-all duration-1000"
+                    style={{ width: `${hisSplit}%` }}
+                  />
+                  <div
+                    className="h-full bg-orange-500 transition-all duration-1000"
+                    style={{ width: `${herSplit}%` }}
+                  />
+                </div>
               </div>
 
+              {/* 3. Performance Index Table */}
+              <div className="space-y-4 pt-4 border-t border-slate-800/50">
+                <span className="text-[9px] uppercase font-black tracking-widest text-slate-600">
+                  Performance Index
+                </span>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-emerald-500" />
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Savings Rate
+                      </span>
+                    </div>
+                    <span className="font-mono text-sm font-black text-emerald-400">
+                      {savingsRate.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-blue-500" />
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Living Efficiency
+                      </span>
+                    </div>
+                    <span className="font-mono text-sm font-black text-blue-400">
+                      {livingEfficiency.toFixed(1)}%
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
+                    <div className="flex items-center gap-2">
+                      <div className="w-1 h-1 bg-slate-500" />
+                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                        Daily Burn
+                      </span>
+                    </div>
+                    <span className="font-mono text-sm font-black text-slate-300">
+                      ${formatCurrency(dailyBurn)}/d
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. Total Invested Card */}
+              <div className="p-4 rounded-none bg-slate-800/40 border border-slate-700/50 shadow-[2px_2px_0px_rgba(30,41,59,0.5)]">
+                <div className="flex items-center gap-2 mb-2">
+                  <TrendingUp size={12} className="text-blue-400" />
+                  <span className="text-[9px] uppercase font-black tracking-widest text-slate-400">
+                    Capital Build
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-xl font-mono font-black text-blue-400">
+                    ${formatCurrency(totalInvested)}
+                  </span>
+                  <span className="text-[8px] font-bold text-slate-600 uppercase tracking-tighter">
+                    Invested
+                  </span>
+                </div>
+              </div>
+
+              {/* 5. Final Balance (The Anchor) */}
               <div
                 className={`p-5 rounded-none border-2 transition-all duration-1000 ${
                   Math.abs(finalBalance) < 0.01
-                    ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]'
-                    : 'bg-white/5 border-white/10'
+                    ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
+                    : finalBalance < 0
+                      ? 'bg-rose-500/5 border-rose-500/50'
+                      : 'bg-white/5 border-white/10'
                 }`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
-                    Final Balance
+                    Final Settlement
                   </span>
                   {Math.abs(finalBalance) < 0.01 && (
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="bg-emerald-500 text-white p-1 rounded-full"
+                      className="bg-emerald-500 text-white p-1 rounded-none"
                     >
                       <CheckCircle2 size={12} />
                     </motion.div>
@@ -429,21 +521,36 @@ export function MonthSettlement({
                   >
                     ${formatCurrency(finalBalance)}
                   </span>
-                  <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed">
+                  <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline cursor-help decoration-slate-500/20">
                     {Math.abs(finalBalance) < 0.01
-                      ? 'Perfectly Balanced. All dollars have a job.'
+                      ? 'Perfect Balance Found'
                       : finalBalance > 0
-                        ? `${formatCurrency(finalBalance)} remaining to be assigned.`
-                        : 'Over-spent the pool. Review living costs.'}
+                        ? `${formatCurrency(finalBalance)} Unassigned Funds`
+                        : `${formatCurrency(Math.abs(finalBalance))} Deficit detected`}
                   </p>
                 </div>
               </div>
             </div>
 
+            {/* Performance Badge / Conclusion */}
             <div className="mt-8 pt-6 border-t border-slate-800">
-              <p className="text-[8px] uppercase font-black text-slate-600 tracking-widest text-center">
-                Goal: Zero Balance
-              </p>
+              <div className="bg-white/5 p-3 border-2 border-slate-800 flex items-center justify-center gap-3 group transition-all hover:bg-slate-800">
+                {savingsRate > 30 ? (
+                  <Rocket
+                    size={14}
+                    className="text-emerald-400 group-hover:scale-125 transition-transform"
+                  />
+                ) : (
+                  <TrendingUp size={14} className="text-slate-500" />
+                )}
+                <span className="text-[10px] uppercase font-black text-slate-300 tracking-[0.2em]">
+                  {savingsRate > 30
+                    ? 'High Wealth Velocity'
+                    : savingsRate > 15
+                      ? 'Stable Growth'
+                      : 'Cash Flow Active'}
+                </span>
+              </div>
             </div>
           </div>
         </div>

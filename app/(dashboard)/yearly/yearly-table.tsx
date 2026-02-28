@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Info, Award, AlertCircle, ChessKing } from 'lucide-react';
+import { Info, Award, AlertCircle, ChessKing, TrendingUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Category } from '@prisma/client';
@@ -931,31 +931,80 @@ export function YearlyTable({
 
             {/* Final Balance Sidebar */}
             <div className="lg:col-span-3 h-full">
-              <div className="bg-slate-900 rounded-none p-8 text-white border-2 border-slate-800 h-full flex flex-col justify-between shadow-[6px_6px_0px_rgba(15,23,42,0.3)]">
-                <div>
-                  <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
-                    Annual Result
-                  </span>
-                  <div className="space-y-6">
-                    <div>
-                      <span
-                        className={`text-4xl font-mono font-black block ${settlement.finalBalance < 0 ? 'text-rose-500' : 'text-emerald-400'}`}
-                      >
-                        ${formatCurrency(settlement.finalBalance)}
-                      </span>
-                      <p className="text-[10px] text-slate-500 mt-2 leading-relaxed uppercase font-bold">
-                        {settlement.finalBalance < 0
-                          ? 'Negative Year Projection'
-                          : 'Positive Year Projection'}
+              <div className="bg-slate-900 rounded-none p-8 text-white border-2 border-slate-800 h-full flex flex-col justify-between shadow-[6px_6px_0px_rgba(15,23,42,0.3)] min-h-[600px]">
+                <div className="space-y-8">
+                  {/* 1. Score: Yearly Effort */}
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
+                      Yearly Effort
+                    </span>
+                    <div className="space-y-1">
+                      <div className="flex items-end gap-2">
+                        <span className="text-3xl font-mono font-black text-emerald-400">
+                          ${formatCurrency(settlement.reality.effort)}
+                        </span>
+                        <span className="text-xs font-bold text-slate-500 mb-1.5 underline decoration-emerald-500/30 font-mono">
+                          YTD
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-2 leading-relaxed uppercase font-bold tracking-widest">
+                        Total Year-To-Date Reality
                       </p>
                     </div>
+                  </div>
 
-                    <div className="pt-6 border-t border-slate-800 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] uppercase font-bold text-slate-500">
-                          Savings Rate
-                        </span>
-                        <span className="font-mono text-sm text-emerald-400">
+                  {/* 2. Annual Funding Split Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
+                      <span>
+                        His{' '}
+                        {Math.round(
+                          (settlement.reality.hisActual /
+                            (settlement.reality.effort || 1)) *
+                            100
+                        )}
+                        %
+                      </span>
+                      <span>
+                        Her{' '}
+                        {Math.round(
+                          (settlement.reality.herActual /
+                            (settlement.reality.effort || 1)) *
+                            100
+                        )}
+                        %
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-slate-800 flex rounded-none overflow-hidden">
+                      <div
+                        className="h-full bg-cyan-500 transition-all duration-1000"
+                        style={{
+                          width: `${(settlement.reality.hisActual / (settlement.reality.effort || 1)) * 100}%`
+                        }}
+                      />
+                      <div
+                        className="h-full bg-orange-500 transition-all duration-1000"
+                        style={{
+                          width: `${(settlement.reality.herActual / (settlement.reality.effort || 1)) * 100}%`
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* 3. Annual Performance Index Table */}
+                  <div className="space-y-4 pt-4 border-t border-slate-800/50">
+                    <span className="text-[9px] uppercase font-black tracking-widest text-slate-600">
+                      Performance Index
+                    </span>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-emerald-500" />
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                            Savings Rate
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm font-black text-emerald-400">
                           {settlement.reality.effort > 0
                             ? (
                                 (settlement.reality.investments /
@@ -966,11 +1015,14 @@ export function YearlyTable({
                           %
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] uppercase font-bold text-slate-500">
-                          Living Efficiency
-                        </span>
-                        <span className="font-mono text-sm text-blue-400">
+                      <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-blue-500" />
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                            Living Efficiency
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm font-black text-blue-400">
                           {settlement.reality.effort > 0
                             ? (
                                 (1 -
@@ -982,14 +1034,73 @@ export function YearlyTable({
                           %
                         </span>
                       </div>
+                      <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-slate-500" />
+                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                            YTD Burn
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm font-black text-slate-300">
+                          ${formatCurrency(settlement.reality.expenses)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Final Balance Anchor */}
+                  <div
+                    className={`p-6 rounded-none border-2 transition-all duration-1000 ${
+                      settlement.finalBalance < 0
+                        ? 'bg-rose-500/5 border-rose-500/50'
+                        : 'bg-emerald-500/5 border-emerald-500/50'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
+                        Final Settlement
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span
+                        className={`text-3xl font-mono font-black ${
+                          settlement.finalBalance < 0
+                            ? 'text-rose-500'
+                            : 'text-emerald-400'
+                        }`}
+                      >
+                        ${formatCurrency(settlement.finalBalance)}
+                      </span>
+                      <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
+                        {settlement.finalBalance < 0
+                          ? 'Deficit Year Projection'
+                          : 'Positive Year Projection'}
+                      </p>
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-8 text-center bg-white/5 p-4 rounded-none border border-white/10">
-                  <p className="text-[9px] uppercase font-black text-slate-400 tracking-widest">
-                    Target: $0.00 Balance
-                  </p>
+                {/* 5. Annual Status Badge */}
+                <div className="mt-8 pt-6 border-t border-slate-800">
+                  <div className="bg-white/5 p-3 border-2 border-slate-800 flex items-center justify-center gap-3 group transition-all hover:bg-slate-800">
+                    {settlement.reality.investments /
+                      (settlement.reality.effort || 1) >
+                    0.3 ? (
+                      <ChessKing
+                        size={14}
+                        className="text-emerald-400 group-hover:scale-125 transition-transform"
+                      />
+                    ) : (
+                      <TrendingUp size={14} className="text-slate-500" />
+                    )}
+                    <span className="text-[10px] uppercase font-black text-slate-300 tracking-[0.2em]">
+                      {settlement.reality.investments /
+                        (settlement.reality.effort || 1) >
+                      0.3
+                        ? 'Master Efficiency'
+                        : 'Consistency Build'}
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
