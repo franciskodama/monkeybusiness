@@ -132,13 +132,16 @@ export function YearlyTable({
       }, 0);
   };
 
-  //--- YEARLY SETTLEMENT LOGIC (Hybrid: Actuals for Past/Current, Target for Future) ---
+  //--- YEARLY SETTLEMENT LOGIC (Separate Forecast vs Reality) ---
   const calculateYearlySettlement = () => {
-    let yearlyLivingExpenses = 0;
-    let yearlyInvestments = 0;
-    let hisYearlyEffort = 0;
-    let herYearlyEffort = 0;
-    let yearlyCredits = 0;
+    const forecast = { effort: 0, expenses: 0, investments: 0 };
+    const reality = {
+      hisActual: 0,
+      herActual: 0,
+      effort: 0,
+      expenses: 0,
+      investments: 0
+    };
 
     for (let m = 1; m <= 12; m++) {
       const status = getMonthStatus(m);
@@ -150,67 +153,51 @@ export function YearlyTable({
         const isIncome = sub.category?.isIncome;
         const isSavings = sub.category?.isSavings;
 
-        let amount = 0;
+        // FORECAST: Always uses sub.amount for the full 12 months
+        if (isIncome) forecast.effort += sub.amount || 0;
+        else if (isSavings) forecast.investments += sub.amount || 0;
+        else forecast.expenses += sub.amount || 0;
+
+        // REALITY: Only PAST/CURRENT based on transactions
         if (status !== 'FUTURE') {
-          amount =
+          const actualAmount =
             sub.transactions?.reduce(
               (sum: number, t: any) => sum + (t.amount || 0),
               0
             ) || 0;
-        } else {
-          amount = sub.amount || 0;
-        }
 
-        if (isIncome) {
-          yearlyCredits += amount;
-          // Contribution: Funding portion
-          const hisFunding = (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'His' && status !== 'FUTURE')
+          if (isIncome) reality.effort += actualAmount;
+          else if (isSavings) reality.investments += actualAmount;
+          else reality.expenses += actualAmount;
+
+          // Individual actuals (His vs Her)
+          const his = (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'His')
             .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
-          const herFunding = (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'Her' && status !== 'FUTURE')
+          const her = (sub.transactions || [])
+            .filter((tx: any) => tx.source === 'Her')
             .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
 
-          hisYearlyEffort += hisFunding;
-          herYearlyEffort += herFunding;
-        } else if (isSavings) {
-          yearlyInvestments += amount;
-          // Contribution: Investment portion (Spending)
-          if (status !== 'FUTURE') {
-            hisYearlyEffort += (sub.transactions || [])
-              .filter((tx: any) => tx.source === 'His')
-              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
-            herYearlyEffort += (sub.transactions || [])
-              .filter((tx: any) => tx.source === 'Her')
-              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
-          }
-        } else {
-          yearlyLivingExpenses += amount;
-          // Contribution: Living Expense portion (Spending)
-          if (status !== 'FUTURE') {
-            hisYearlyEffort += (sub.transactions || [])
-              .filter((tx: any) => tx.source === 'His')
-              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
-            herYearlyEffort += (sub.transactions || [])
-              .filter((tx: any) => tx.source === 'Her')
-              .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
-          }
+          reality.hisActual += his;
+          reality.herActual += her;
         }
       });
     }
 
-    const balanceBeforeInvestments =
-      hisYearlyEffort + herYearlyEffort - yearlyLivingExpenses;
-    const finalBalance = balanceBeforeInvestments - yearlyInvestments;
+    // Force reality effort to be the sum of individual contributions (Nominal Truth)
+    reality.effort = reality.hisActual + reality.herActual;
+
+    const balanceBeforeInvestments = reality.effort - reality.expenses;
+    const finalBalance = balanceBeforeInvestments - reality.investments;
 
     return {
-      yearlyLivingExpenses,
-      yearlyInvestments,
-      yearlyCredits,
-      hisYearlyEffort,
-      herYearlyEffort,
-      totalEffort: hisYearlyEffort + herYearlyEffort,
-      balanceBeforeInvestments,
+      forecast,
+      reality,
+      yearlyLivingExpenses: reality.expenses,
+      yearlyInvestments: reality.investments,
+      hisYearlyEffort: reality.hisActual,
+      herYearlyEffort: reality.herActual,
+      totalEffort: reality.effort,
       finalBalance
     };
   };
@@ -763,123 +750,135 @@ export function YearlyTable({
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Logic Rows */}
-            <div className="lg:col-span-9 space-y-6">
-              {/* Row 1: Credits & Expenses */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 bg-white border-2 border-slate-100 rounded-none shadow-sm flex justify-between items-center group hover:border-emerald-200 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-emerald-50 text-emerald-600 rounded-none group-hover:bg-emerald-600 group-hover:text-white transition-all">
-                      <Landmark size={24} />
-                    </div>
+            <div className="lg:col-span-9 space-y-12">
+              {/* 1 - FORECAST */}
+              <section>
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-8 h-8 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[10px]">
+                    1
+                  </div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    Forecast / Annual Plan
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      Total Effort
+                    </span>
+                    <span className="text-xl font-mono font-black text-slate-900">
+                      ${formatCurrency(settlement.forecast.effort)}
+                    </span>
+                  </div>
+                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      Total Expenses
+                    </span>
+                    <span className="text-xl font-mono font-black text-slate-900">
+                      ${formatCurrency(settlement.forecast.expenses)}
+                    </span>
+                  </div>
+                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
+                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      Total Investments
+                    </span>
+                    <span className="text-xl font-mono font-black text-slate-900">
+                      ${formatCurrency(settlement.forecast.investments)}
+                    </span>
+                  </div>
+                </div>
+              </section>
+
+              {/* 2 - REALITY */}
+              <section>
+                <div className="flex items-center gap-2 mb-6">
+                  <div className="w-8 h-8 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[10px]">
+                    2
+                  </div>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">
+                    Reality / Year-To-Date
+                  </h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group">
                     <div>
-                      <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
+                        His Contribution
+                      </span>
+                      <span className="text-2xl font-mono font-black text-cyan-900">
+                        ${formatCurrency(settlement.reality.hisActual)}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] font-mono font-black bg-white border-2 border-cyan-200 px-2 py-1 text-cyan-600 shadow-[2px_2px_0px_rgba(165,243,252,1)]">
+                        {Math.round(
+                          (settlement.reality.hisActual /
+                            (settlement.reality.effort || 1)) *
+                            100
+                        )}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                  <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group">
+                    <div>
+                      <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
+                        Her Contribution
+                      </span>
+                      <span className="text-2xl font-mono font-black text-orange-900">
+                        ${formatCurrency(settlement.reality.herActual)}
+                      </span>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] font-mono font-black bg-white border-2 border-orange-200 px-2 py-1 text-orange-600 shadow-[2px_2px_0px_rgba(254,215,170,1)]">
+                        {Math.round(
+                          (settlement.reality.herActual /
+                            (settlement.reality.effort || 1)) *
+                            100
+                        )}
+                        %
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="p-6 bg-emerald-50 border-2 border-emerald-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(209,250,229,1)]">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-1.5 h-1.5 bg-emerald-400" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700">
                         Total Effort
                       </span>
-                      <span className="text-2xl font-mono font-black text-slate-900">
-                        $
-                        {formatCurrency(
-                          settlement.hisYearlyEffort +
-                            settlement.herYearlyEffort
-                        )}
-                      </span>
                     </div>
+                    <span className="text-xl font-mono font-black text-emerald-900">
+                      ${formatCurrency(settlement.reality.effort)}
+                    </span>
                   </div>
-                  <div className="text-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Plus size={20} />
-                  </div>
-                </div>
-
-                <div className="p-6 bg-white border-2 border-slate-100 rounded-none shadow-sm flex justify-between items-center group hover:border-rose-200 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-rose-50 text-rose-600 rounded-none group-hover:bg-rose-600 group-hover:text-white transition-all">
-                      <TrendingUp size={24} className="rotate-90" />
-                    </div>
-                    <div>
-                      <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
+                  <div className="p-6 bg-rose-50 border-2 border-rose-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(255,241,242,1)]">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-1.5 h-1.5 bg-rose-400" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-rose-700">
                         Total Expenses
                       </span>
-                      <span className="text-2xl font-mono font-black text-slate-900">
-                        ${formatCurrency(settlement.yearlyLivingExpenses)}
-                      </span>
                     </div>
-                  </div>
-                  <div className="text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Minus size={20} />
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 2: Surplus & Investments */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-6 bg-emerald-50 border-2 border-emerald-100 rounded-none shadow-sm flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white text-emerald-600 rounded-none shadow-sm">
-                      <Equal size={24} />
-                    </div>
-                    <div>
-                      <span className="text-[10px] uppercase font-black text-emerald-700 tracking-widest block mb-1">
-                        Ready to Invest
-                      </span>
-                      <span className="text-2xl font-mono font-black text-emerald-900">
-                        ${formatCurrency(settlement.balanceBeforeInvestments)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-6 bg-blue-50 border-2 border-blue-100 rounded-none shadow-sm flex justify-between items-center">
-                  <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white text-blue-600 rounded-none shadow-sm">
-                      <Target size={24} />
-                    </div>
-                    <div>
-                      <span className="text-[10px] uppercase font-black text-blue-700 tracking-widest block mb-1">
-                        Total Invested (YTD)
-                      </span>
-                      <span className="text-2xl font-mono font-black text-blue-900">
-                        ${formatCurrency(settlement.yearlyInvestments)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Row 3: Contributions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div
-                  className="p-5 bg-white border-l-4 rounded-none border-2 border-slate-100 shadow-sm flex justify-between items-center"
-                  style={{ borderLeftColor: getSourceColor('His') }}
-                >
-                  <div>
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
-                      His Contribution
-                    </span>
-                    <span className="text-2xl font-mono font-black text-slate-900">
-                      ${formatCurrency(settlement.hisYearlyEffort)}
+                    <span className="text-xl font-mono font-black text-rose-900">
+                      ${formatCurrency(settlement.reality.expenses)}
                     </span>
                   </div>
-                  <div className="p-2 bg-slate-100 rounded-none text-slate-400">
-                    <Award size={20} />
-                  </div>
-                </div>
-
-                <div
-                  className="p-5 bg-white border-l-4 rounded-none border-2 border-slate-100 shadow-sm flex justify-between items-center"
-                  style={{ borderLeftColor: getSourceColor('Her') }}
-                >
-                  <div>
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest block mb-1">
-                      Her Contribution
-                    </span>
-                    <span className="text-2xl font-mono font-black text-slate-900">
-                      ${formatCurrency(settlement.herYearlyEffort)}
+                  <div className="p-6 bg-blue-50 border-2 border-blue-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(239,246,255,1)]">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-1.5 h-1.5 bg-blue-400" />
+                      <span className="text-[9px] font-black uppercase tracking-widest text-blue-700">
+                        Total Investments
+                      </span>
+                    </div>
+                    <span className="text-xl font-mono font-black text-blue-900">
+                      ${formatCurrency(settlement.reality.investments)}
                     </span>
                   </div>
-                  <div className="p-2 bg-slate-100 rounded-none text-slate-400">
-                    <Award size={20} />
-                  </div>
                 </div>
-              </div>
+              </section>
             </div>
 
             {/* Final Balance Sidebar */}
@@ -909,10 +908,10 @@ export function YearlyTable({
                           Savings Rate
                         </span>
                         <span className="font-mono text-sm text-emerald-400">
-                          {settlement.yearlyCredits > 0
+                          {settlement.reality.effort > 0
                             ? (
-                                (settlement.yearlyInvestments /
-                                  settlement.yearlyCredits) *
+                                (settlement.reality.investments /
+                                  settlement.reality.effort) *
                                 100
                               ).toFixed(1)
                             : '0.0'}
@@ -924,11 +923,11 @@ export function YearlyTable({
                           Living Efficiency
                         </span>
                         <span className="font-mono text-sm text-blue-400">
-                          {settlement.yearlyCredits > 0
+                          {settlement.reality.effort > 0
                             ? (
                                 (1 -
-                                  settlement.yearlyLivingExpenses /
-                                    settlement.yearlyCredits) *
+                                  settlement.reality.expenses /
+                                    settlement.reality.effort) *
                                 100
                               ).toFixed(1)
                             : '0.0'}
