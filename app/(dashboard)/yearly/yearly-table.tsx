@@ -811,7 +811,7 @@ export function YearlyTable({
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] font-mono font-black bg-white border-2 border-cyan-200 px-2 py-1 text-cyan-600 shadow-[2px_2px_0px_rgba(165,243,252,1)]">
+                      <span className="text-sm text-cyan-600 font-black">
                         {Math.round(
                           (settlement.reality.hisActual /
                             (settlement.reality.effort || 1)) *
@@ -831,7 +831,7 @@ export function YearlyTable({
                       </span>
                     </div>
                     <div className="text-right">
-                      <span className="text-[10px] font-mono font-black bg-white border-2 border-orange-200 px-2 py-1 text-orange-600 shadow-[2px_2px_0px_rgba(254,215,170,1)]">
+                      <span className="text-sm text-orange-600 font-semibold">
                         {Math.round(
                           (settlement.reality.herActual /
                             (settlement.reality.effort || 1)) *
