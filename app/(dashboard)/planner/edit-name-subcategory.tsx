@@ -11,6 +11,7 @@ interface EditableNameProps {
   initialName: string;
   householdId: string;
   year: number;
+  categoryId: string;
   onUpdateSuccess: (newName: string) => void;
 }
 
@@ -18,6 +19,7 @@ export function EditableSubcategoryName({
   initialName,
   householdId,
   year,
+  categoryId,
   onUpdateSuccess
 }: EditableNameProps) {
   const [isEditing, setIsEditing] = useState(false);
@@ -42,7 +44,8 @@ export function EditableSubcategoryName({
         householdId,
         oldName: initialName,
         newName: name,
-        year
+        year,
+        categoryId
       });
 
       if (result.success) {

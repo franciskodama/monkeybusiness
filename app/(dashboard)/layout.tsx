@@ -59,6 +59,7 @@ export function DesktopNav() {
             alt="Monkey Business Logo"
             width={150}
             height={124}
+            priority
             className="w-[5em]"
             style={{ height: 'auto' }}
           />

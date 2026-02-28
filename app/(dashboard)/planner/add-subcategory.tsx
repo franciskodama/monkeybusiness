@@ -22,7 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Subcategory, Category, User } from '@prisma/client';
 import { addSubcategory } from '@/lib/actions';
-import { getColorCode } from '@/lib/utils';
+import { getColorCode, months } from '@/lib/utils';
 
 type FormErrors = {
   name?: string;
@@ -99,10 +99,14 @@ export function AddSubcategory({
       setOpen(false);
       setApplyToFuture(false);
 
-      toast.success('Added successfully! 🎉', {
+      const categoryName =
+        currentCategories.find((c) => c.id === categoryId)?.name || 'Budget';
+      const startMonthName = months[selectedMonth - 1];
+
+      toast.success(`${name} added to ${categoryName}! 🎉`, {
         description: applyToFuture
-          ? `Recurring item created through December.`
-          : 'Budget item created.'
+          ? `Created from ${startMonthName} to December 2026.`
+          : `Created for ${startMonthName} 2026.`
       });
 
       return result;
