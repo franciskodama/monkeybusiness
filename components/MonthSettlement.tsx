@@ -93,12 +93,16 @@ export function MonthSettlement({
     onClick?: () => void;
   }) => {
     const colors = {
-      slate: 'bg-slate-50 border-slate-200 text-slate-900',
-      cyan: 'bg-cyan-50 border-cyan-200 text-cyan-900',
-      orange: 'bg-orange-50 border-orange-200 text-orange-900',
-      red: 'bg-red-50 border-red-200 text-red-900',
-      emerald: 'bg-emerald-50 border-emerald-200 text-emerald-900',
-      yellow: 'bg-yellow-50 border-yellow-200 text-yellow-900'
+      slate:
+        'bg-slate-50 border-slate-100 text-slate-900 shadow-[4px_4px_0px_rgba(241,245,249,1)]',
+      cyan: 'bg-cyan-50 border-cyan-100 text-cyan-900 shadow-[4px_4px_0px_rgba(165,243,252,0.4)]',
+      orange:
+        'bg-orange-50 border-orange-100 text-orange-900 shadow-[4px_4px_0px_rgba(254,215,170,0.4)]',
+      red: 'bg-red-50 border-red-100 text-red-900 shadow-[4px_4px_0px_rgba(255,241,242,1)]',
+      emerald:
+        'bg-emerald-50 border-emerald-100 text-emerald-900 shadow-[4px_4px_0px_rgba(209,250,229,1)]',
+      yellow:
+        'bg-yellow-50 border-yellow-100 text-yellow-900 shadow-[4px_4px_0px_rgba(254,240,138,0.4)]'
     };
 
     return (
@@ -163,9 +167,14 @@ export function MonthSettlement({
         <div className="lg:col-span-9 space-y-6">
           {/* Row 1: Expenses */}
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Step 1: Living Expenses
-            </span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                1
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Step 1: Living Expenses
+              </span>
+            </div>
             <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-2">
                 <EquationBox
@@ -219,9 +228,14 @@ export function MonthSettlement({
 
           {/* Row 2: Credits */}
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Step 2: Pool Funding (Credits)
-            </span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                2
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Step 2: Pool Funding (Credits)
+              </span>
+            </div>
             <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-3">
                 <EquationBox
@@ -258,9 +272,14 @@ export function MonthSettlement({
 
           {/* Row 3: Total Effort (Contribution) */}
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Step 3: Individual Effort (Spending + Funding)
-            </span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-none bg-slate-900 border-2 border-slate-900 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                3
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                Step 3: Individual Effort (Spending + Funding)
+              </span>
+            </div>
             <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-3">
                 <EquationBox
@@ -287,12 +306,17 @@ export function MonthSettlement({
 
           {/* Row 4: Logic Result */}
           <div className="flex flex-col gap-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-              Step 4: Calculating Surplus
-            </span>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-6 h-6 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                4
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                Step 4: Calculating Surplus
+              </span>
+            </div>
             <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-none border-2 border-slate-100 shadow-sm">
               <div className="w-full md:col-span-2">
-                <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center">
+                <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(209,250,229,0.5)]">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Effort
                   </span>
@@ -307,7 +331,7 @@ export function MonthSettlement({
                 className="rotate-90 md:rotate-0 py-1 md:py-2"
               />
               <div className="w-full md:col-span-2">
-                <div className="p-4 rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center">
+                <div className="p-4 rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(255,241,242,0.8)]">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Expenses
                   </span>
