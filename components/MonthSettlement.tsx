@@ -6,10 +6,11 @@ import {
   Minus,
   Equal,
   CheckCircle2,
-  Rocket
+  Rocket,
+  ChessQueen
 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getSourceColor, formatCurrency } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils';
 import { barlow } from '@/lib/fonts';
 
 interface Transaction {
@@ -148,7 +149,7 @@ export function MonthSettlement({
     <div className="mt-16 pt-12 border-t border-slate-100">
       <div className="flex items-center gap-3 mb-20">
         <div className="p-2.5 bg-slate-900 rounded-none">
-          <Rocket size={20} className="text-white" />
+          <ChessQueen size={20} className="text-white" />
         </div>
         <div>
           <h3
@@ -357,7 +358,7 @@ export function MonthSettlement({
 
         {/* Final Result Sidebar */}
         <div className="lg:col-span-3 h-full">
-          <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col shadow-xl border-2 border-slate-800">
+          <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col border-2 border-slate-800 shadow-[6px_6px_0px_rgba(15,23,42,0.3)]">
             <div className="flex-1 space-y-8">
               <div>
                 <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-3">

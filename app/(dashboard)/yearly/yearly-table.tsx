@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Info, Award, AlertCircle, Rocket } from 'lucide-react';
+import { Info, Award, AlertCircle, ChessKing } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Category } from '@prisma/client';
@@ -727,7 +727,7 @@ export function YearlyTable({
         <div className="mt-16 border-t pt-12">
           <div className="flex items-center gap-3 mb-20">
             <div className="p-2.5 bg-slate-900 rounded-none">
-              <Award size={20} className="text-white" />
+              <ChessKing size={20} className="text-white" />
             </div>
             <div>
               <h3 className="text-lg font-black uppercase tracking-tight">
@@ -930,8 +930,8 @@ export function YearlyTable({
             </div>
 
             {/* Final Balance Sidebar */}
-            <div className="lg:col-span-3">
-              <div className="bg-slate-900 rounded-none p-8 text-white shadow-xl border-2 border-slate-800 h-full flex flex-col justify-between">
+            <div className="lg:col-span-3 h-full">
+              <div className="bg-slate-900 rounded-none p-8 text-white border-2 border-slate-800 h-full flex flex-col justify-between shadow-[6px_6px_0px_rgba(15,23,42,0.3)]">
                 <div>
                   <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
                     Annual Result
