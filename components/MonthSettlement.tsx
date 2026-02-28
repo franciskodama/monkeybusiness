@@ -245,221 +245,224 @@ export function MonthSettlement({
 
   return (
     <div className="mt-16 pt-12 border-t border-slate-100">
-      <div className="flex items-center gap-3 mb-20">
-        <div className="p-2.5 bg-slate-900 rounded-none">
-          <ChessQueen size={20} className="text-white" />
-        </div>
-        <div>
-          <h3
-            className={`text-lg font-black uppercase tracking-tight ${barlow.className}`}
-          >
-            Month Settlement
-          </h3>
-          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-            Detailed Financial Flow & Balance Logic
-          </p>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Main Logic Equation Section */}
-        <div className="lg:col-span-9 space-y-6">
-          {/* Row 1: Expenses */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
-                1
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                Step 1: Living Expenses
-              </span>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        <div className="lg:col-span-9 space-y-20">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-slate-900 rounded-none">
+              <ChessQueen size={20} className="text-white" />
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-2 rounded-none">
-              <div className="w-full md:col-span-2">
-                <EquationBox
-                  title="His Payments"
-                  value={data.His.livingExpenses}
-                  color="cyan"
-                  onClick={() =>
-                    onSourceClick?.(
-                      'His',
-                      data.His.txs.filter((t) => !t.isIncome && !t.isSavings)
-                    )
-                  }
-                />
-              </div>
-              <Operator
-                icon={Plus}
-                className="rotate-90 md:rotate-0 py-1 md:py-2"
-              />
-              <div className="w-full md:col-span-2">
-                <EquationBox
-                  title="Her Payments"
-                  value={data.Her.livingExpenses}
-                  color="orange"
-                  onClick={() =>
-                    onSourceClick?.(
-                      'Her',
-                      data.Her.txs.filter((t) => !t.isIncome && !t.isSavings)
-                    )
-                  }
-                />
-              </div>
-              <Operator
-                icon={Plus}
-                className="rotate-90 md:rotate-0 py-1 md:py-2"
-              />
-              <div className="w-full md:col-span-1">
-                <EquationBox
-                  title="Family Payments"
-                  value={data.Family.livingExpenses}
-                  color="red"
-                  onClick={() =>
-                    onSourceClick?.(
-                      'Family',
-                      data.Family.txs.filter((t) => !t.isIncome && !t.isSavings)
-                    )
-                  }
-                />
-              </div>
+            <div>
+              <h3
+                className={`text-lg font-black uppercase tracking-tight ${barlow.className}`}
+              >
+                Month Settlement
+              </h3>
+              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                Detailed Financial Flow & Balance Logic
+              </p>
             </div>
           </div>
 
-          {/* Row 2: Credits */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
-                2
+          <div className="space-y-6">
+            {/* Row 1: Expenses */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                  1
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Step 1: Living Expenses
+                </span>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                Step 2: Pool Funding (Credits)
-              </span>
-            </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
-              <div className="w-full md:col-span-3">
-                <EquationBox
-                  title="His Deposits"
-                  value={data.His.deposits}
-                  color="cyan"
-                  onClick={() =>
-                    onSourceClick?.(
-                      'His',
-                      data.His.txs.filter((t) => t.isIncome)
-                    )
-                  }
+              <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-2 rounded-none">
+                <div className="w-full md:col-span-2">
+                  <EquationBox
+                    title="His Payments"
+                    value={data.His.livingExpenses}
+                    color="cyan"
+                    onClick={() =>
+                      onSourceClick?.(
+                        'His',
+                        data.His.txs.filter((t) => !t.isIncome && !t.isSavings)
+                      )
+                    }
+                  />
+                </div>
+                <Operator
+                  icon={Plus}
+                  className="rotate-90 md:rotate-0 py-1 md:py-2"
                 />
-              </div>
-              <Operator
-                icon={Plus}
-                className="rotate-90 md:rotate-0 py-1 md:py-2"
-              />
-              <div className="w-full md:col-span-3">
-                <EquationBox
-                  title="Her Deposits"
-                  value={data.Her.deposits}
-                  color="orange"
-                  onClick={() =>
-                    onSourceClick?.(
-                      'Her',
-                      data.Her.txs.filter((t) => t.isIncome)
-                    )
-                  }
+                <div className="w-full md:col-span-2">
+                  <EquationBox
+                    title="Her Payments"
+                    value={data.Her.livingExpenses}
+                    color="orange"
+                    onClick={() =>
+                      onSourceClick?.(
+                        'Her',
+                        data.Her.txs.filter((t) => !t.isIncome && !t.isSavings)
+                      )
+                    }
+                  />
+                </div>
+                <Operator
+                  icon={Plus}
+                  className="rotate-90 md:rotate-0 py-1 md:py-2"
                 />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 3: Total Effort (Contribution) */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
-                3
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                Step 3: Individual Effort (Spending + Funding)
-              </span>
-            </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
-              <div className="w-full md:col-span-3">
-                <EquationBox
-                  title="His Contribution"
-                  value={hisTotalContribution}
-                  color="cyan"
-                  onClick={() => onSourceClick?.('His', data.His.txs)}
-                />
-              </div>
-              <Operator
-                icon={Plus}
-                className="rotate-90 md:rotate-0 py-1 md:py-2"
-              />
-              <div className="w-full md:col-span-3">
-                <EquationBox
-                  title="Her Contribution"
-                  value={herTotalContribution}
-                  color="orange"
-                  onClick={() => onSourceClick?.('Her', data.Her.txs)}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 4: Logic Result */}
-          <div className="flex flex-col gap-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
-                4
-              </div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
-                Step 4: Calculating Surplus
-              </span>
-            </div>
-            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-0.5 bg-white p-2 rounded-none">
-              <div className="w-full md:col-span-2">
-                <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(209,250,229,0.5)]">
-                  <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
-                    Total Effort
-                  </span>
-                  <span className="font-mono font-black text-emerald-800 text-base sm:text-lg">
-                    ${formatCurrency(grandTotalContribution)}
-                  </span>
+                <div className="w-full md:col-span-1">
+                  <EquationBox
+                    title="Family Payments"
+                    value={data.Family.livingExpenses}
+                    color="red"
+                    onClick={() =>
+                      onSourceClick?.(
+                        'Family',
+                        data.Family.txs.filter(
+                          (t) => !t.isIncome && !t.isSavings
+                        )
+                      )
+                    }
+                  />
                 </div>
               </div>
-              <Operator
-                icon={Minus}
-                color="text-rose-500"
-                className="rotate-90 md:rotate-0 py-1 md:py-2"
-              />
-              <div className="w-full md:col-span-2 flex flex-col gap-0.5">
-                <div
-                  className={`rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(255,241,242,0.8)] 
-  ${totalLivingExpenses > grandTotalContribution ? 'p-2 mb-1' : 'p-4'}`}
-                >
-                  <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
-                    Total Expenses
-                  </span>
-                  <span className="font-mono font-black text-rose-800 text-base sm:text-lg">
-                    ${formatCurrency(totalLivingExpenses)}
-                  </span>
+            </div>
+
+            {/* Row 2: Credits */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                  2
                 </div>
-                {totalLivingExpenses > grandTotalContribution && (
-                  <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
-                    <AlertCircle size={10} className="text-white" />
-                    <span className="text-[8px] font-black uppercase tracking-widest text-white">
-                      Deficit Warning
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Step 2: Pool Funding (Credits)
+                </span>
+              </div>
+              <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
+                <div className="w-full md:col-span-3">
+                  <EquationBox
+                    title="His Deposits"
+                    value={data.His.deposits}
+                    color="cyan"
+                    onClick={() =>
+                      onSourceClick?.(
+                        'His',
+                        data.His.txs.filter((t) => t.isIncome)
+                      )
+                    }
+                  />
+                </div>
+                <Operator
+                  icon={Plus}
+                  className="rotate-90 md:rotate-0 py-1 md:py-2"
+                />
+                <div className="w-full md:col-span-3">
+                  <EquationBox
+                    title="Her Deposits"
+                    value={data.Her.deposits}
+                    color="orange"
+                    onClick={() =>
+                      onSourceClick?.(
+                        'Her',
+                        data.Her.txs.filter((t) => t.isIncome)
+                      )
+                    }
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 3: Total Effort (Contribution) */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                  3
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  Step 3: Individual Effort (Spending + Funding)
+                </span>
+              </div>
+              <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
+                <div className="w-full md:col-span-3">
+                  <EquationBox
+                    title="His Contribution"
+                    value={hisTotalContribution}
+                    color="cyan"
+                    onClick={() => onSourceClick?.('His', data.His.txs)}
+                  />
+                </div>
+                <Operator
+                  icon={Plus}
+                  className="rotate-90 md:rotate-0 py-1 md:py-2"
+                />
+                <div className="w-full md:col-span-3">
+                  <EquationBox
+                    title="Her Contribution"
+                    value={herTotalContribution}
+                    color="orange"
+                    onClick={() => onSourceClick?.('Her', data.Her.txs)}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Row 4: Logic Result */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                  4
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                  Step 4: Calculating Surplus
+                </span>
+              </div>
+              <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-0.5 bg-white p-2 rounded-none">
+                <div className="w-full md:col-span-2">
+                  <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(209,250,229,0.5)]">
+                    <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
+                      Total Effort
+                    </span>
+                    <span className="font-mono font-black text-emerald-800 text-base sm:text-lg">
+                      ${formatCurrency(grandTotalContribution)}
                     </span>
                   </div>
-                )}
-              </div>
-              <Operator
-                icon={Equal}
-                className="rotate-90 md:rotate-0 py-1 md:py-2"
-              />
-              <div className="w-full md:col-span-4 transition-all duration-500">
-                <EquationBox
-                  title="Ready to Invest"
-                  value={balanceBeforeInvestments}
-                  color={balanceBeforeInvestments >= 0 ? 'emerald' : 'red'}
+                </div>
+                <Operator
+                  icon={Minus}
+                  color="text-rose-500"
+                  className="rotate-90 md:rotate-0 py-1 md:py-2"
                 />
+                <div className="w-full md:col-span-2 flex flex-col gap-0.5">
+                  <div
+                    className={`rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(255,241,242,0.8)] 
+  ${totalLivingExpenses > grandTotalContribution ? 'p-2 mb-1' : 'p-4'}`}
+                  >
+                    <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
+                      Total Expenses
+                    </span>
+                    <span className="font-mono font-black text-rose-800 text-base sm:text-lg">
+                      ${formatCurrency(totalLivingExpenses)}
+                    </span>
+                  </div>
+                  {totalLivingExpenses > grandTotalContribution && (
+                    <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                      <AlertCircle size={10} className="text-white" />
+                      <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                        Deficit Warning
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <Operator
+                  icon={Equal}
+                  className="rotate-90 md:rotate-0 py-1 md:py-2"
+                />
+                <div className="w-full md:col-span-4 transition-all duration-500">
+                  <EquationBox
+                    title="Ready to Invest"
+                    value={balanceBeforeInvestments}
+                    color={balanceBeforeInvestments >= 0 ? 'emerald' : 'red'}
+                  />
+                </div>
               </div>
             </div>
           </div>
