@@ -801,7 +801,7 @@ export function YearlyTable({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group">
+                  <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
                     <div>
                       <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
                         His Contribution
@@ -821,7 +821,7 @@ export function YearlyTable({
                       </span>
                     </div>
                   </div>
-                  <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group">
+                  <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
                     <div>
                       <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
                         Her Contribution
