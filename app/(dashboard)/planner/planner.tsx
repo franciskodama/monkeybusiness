@@ -258,9 +258,6 @@ export default function Planner({
           <div className="flex flex-col">
             <div className="flex items-center justify-between">
               <p>Planner</p>
-              {/* <div className="block sm:hidden">
-                {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
-              </div> */}
             </div>
             <p
               className={`${barlow.className} text-sm font-normal lowercase mt-2`}
@@ -271,23 +268,21 @@ export default function Planner({
           </div>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-end flex-1 w-full gap-4 mt-8 lg:mt-0">
             <div
-              className={`${barlow.className} flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto overflow-hidden`}
+              className={`${barlow.className} p-1 flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto overflow-hidden`}
             >
-              <div className="grid grid-cols-1 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
-                <TransactionImporter
-                  householdId={householdId}
-                  categories={currentCategories}
-                  subcategoriesForCurrentMonth={currentSubcategories.filter(
-                    (i) => i.month === selectedMonth
-                  )}
-                  setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
-                  setReviewDataAction={setReviewData}
-                />
-                <DirectCodeImporter
-                  householdId={householdId}
-                  onDataLoaded={(data) => setReviewData(data)}
-                />
-              </div>
+              <TransactionImporter
+                householdId={householdId}
+                categories={currentCategories}
+                subcategoriesForCurrentMonth={currentSubcategories.filter(
+                  (i) => i.month === selectedMonth
+                )}
+                setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
+                setReviewDataAction={setReviewData}
+              />
+              <DirectCodeImporter
+                householdId={householdId}
+                onDataLoaded={(data) => setReviewData(data)}
+              />
               <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
                 <AddCategory
                   user={user}

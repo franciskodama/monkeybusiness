@@ -1,7 +1,13 @@
 'use client';
 
-// import { TooltipProvider } from '@/components/ui/tooltip';
+import { Toaster } from '@/components/ui/sonner';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 export default function Providers({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+  return (
+    <TooltipProvider>
+      {children}
+      <Toaster position="bottom-right" richColors />
+    </TooltipProvider>
+  );
 }

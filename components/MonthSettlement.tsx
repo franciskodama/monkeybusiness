@@ -348,7 +348,7 @@ export function MonthSettlement({
                     <span className="text-2xl font-mono font-black text-emerald-400">
                       ${formatCurrency(grandTotalContribution)}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-500 mb-1.5 underline decoration-emerald-500/30">
+                    <span className="text-sm font-bold text-slate-500 mb-1.5 underline decoration-emerald-500/30">
                       CAD
                     </span>
                   </div>
@@ -356,7 +356,7 @@ export function MonthSettlement({
                     <span className="text-lg font-mono font-black text-slate-300">
                       R$ {formatCurrency(grandTotalContribution * brlRate)}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-500 mb-1.5">
+                    <span className="text-sm font-bold text-slate-500 mb-1.5">
                       BRL
                     </span>
                   </div>
