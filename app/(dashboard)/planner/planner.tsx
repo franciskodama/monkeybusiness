@@ -139,11 +139,18 @@ export default function Planner({
       })) || []
   );
 
+  const [showFundingModal, setShowFundingModal] = useState(false);
+
   // 3. New Refined Header Logic (Matching User's "Progress vs Target" Request)
   const stats = allTransactions.reduce(
     (acc, tx) => {
       // Current Effort = All transactions from His & Her (Contribution Model)
-      if (tx.source === 'His' || tx.source === 'Her') {
+      if (tx.source === 'His') {
+        acc.hisActual += tx.amount;
+        acc.actualContribution += tx.amount;
+      }
+      if (tx.source === 'Her') {
+        acc.herActual += tx.amount;
         acc.actualContribution += tx.amount;
       }
 
@@ -154,12 +161,40 @@ export default function Planner({
 
       return acc;
     },
-    { actualContribution: 0, actualLivingExpenses: 0 }
+    {
+      hisActual: 0,
+      herActual: 0,
+      actualContribution: 0,
+      actualLivingExpenses: 0
+    }
   );
 
-  // Targets (Planned Values)
+  // Targets (Planned Values) - Categorizing by both Subcategory and Parent Category name
+  const isHisIdentifier = (sub: any) => {
+    const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
+    if (nameStr.includes('HIS') || nameStr.includes('FRANCIS')) return true;
+    // Fallback: check if the actual transactions already arrived are from 'His'
+    return sub.transactions?.some((tx: any) => tx.source === 'His');
+  };
+
+  const isHerIdentifier = (sub: any) => {
+    const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
+    if (nameStr.includes('HER') || nameStr.includes('MARIANA')) return true;
+    // Fallback: check if the actual transactions already arrived are from 'Her'
+    return sub.transactions?.some((tx: any) => tx.source === 'Her');
+  };
+
+  // Total Forecast Pool = ALL income items
   const totalPlannedFunding = currentMonthSubs
     .filter((sub) => sub.category.isIncome)
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const hisPlannedIncome = currentMonthSubs
+    .filter((sub) => sub.category.isIncome && isHisIdentifier(sub))
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const herPlannedIncome = currentMonthSubs
+    .filter((sub) => sub.category.isIncome && isHerIdentifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const totalPlannedExpenses = currentMonthSubs
@@ -169,6 +204,13 @@ export default function Planner({
   const displayFunding = stats.actualContribution;
   const displayBurn = stats.actualLivingExpenses;
   const displayReadyToInvest = displayFunding - displayBurn;
+
+  const fundingPercentage = Math.round(
+    (displayFunding / (totalPlannedFunding || 1)) * 100
+  );
+  const burnPercentage = Math.round(
+    (displayBurn / (totalPlannedExpenses || 1)) * 100
+  );
 
   //--------------------------------------------------
   // Export Budget Data
@@ -332,26 +374,107 @@ export default function Planner({
 
           <div className="grid grid-cols-3 items-center text-xs font-bold sm:divide-x sm:divide-slate-200 bg-slate-50 lg:bg-transparent rounded-xl lg:rounded-none p-2 lg:p-0">
             {/* Funding Progress Bar (Effort vs Targeted Income) */}
-            <div className="flex flex-col items-center px-1 sm:px-4">
-              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1.5 px-2 text-center leading-tight">
+            <div
+              className="flex flex-col items-center px-1 sm:px-4 cursor-pointer hover:bg-emerald-50/50 transition-colors rounded-lg py-1 group"
+              onClick={() => setShowFundingModal(true)}
+            >
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1.5 px-2 text-center leading-tight group-hover:text-emerald-700">
                 Funding Effort
               </span>
               <div className="w-full max-w-[80px] h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
                 <div
                   className="h-full bg-emerald-500 transition-all duration-500"
-                  style={{
-                    width: `${Math.min((displayFunding / (totalPlannedFunding || 1)) * 100, 100)}%`
-                  }}
+                  style={{ width: `${Math.min(fundingPercentage, 100)}%` }}
                 />
               </div>
               <span className="font-mono text-emerald-600 text-[9px] sm:text-[10px]">
-                {Math.round(
-                  (displayFunding / (totalPlannedFunding || 1)) * 100
-                )}
-                %
+                {fundingPercentage}%
               </span>
             </div>
 
+            {/* FUNDING BREAKDOWN MODAL */}
+            <Dialog open={showFundingModal} onOpenChange={setShowFundingModal}>
+              <DialogContent className="max-w-sm rounded-none border-2 border-slate-900 p-0 overflow-hidden shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
+                <DialogHeader className="bg-slate-900 p-4 border-b border-slate-800">
+                  <DialogTitle className="text-white text-[12px] uppercase font-black tracking-widest flex items-center gap-2">
+                    <Award size={14} className="text-emerald-400" />
+                    Funding Target Breakdown
+                  </DialogTitle>
+                </DialogHeader>
+
+                <div className="p-6 space-y-6 bg-white">
+                  {/* Forecast Targets */}
+                  <div className="space-y-3">
+                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-400 border-b pb-2">
+                      Forecast Targets
+                    </p>
+                    <div className="flex justify-between items-center group">
+                      <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
+                        HIS Target
+                      </span>
+                      <span className="font-mono font-black text-slate-900">
+                        ${formatCurrency(hisPlannedIncome)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center group">
+                      <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
+                        HER Target
+                      </span>
+                      <span className="font-mono font-black text-slate-900">
+                        ${formatCurrency(herPlannedIncome)}
+                      </span>
+                    </div>
+                    {totalPlannedFunding >
+                      hisPlannedIncome + herPlannedIncome && (
+                      <div className="flex justify-between items-center group">
+                        <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors italic">
+                          Other / Mutual
+                        </span>
+                        <span className="font-mono font-black text-slate-400">
+                          $
+                          {formatCurrency(
+                            totalPlannedFunding -
+                              (hisPlannedIncome + herPlannedIncome)
+                          )}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center pt-3 border-t border-dashed border-slate-200 font-black">
+                      <span className="text-[10px] uppercase tracking-widest text-slate-900">
+                        Total Forecast Pool
+                      </span>
+                      <span className="font-mono text-base text-slate-900">
+                        ${formatCurrency(totalPlannedFunding)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Realized Funding */}
+                  <div className="p-4 bg-emerald-50 border-2 border-emerald-100/50">
+                    <div className="flex justify-between items-center mb-1">
+                      <p className="text-[10px] uppercase font-black tracking-[0.2em] text-emerald-800">
+                        Total Arrived
+                      </p>
+                      <div className="bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 font-black uppercase rounded-sm">
+                        Captured
+                      </div>
+                    </div>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-2xl font-mono font-black text-emerald-600">
+                        ${formatCurrency(displayFunding)}
+                      </span>
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
+                        to the pool
+                      </span>
+                    </div>
+                    <p className="text-[9px] font-bold text-emerald-600/70 mt-2 italic leading-relaxed">
+                      Combined effort from HIS and HER already registered in
+                      current transactions.
+                    </p>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
             {/* Burn Progress Bar (Actual vs Planned) */}
             <div className="flex flex-col items-center px-1 sm:px-4 border-x lg:border-none border-slate-200">
               <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1.5 px-2 text-center leading-tight">
@@ -360,15 +483,13 @@ export default function Planner({
               <div className="w-full max-w-[80px] h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
                 <div
                   className={`h-full transition-all duration-500 ${displayBurn > totalPlannedExpenses ? 'bg-rose-500' : 'bg-slate-900'}`}
-                  style={{
-                    width: `${Math.min((displayBurn / (totalPlannedExpenses || 1)) * 100, 100)}%`
-                  }}
+                  style={{ width: `${Math.min(burnPercentage, 100)}%` }}
                 />
               </div>
               <span
                 className={`font-mono text-[9px] sm:text-[10px] ${displayBurn > totalPlannedExpenses ? 'text-rose-600' : 'text-slate-900'}`}
               >
-                {Math.round((displayBurn / (totalPlannedExpenses || 1)) * 100)}%
+                {burnPercentage}%
               </span>
             </div>
 
