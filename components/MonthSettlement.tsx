@@ -11,7 +11,8 @@ import {
   Rocket,
   ChessQueen,
   X,
-  Target
+  Target,
+  AlertCircle
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { formatCurrency } from '@/lib/utils';
@@ -165,7 +166,7 @@ export function MonthSettlement({
               Definition / {metricExplanations[metric].label}
             </span>
           </div>
-          <p className="text-[12px] leading-relaxed text-slate-300 font-semibold">
+          <p className="text-[13px] leading-relaxed text-slate-300 font-semibold">
             {metricExplanations[metric].desc}
           </p>
         </motion.div>
@@ -226,7 +227,7 @@ export function MonthSettlement({
 
   const Operator = ({
     icon: Icon,
-    color = 'slate-400',
+    color = 'text-slate-800',
     className = ''
   }: {
     icon: any;
@@ -234,9 +235,9 @@ export function MonthSettlement({
     className?: string;
   }) => (
     <div
-      className={`flex items-center justify-center p-2 ${color} ${className}`}
+      className={`flex items-center justify-center p-1 ${color} ${className}`}
     >
-      <Icon size={16} strokeWidth={3} />
+      <Icon size={18} strokeWidth={3} />
     </div>
   );
 
@@ -271,7 +272,7 @@ export function MonthSettlement({
                 Step 1: Living Expenses
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-2 rounded-none">
               <div className="w-full md:col-span-2">
                 <EquationBox
                   title="His Payments"
@@ -332,7 +333,7 @@ export function MonthSettlement({
                 Step 2: Pool Funding (Credits)
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
               <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Deposits"
@@ -376,7 +377,7 @@ export function MonthSettlement({
                 Step 3: Individual Effort (Spending + Funding)
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-4 rounded-none">
+            <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
               <div className="w-full md:col-span-3">
                 <EquationBox
                   title="His Contribution"
@@ -410,7 +411,7 @@ export function MonthSettlement({
                 Step 4: Calculating Surplus
               </span>
             </div>
-            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-1 bg-white p-4 rounded-none">
+            <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-0.5 bg-white p-2 rounded-none">
               <div className="w-full md:col-span-2">
                 <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(209,250,229,0.5)]">
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
@@ -426,8 +427,11 @@ export function MonthSettlement({
                 color="text-rose-500"
                 className="rotate-90 md:rotate-0 py-1 md:py-2"
               />
-              <div className="w-full md:col-span-2">
-                <div className="p-4 rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(255,241,242,0.8)]">
+              <div className="w-full md:col-span-2 flex flex-col gap-0.5">
+                <div
+                  className={`rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(255,241,242,0.8)] 
+  ${totalLivingExpenses > grandTotalContribution ? 'p-2 mb-1' : 'p-4'}`}
+                >
                   <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
                     Total Expenses
                   </span>
@@ -435,6 +439,14 @@ export function MonthSettlement({
                     ${formatCurrency(totalLivingExpenses)}
                   </span>
                 </div>
+                {totalLivingExpenses > grandTotalContribution && (
+                  <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                    <AlertCircle size={10} className="text-white" />
+                    <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                      Deficit Warning
+                    </span>
+                  </div>
+                )}
               </div>
               <Operator
                 icon={Equal}
