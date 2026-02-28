@@ -123,42 +123,12 @@ export default function Planner({
     }
   };
 
-  // CALCULATIONS FOR STICKY BAR (ACTUALS)
-  const totalActualIncome = currentSubcategories
-    .filter((sub) => sub.category.isIncome && sub.month === selectedMonth)
-    .reduce((sum, sub) => {
-      const actual =
-        sub.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0;
-      return sum + actual;
-    }, 0);
-
-  const totalActualExpenses = currentSubcategories
-    .filter((sub) => !sub.category.isIncome && sub.month === selectedMonth)
-    .reduce((sum, sub) => {
-      const actual =
-        sub.transactions?.reduce((s: number, t: any) => s + t.amount, 0) || 0;
-      return sum + actual;
-    }, 0);
-
-  const actualNet = totalActualIncome - totalActualExpenses;
-
-  // PLANNED VALUES (FOR REFERENCE/PROGRESS)
-  const totalPlannedIncome = currentSubcategories
-    .filter((sub) => sub.category.isIncome && sub.month === selectedMonth)
-    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
-
-  const totalPlannedExpenses = currentSubcategories
-    .filter((sub) => !sub.category.isIncome && sub.month === selectedMonth)
-    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
-
-  const netPlannedBudget = totalPlannedIncome - totalPlannedExpenses;
-
   // 1. Get only the subcategories for the month the user is looking at
   const currentMonthSubs = currentSubcategories.filter(
     (sub) => sub.month === selectedMonth
   );
 
-  // 2. Flatten all transactions from those subcategories into one list
+  // 2. Flatten all transactions from those subcategories into one list with metadata
   const allTransactions = currentMonthSubs.flatMap(
     (sub) =>
       sub.transactions?.map((tx: any) => ({
@@ -169,15 +139,36 @@ export default function Planner({
       })) || []
   );
 
-  // 3. Filter for Burn by Source (Exclude Income transactions)
-  const burnTransactions = currentMonthSubs
-    .filter((sub) => !sub.category.isIncome)
-    .flatMap((sub) => sub.transactions || []);
+  // 3. New Refined Header Logic (Matching User's "Progress vs Target" Request)
+  const stats = allTransactions.reduce(
+    (acc, tx) => {
+      // Current Effort = All transactions from His & Her (Contribution Model)
+      if (tx.source === 'His' || tx.source === 'Her') {
+        acc.actualContribution += tx.amount;
+      }
 
-  // 4. Calculate Funding Progress by Source (For the new section)
-  const fundingTransactions = currentMonthSubs
+      // Actual Living Expenses (excluding Savings and Income)
+      if (!tx.isIncome && !tx.isSavings) {
+        acc.actualLivingExpenses += tx.amount;
+      }
+
+      return acc;
+    },
+    { actualContribution: 0, actualLivingExpenses: 0 }
+  );
+
+  // Targets (Planned Values)
+  const totalPlannedFunding = currentMonthSubs
     .filter((sub) => sub.category.isIncome)
-    .flatMap((sub) => sub.transactions || []);
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const totalPlannedExpenses = currentMonthSubs
+    .filter((sub) => !sub.category.isIncome && !sub.category.isSavings)
+    .reduce((sum, sub) => sum + (sub.amount || 0), 0);
+
+  const displayFunding = stats.actualContribution;
+  const displayBurn = stats.actualLivingExpenses;
+  const displayReadyToInvest = displayFunding - displayBurn;
 
   //--------------------------------------------------
   // Export Budget Data
@@ -340,34 +331,68 @@ export default function Planner({
           </div>
 
           <div className="grid grid-cols-3 items-center text-xs font-bold sm:divide-x sm:divide-slate-200 bg-slate-50 lg:bg-transparent rounded-xl lg:rounded-none p-2 lg:p-0">
+            {/* Funding Progress Bar (Effort vs Targeted Income) */}
             <div className="flex flex-col items-center px-1 sm:px-4">
-              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
-                Income
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1.5 px-2 text-center leading-tight">
+                Funding Effort
               </span>
-              <span className="font-mono text-emerald-600 text-[10px] sm:text-xs">
-                ${formatCurrency(totalActualIncome)}
+              <div className="w-full max-w-[80px] h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-500"
+                  style={{
+                    width: `${Math.min((displayFunding / (totalPlannedFunding || 1)) * 100, 100)}%`
+                  }}
+                />
+              </div>
+              <span className="font-mono text-emerald-600 text-[9px] sm:text-[10px]">
+                {Math.round(
+                  (displayFunding / (totalPlannedFunding || 1)) * 100
+                )}
+                %
               </span>
             </div>
-            <div className="flex flex-col items-center px-1 sm:px-4 border-x sm:border-x-0 border-slate-200">
-              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
-                Burn
+
+            {/* Burn Progress Bar (Actual vs Planned) */}
+            <div className="flex flex-col items-center px-1 sm:px-4 border-x lg:border-none border-slate-200">
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1.5 px-2 text-center leading-tight">
+                Burn Progress
               </span>
-              <span className="font-mono text-slate-900 text-[10px] sm:text-xs">
-                ${formatCurrency(totalActualExpenses)}
-              </span>
-            </div>
-            <div className="flex flex-col items-center px-1 sm:px-4">
-              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1">
-                Net Result
-              </span>
+              <div className="w-full max-w-[80px] h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
+                <div
+                  className={`h-full transition-all duration-500 ${displayBurn > totalPlannedExpenses ? 'bg-rose-500' : 'bg-slate-900'}`}
+                  style={{
+                    width: `${Math.min((displayBurn / (totalPlannedExpenses || 1)) * 100, 100)}%`
+                  }}
+                />
+              </div>
               <span
-                className={`font-mono text-[10px] sm:text-sm px-1 sm:px-2 py-0.5 ${
-                  actualNet >= 0
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-rose-100 text-rose-800'
+                className={`font-mono text-[9px] sm:text-[10px] ${displayBurn > totalPlannedExpenses ? 'text-rose-600' : 'text-slate-900'}`}
+              >
+                {Math.round((displayBurn / (totalPlannedExpenses || 1)) * 100)}%
+              </span>
+            </div>
+
+            {/* Ready to Invest Result + Progress Bar (Suplus vs Funding) */}
+            <div className="flex flex-col items-center px-1 sm:px-4 text-center">
+              <span className="text-[7px] sm:text-[8px] text-muted-foreground uppercase tracking-widest mb-1.5 px-2 leading-tight">
+                Ready to Invest
+              </span>
+              <div className="w-full max-w-[80px] h-1.5 bg-slate-200 rounded-full overflow-hidden mb-1">
+                <div
+                  className="h-full bg-emerald-500 transition-all duration-500"
+                  style={{
+                    width: `${Math.max(0, Math.min((displayReadyToInvest / (displayFunding || 1)) * 100, 100))}%`
+                  }}
+                />
+              </div>
+              <span
+                className={`font-mono text-[9px] sm:text-[10px] py-0.5 font-black ${
+                  displayReadyToInvest >= 0
+                    ? 'text-emerald-600'
+                    : 'text-rose-600'
                 }`}
               >
-                ${formatCurrency(actualNet)}
+                ${formatCurrency(displayReadyToInvest)}
               </span>
             </div>
           </div>
