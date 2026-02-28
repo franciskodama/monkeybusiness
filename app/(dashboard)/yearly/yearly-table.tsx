@@ -1,7 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Info, Award, AlertCircle, ChessKing, TrendingUp } from 'lucide-react';
+import {
+  Info,
+  Award,
+  AlertCircle,
+  ChessKing,
+  TrendingUp,
+  X,
+  Target,
+  Minus
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Category } from '@prisma/client';
@@ -37,6 +46,74 @@ export function YearlyTable({
     month: number;
     transactions: any[];
   } | null>(null);
+
+  const [activeMetric, setActiveMetric] = useState<string | null>(null);
+
+  const metricExplanations: Record<
+    string,
+    { label: string; desc: string; icon: any }
+  > = {
+    savingsRate: {
+      label: 'Savings Rate',
+      desc: 'Annualized percentage of effort assigned to investments. Tracks wealth building consistency over the year.',
+      icon: TrendingUp
+    },
+    efficiency: {
+      label: 'Living Efficiency',
+      desc: 'Measures how well you are staying within the pool budget across all months so far.',
+      icon: Target
+    },
+    burn: {
+      label: 'YTD Burn',
+      desc: 'The cumulative total of all living expenses paid from the family pool since January.',
+      icon: Minus
+    },
+    settlement: {
+      label: 'Final Settlement',
+      desc: 'The net result of all year-to-date income versus all spending and saving missions.',
+      icon: Target
+    },
+    status: {
+      label: 'Annual Efficiency Status',
+      desc: 'Master Efficiency is awarded when your investment speed and living costs are perfectly optimized at an annual scale. Stable Growth means your velocity is active.',
+      icon: ChessKing
+    }
+  };
+
+  const MetricTooltip = ({ metric }: { metric: string }) => (
+    <AnimatePresence>
+      {activeMetric === metric && metricExplanations[metric] && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+          animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+          className="bg-slate-900 border-2 border-slate-700 p-4 relative shadow-[4px_4px_0px_rgba(30,41,59,1)] mb-4"
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveMetric(null);
+            }}
+            className="absolute top-2 right-2 text-slate-500 hover:text-white"
+          >
+            <X size={12} />
+          </button>
+          <div className="flex items-center gap-2 mb-2">
+            {React.createElement(metricExplanations[metric].icon, {
+              size: 10,
+              className: 'text-slate-400'
+            })}
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+              Annual Definition / {metricExplanations[metric].label}
+            </span>
+          </div>
+          <p className="text-[10px] leading-relaxed text-slate-300 font-bold">
+            {metricExplanations[metric].desc}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
@@ -997,10 +1074,21 @@ export function YearlyTable({
                       Performance Index
                     </span>
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-emerald-500" />
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                      <div
+                        onClick={() =>
+                          setActiveMetric(
+                            activeMetric === 'savingsRate'
+                              ? null
+                              : 'savingsRate'
+                          )
+                        }
+                        className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'savingsRate' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                      >
+                        <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
+                          <div
+                            className={`w-1 h-1 transition-all ${activeMetric === 'savingsRate' ? 'bg-emerald-400 scale-150' : 'bg-emerald-500'}`}
+                          />
+                          <span className="text-[10px] font-bold uppercase transition-all">
                             Savings Rate
                           </span>
                         </div>
@@ -1015,10 +1103,21 @@ export function YearlyTable({
                           %
                         </span>
                       </div>
-                      <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-blue-500" />
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                      <MetricTooltip metric="savingsRate" />
+
+                      <div
+                        onClick={() =>
+                          setActiveMetric(
+                            activeMetric === 'efficiency' ? null : 'efficiency'
+                          )
+                        }
+                        className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'efficiency' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                      >
+                        <div className="flex items-center gap-2 text-slate-400 group-hover:text-blue-400 transition-colors">
+                          <div
+                            className={`w-1 h-1 transition-all ${activeMetric === 'efficiency' ? 'bg-blue-400 scale-150' : 'bg-blue-500'}`}
+                          />
+                          <span className="text-[10px] font-bold uppercase transition-all">
                             Living Efficiency
                           </span>
                         </div>
@@ -1034,10 +1133,21 @@ export function YearlyTable({
                           %
                         </span>
                       </div>
-                      <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
-                        <div className="flex items-center gap-2">
-                          <div className="w-1 h-1 bg-slate-500" />
-                          <span className="text-[10px] font-bold text-slate-400 uppercase">
+                      <MetricTooltip metric="efficiency" />
+
+                      <div
+                        onClick={() =>
+                          setActiveMetric(
+                            activeMetric === 'burn' ? null : 'burn'
+                          )
+                        }
+                        className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'burn' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                      >
+                        <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-100 transition-colors">
+                          <div
+                            className={`w-1 h-1 transition-all ${activeMetric === 'burn' ? 'bg-slate-100 scale-150' : 'bg-slate-500'}`}
+                          />
+                          <span className="text-[10px] font-bold uppercase transition-all">
                             YTD Burn
                           </span>
                         </div>
@@ -1045,16 +1155,22 @@ export function YearlyTable({
                           ${formatCurrency(settlement.reality.expenses)}
                         </span>
                       </div>
+                      <MetricTooltip metric="burn" />
                     </div>
                   </div>
 
                   {/* 4. Final Balance Anchor */}
                   <div
-                    className={`p-6 rounded-none border-2 transition-all duration-1000 ${
+                    onClick={() =>
+                      setActiveMetric(
+                        activeMetric === 'settlement' ? null : 'settlement'
+                      )
+                    }
+                    className={`p-6 rounded-none border-2 transition-all duration-1000 cursor-help ${
                       settlement.finalBalance < 0
                         ? 'bg-rose-500/5 border-rose-500/50'
                         : 'bg-emerald-500/5 border-emerald-500/50'
-                    }`}
+                    } ${activeMetric === 'settlement' ? 'ring-2 ring-slate-400 border-slate-400' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
@@ -1078,11 +1194,19 @@ export function YearlyTable({
                       </p>
                     </div>
                   </div>
+                  <MetricTooltip metric="settlement" />
                 </div>
 
                 {/* 5. Annual Status Badge */}
                 <div className="mt-8 pt-6 border-t border-slate-800">
-                  <div className="bg-white/5 p-3 border-2 border-slate-800 flex items-center justify-center gap-3 group transition-all hover:bg-slate-800">
+                  <div
+                    onClick={() =>
+                      setActiveMetric(
+                        activeMetric === 'status' ? null : 'status'
+                      )
+                    }
+                    className={`p-3 border-2 flex items-center justify-center gap-3 group transition-all cursor-help ${activeMetric === 'status' ? 'bg-slate-800 border-slate-600' : 'bg-white/5 border-slate-800 hover:bg-slate-800'}`}
+                  >
                     {settlement.reality.investments /
                       (settlement.reality.effort || 1) >
                     0.3 ? (
@@ -1101,6 +1225,7 @@ export function YearlyTable({
                         : 'Consistency Build'}
                     </span>
                   </div>
+                  <MetricTooltip metric="status" />
                 </div>
               </div>
             </div>

@@ -1,15 +1,19 @@
 'use client';
 
+import React, { useState } from 'react';
 import {
   TrendingUp,
   Plus,
   Minus,
+  Flame,
   Equal,
   CheckCircle2,
   Rocket,
-  ChessQueen
+  ChessQueen,
+  X,
+  Target
 } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { formatCurrency } from '@/lib/utils';
 import { barlow } from '@/lib/fonts';
 
@@ -31,6 +35,39 @@ export function MonthSettlement({
   brlRate: number;
   onSourceClick?: (source: string, transactions: Transaction[]) => void;
 }) {
+  const [activeMetric, setActiveMetric] = useState<string | null>(null);
+
+  const metricExplanations: Record<
+    string,
+    { label: string; desc: string; icon: any }
+  > = {
+    savingsRate: {
+      label: 'Savings Rate',
+      desc: 'The percentage of your total monthly effort that was converted into investments. Goal: 30%+',
+      icon: TrendingUp
+    },
+    efficiency: {
+      label: 'Living Efficiency',
+      desc: 'Efficiency measures how much income remains after all living costs. High efficiency enables growth.',
+      icon: Target
+    },
+    burn: {
+      label: 'Daily Burn',
+      desc: 'Your average maintenance cost per day. Lower burn rates provide greater financial freedom.',
+      icon: Flame
+    },
+    settlement: {
+      label: 'Final Settlement',
+      desc: 'A Zero-Balance goal ensures every dollar brought into the pool is accounted for as spending or saving.',
+      icon: Target
+    },
+    status: {
+      label: 'Performance Status',
+      desc: 'This badge reflects your current wealth velocity based on your savings rate. High velocity (30%+) means you are rapidly building future freedom.',
+      icon: Rocket
+    }
+  };
+
   // Initialize data
   const data: Record<
     string,
@@ -100,6 +137,41 @@ export function MonthSettlement({
       : 0;
 
   if (transactions.length === 0) return null;
+
+  const MetricTooltip = ({ metric }: { metric: string }) => (
+    <AnimatePresence>
+      {activeMetric === metric && metricExplanations[metric] && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+          animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+          className="bg-slate-900 border-2 border-slate-700 p-4 relative shadow-[4px_4px_0px_rgba(30,41,59,1)] mb-2"
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveMetric(null);
+            }}
+            className="absolute top-2 right-2 text-slate-500 hover:text-white"
+          >
+            <X size={12} />
+          </button>
+          <div className="flex items-center gap-2 mb-2">
+            {React.createElement(metricExplanations[metric].icon, {
+              size: 10,
+              className: 'text-slate-400'
+            })}
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+              Definition / {metricExplanations[metric].label}
+            </span>
+          </div>
+          <p className="text-[12px] leading-relaxed text-slate-300 font-semibold">
+            {metricExplanations[metric].desc}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   const EquationBox = ({
     title,
@@ -379,6 +451,7 @@ export function MonthSettlement({
           </div>
         </div>
 
+        {/* Final Result Sidebar */}
         <div className="lg:col-span-3 h-full">
           <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col border-2 border-slate-800 shadow-[6px_6px_0px_rgba(15,23,42,0.3)] min-h-[600px]">
             <div className="flex-1 space-y-8">
@@ -431,10 +504,19 @@ export function MonthSettlement({
                   Performance Index
                 </span>
                 <div className="space-y-4">
-                  <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-emerald-500" />
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  <div
+                    onClick={() =>
+                      setActiveMetric(
+                        activeMetric === 'savingsRate' ? null : 'savingsRate'
+                      )
+                    }
+                    className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'savingsRate' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                  >
+                    <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
+                      <div
+                        className={`w-1 h-1 transition-all ${activeMetric === 'savingsRate' ? 'bg-emerald-400 scale-150' : 'bg-emerald-500'}`}
+                      />
+                      <span className="text-[10px] font-bold uppercase transition-all">
                         Savings Rate
                       </span>
                     </div>
@@ -442,10 +524,21 @@ export function MonthSettlement({
                       {savingsRate.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-blue-500" />
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  <MetricTooltip metric="savingsRate" />
+
+                  <div
+                    onClick={() =>
+                      setActiveMetric(
+                        activeMetric === 'efficiency' ? null : 'efficiency'
+                      )
+                    }
+                    className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'efficiency' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                  >
+                    <div className="flex items-center gap-2 text-slate-400 group-hover:text-blue-400 transition-colors">
+                      <div
+                        className={`w-1 h-1 transition-all ${activeMetric === 'efficiency' ? 'bg-blue-400 scale-150' : 'bg-blue-500'}`}
+                      />
+                      <span className="text-[10px] font-bold uppercase transition-all">
                         Living Efficiency
                       </span>
                     </div>
@@ -453,10 +546,19 @@ export function MonthSettlement({
                       {livingEfficiency.toFixed(1)}%
                     </span>
                   </div>
-                  <div className="flex justify-between items-center group cursor-help transition-colors hover:bg-white/5 p-1 -mx-1">
-                    <div className="flex items-center gap-2">
-                      <div className="w-1 h-1 bg-slate-500" />
-                      <span className="text-[10px] font-bold text-slate-400 uppercase">
+                  <MetricTooltip metric="efficiency" />
+
+                  <div
+                    onClick={() =>
+                      setActiveMetric(activeMetric === 'burn' ? null : 'burn')
+                    }
+                    className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'burn' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                  >
+                    <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-100 transition-colors">
+                      <div
+                        className={`w-1 h-1 transition-all ${activeMetric === 'burn' ? 'bg-slate-100 scale-150' : 'bg-slate-500'}`}
+                      />
+                      <span className="text-[10px] font-bold uppercase transition-all">
                         Daily Burn
                       </span>
                     </div>
@@ -464,6 +566,7 @@ export function MonthSettlement({
                       ${formatCurrency(dailyBurn)}/d
                     </span>
                   </div>
+                  <MetricTooltip metric="burn" />
                 </div>
               </div>
 
@@ -487,13 +590,18 @@ export function MonthSettlement({
 
               {/* 5. Final Balance (The Anchor) */}
               <div
-                className={`p-5 rounded-none border-2 transition-all duration-1000 ${
+                onClick={() =>
+                  setActiveMetric(
+                    activeMetric === 'settlement' ? null : 'settlement'
+                  )
+                }
+                className={`p-5 rounded-none border-2 transition-all duration-1000 cursor-help ${
                   Math.abs(finalBalance) < 0.01
                     ? 'bg-emerald-500/10 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.1)]'
                     : finalBalance < 0
                       ? 'bg-rose-500/5 border-rose-500/50'
                       : 'bg-white/5 border-white/10'
-                }`}
+                } ${activeMetric === 'settlement' ? 'ring-2 ring-slate-400 border-slate-400' : ''}`}
               >
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
@@ -521,7 +629,7 @@ export function MonthSettlement({
                   >
                     ${formatCurrency(finalBalance)}
                   </span>
-                  <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline cursor-help decoration-slate-500/20">
+                  <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
                     {Math.abs(finalBalance) < 0.01
                       ? 'Perfect Balance Found'
                       : finalBalance > 0
@@ -530,11 +638,17 @@ export function MonthSettlement({
                   </p>
                 </div>
               </div>
+              <MetricTooltip metric="settlement" />
             </div>
 
             {/* Performance Badge / Conclusion */}
             <div className="mt-8 pt-6 border-t border-slate-800">
-              <div className="bg-white/5 p-3 border-2 border-slate-800 flex items-center justify-center gap-3 group transition-all hover:bg-slate-800">
+              <div
+                onClick={() =>
+                  setActiveMetric(activeMetric === 'status' ? null : 'status')
+                }
+                className={`p-3 border-2 flex items-center justify-center gap-3 group transition-all cursor-help ${activeMetric === 'status' ? 'bg-slate-800 border-slate-600' : 'bg-white/5 border-slate-800 hover:bg-slate-800'}`}
+              >
                 {savingsRate > 30 ? (
                   <Rocket
                     size={14}
@@ -551,6 +665,7 @@ export function MonthSettlement({
                       : 'Cash Flow Active'}
                 </span>
               </div>
+              <MetricTooltip metric="status" />
             </div>
           </div>
         </div>
