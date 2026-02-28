@@ -15,7 +15,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, months } from '@/lib/utils';
 import { barlow } from '@/lib/fonts';
 
 interface Transaction {
@@ -30,10 +30,12 @@ interface Transaction {
 export function MonthSettlement({
   transactions,
   brlRate,
+  month,
   onSourceClick
 }: {
   transactions: Transaction[];
   brlRate: number;
+  month: number;
   onSourceClick?: (source: string, transactions: Transaction[]) => void;
 }) {
   const [activeMetric, setActiveMetric] = useState<string | null>(null);
@@ -467,6 +469,16 @@ export function MonthSettlement({
         <div className="lg:col-span-3 h-full">
           <div className="bg-slate-900 rounded-none p-6 text-white h-full flex flex-col border-2 border-slate-800 shadow-[6px_6px_0px_rgba(15,23,42,0.3)] min-h-[600px]">
             <div className="flex-1 space-y-8">
+              {/* Month Header */}
+              <div className="border-b-2 border-slate-700 pb-6 -mx-2">
+                <span className="text-[10px] uppercase font-black tracking-[0.4em] text-emerald-500 block mb-1">
+                  Settlement
+                </span>
+                <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
+                  {months[month - 1]}
+                </h2>
+              </div>
+
               {/* 1. Score: Grand Total */}
               <div>
                 <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-3">

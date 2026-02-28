@@ -34,25 +34,25 @@ export default function ExplanationPlanner({
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        2. Sync Transactions:
+        2. Sync & Review:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Use the <b>PDF Importer</b> or paste JSON/Text with the{' '}
-          <b>Direct Code</b> tool.
+          Import transactions via PDF or Direct Code. Review matches—if a
+          "Deficit Warning" appears, you're planning for more than you've
+          funded.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        3. Review & Automate:
+        3. 4-Step Settlement:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Confirm matches. Set "Smart Rules" to automate future entries—even
-          after picking a category, the rule settings stay open for your final
-          check.
+          Follow the <b>"clinical" 4-step logic</b> in the sidebar: tracking
+          Payments, Deposits, Effort, and your Final Surplus.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        4. Course Correct:
+        4. Interactive Knowledge:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Noticed a mistake? Click on any <b>Actual</b> value to see the full
-          list and delete individual transactions in one click.
+          Can't remember what "Savings Rate" means? <b>Click on any label</b> in
+          the sidebar to reveal a deep definition and its goal.
         </span>
       </p>
     </div>
@@ -61,25 +61,24 @@ export default function ExplanationPlanner({
   const contentThree = (
     <div className="space-y-3 text-primary">
       <p className="font-bold uppercase tracking-wider">
-        - Total Awareness:
+        - Total Zero-Balance:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          The <b>Sticky Command Center</b> keeps your Income, Burn, and Net
-          Result always in view as you scroll.
+          Our goal is to reach a <b>Perfect Balance</b> ($0.00 unassigned). It
+          ensures every dollar is doing a job—spending or saving.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        - Smarter Matching:
+        - Wealth Velocity:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          The system uses "Match Patterns" to recognize merchants. Check for the
-          green <b>Matched by Rule</b> badge during import to see automation in
-          action.
+          Hitting 30%+ in your Savings Rate unlocks the{' '}
+          <b>"High Wealth Velocity"</b> status. Aim for the rocket icon!
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        - Precise Control:
+        - Course Correction:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Whether importing a batch or fixing a single entry, you have full
-          control over what hits your budget.
+          Click any <b>Actual</b> cell to see and manage individual transactions
+          instantly.
         </span>
       </p>
     </div>
