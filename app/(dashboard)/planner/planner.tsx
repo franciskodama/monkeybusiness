@@ -394,7 +394,7 @@ export default function Planner({
 
             {/* FUNDING BREAKDOWN MODAL */}
             <Dialog open={showFundingModal} onOpenChange={setShowFundingModal}>
-              <DialogContent className="max-w-sm rounded-none border-2 border-slate-900 p-0 overflow-hidden shadow-[8px_8px_0px_0px_rgba(15,23,42,1)]">
+              <DialogContent className="max-w-sm rounded-none border-2 border-slate-900 p-0 overflow-hidden shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] [&>button:last-child]:text-white">
                 <DialogHeader className="bg-slate-900 p-4 border-b border-slate-800">
                   <DialogTitle className="text-white text-[12px] uppercase font-black tracking-widest flex items-center gap-2">
                     <Award size={14} className="text-emerald-400" />
@@ -409,17 +409,35 @@ export default function Planner({
                       Forecast Targets
                     </p>
                     <div className="flex justify-between items-center group">
-                      <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                        HIS Target
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
+                          HIS Target
+                        </span>
+                        <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-cyan-50 group-hover:text-cyan-600 group-hover:border-cyan-100 transition-all">
+                          {Math.round(
+                            (hisPlannedIncome / (totalPlannedFunding || 1)) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </div>
                       <span className="font-mono font-black text-slate-900">
                         ${formatCurrency(hisPlannedIncome)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center group">
-                      <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                        HER Target
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
+                          HER Target
+                        </span>
+                        <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-all">
+                          {Math.round(
+                            (herPlannedIncome / (totalPlannedFunding || 1)) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </div>
                       <span className="font-mono font-black text-slate-900">
                         ${formatCurrency(herPlannedIncome)}
                       </span>
@@ -427,9 +445,20 @@ export default function Planner({
                     {totalPlannedFunding >
                       hisPlannedIncome + herPlannedIncome && (
                       <div className="flex justify-between items-center group">
-                        <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors italic">
-                          Other / Mutual
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors italic">
+                            Other / Mutual
+                          </span>
+                          <span className="text-[9px] font-mono font-black text-slate-300 bg-slate-50/50 border border-slate-100/50 px-1.5 py-0.5 rounded-sm">
+                            {Math.round(
+                              ((totalPlannedFunding -
+                                (hisPlannedIncome + herPlannedIncome)) /
+                                (totalPlannedFunding || 1)) *
+                                100
+                            )}
+                            %
+                          </span>
+                        </div>
                         <span className="font-mono font-black text-slate-400">
                           $
                           {formatCurrency(
@@ -451,23 +480,59 @@ export default function Planner({
 
                   {/* Realized Funding */}
                   <div className="p-4 bg-emerald-50 border-2 border-emerald-100/50">
-                    <div className="flex justify-between items-center mb-1">
+                    <div className="flex justify-between items-center mb-4">
                       <p className="text-[10px] uppercase font-black tracking-[0.2em] text-emerald-800">
-                        Total Arrived
+                        Realized Funding
                       </p>
                       <div className="bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 font-black uppercase rounded-sm">
                         Captured
                       </div>
                     </div>
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-2xl font-mono font-black text-emerald-600">
-                        ${formatCurrency(displayFunding)}
-                      </span>
-                      <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">
-                        to the pool
-                      </span>
+
+                    <div className="space-y-2 mb-6 border-b border-emerald-100 pb-4">
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                          <span className="text-[10px] font-bold text-emerald-900/60 uppercase tracking-widest">
+                            HIS Contribution
+                          </span>
+                          <span className="text-[8px] font-mono font-black text-white bg-cyan-500 px-1 py-0.5 rounded-sm">
+                            {Math.round(
+                              (stats.hisActual / (displayFunding || 1)) * 100
+                            )}
+                            %
+                          </span>
+                        </div>
+                        <span className="font-mono font-black text-emerald-900 text-xs">
+                          ${formatCurrency(stats.hisActual)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                          <span className="text-[10px] font-bold text-emerald-900/60 uppercase tracking-widest">
+                            HER Contribution
+                          </span>
+                          <span className="text-[8px] font-mono font-black text-white bg-orange-500 px-1 py-0.5 rounded-sm">
+                            {Math.round(
+                              (stats.herActual / (displayFunding || 1)) * 100
+                            )}
+                            %
+                          </span>
+                        </div>
+                        <span className="font-mono font-black text-emerald-900 text-xs">
+                          ${formatCurrency(stats.herActual)}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-[9px] font-bold text-emerald-600/70 mt-2 italic leading-relaxed">
+
+                    <p className="text-2xl font-mono font-black text-emerald-600 mb-1">
+                      ${formatCurrency(displayFunding)}
+                    </p>
+                    <p className="text-[10px] uppercase font-black tracking-[0.2em] text-emerald-800/60 mb-1">
+                      Total Arrived to the pool
+                    </p>
+                    <p className="text-[10px] font-bold text-emerald-600/70 mt-2 italic leading-relaxed">
                       Combined effort from HIS and HER already registered in
                       current transactions.
                     </p>
