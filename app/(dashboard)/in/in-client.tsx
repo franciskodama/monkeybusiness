@@ -188,6 +188,7 @@ export default function InClient({
           label="Strategic Efficiency"
           value={`${avgEfficiency.toFixed(1)}%`}
           subValue="Year-to-Date Average"
+          explanation="Calculates your overall income-to-living expense health. A high score means your earnings are being managed with precision, leaving more room for wealth building."
           icon={Target}
           color="emerald"
           trend={{ value: 4, isPositive: true }}
@@ -196,6 +197,7 @@ export default function InClient({
           label="Wealth Velocity"
           value={`${savingsVelocity.toFixed(1)}%`}
           subValue="Savings / Effort Ratio"
+          explanation="The ratio of investments to contributions. Tracks how fast your capital is moving toward the goal. 30% or more is considered High Velocity."
           icon={TrendingUp}
           color="blue"
         />
@@ -207,6 +209,7 @@ export default function InClient({
               ? `${burnDiff.toFixed(1)}% above average`
               : `${Math.abs(burnDiff).toFixed(1)}% below average`
           }
+          explanation="Compares this month's total living expenses to your historical year-to-date average. Helps you spot spend-creep early."
           icon={Flame}
           color={burnDiff > 10 ? 'rose' : 'slate'}
           trend={{
@@ -218,6 +221,7 @@ export default function InClient({
           label="System Health"
           value={pendingCount}
           subValue={pendingCount > 0 ? 'Pending Tasks' : 'All Tasks Mapped'}
+          explanation="Ensures all imported transactions are mapped to categories. When this is 0, your strategic data is 100% accurate."
           icon={ShieldAlert}
           color={pendingCount > 0 ? 'amber' : 'emerald'}
         />
@@ -234,7 +238,7 @@ export default function InClient({
       {/* CENTER PIECE: ANNUAL PERFORMANCE MAP */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-8 space-y-6">
-          <div className="bg-white border-2 border-slate-900 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)] relative overflow-hidden">
+          <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)] relative overflow-hidden">
             <div className="flex justify-between items-center mb-10 border-b border-slate-100 pb-6">
               <div className="flex items-center gap-4">
                 <div className="p-2 bg-slate-100 border border-slate-200">

@@ -1,13 +1,12 @@
-'use client';
-
-import React from 'react';
-import { motion } from 'framer-motion';
-import { LucideIcon } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { LucideIcon, HelpCircle, X } from 'lucide-react';
 
 interface DashboardMetricProps {
   label: string;
   value: string | number;
   subValue?: string;
+  explanation?: string;
   icon: LucideIcon;
   color: 'emerald' | 'blue' | 'rose' | 'amber' | 'slate';
   trend?: {
@@ -20,10 +19,12 @@ export function DashboardMetric({
   label,
   value,
   subValue,
+  explanation,
   icon: Icon,
   color,
   trend
 }: DashboardMetricProps) {
+  const [showInfo, setShowInfo] = useState(false);
   const colorStyles = {
     emerald: {
       bg: 'bg-emerald-50',
@@ -71,7 +72,8 @@ export function DashboardMetric({
 
   return (
     <div
-      className={`p-6 border-2 flex flex-col justify-between h-full bg-white ${style.border} ${style.shadow} group transition-all hover:bg-slate-50`}
+      onClick={() => explanation && setShowInfo(!showInfo)}
+      className={`p-6 border-2 flex flex-col justify-between h-full bg-white ${style.border} ${style.shadow} group transition-all hover:bg-slate-50 relative overflow-hidden ${explanation ? 'cursor-help' : ''}`}
     >
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
@@ -80,13 +82,21 @@ export function DashboardMetric({
             {label}
           </span>
         </div>
-        {trend && (
-          <div
-            className={`text-md font-black px-1.5 py-0.5 ${trend.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}
-          >
-            {trend.isPositive ? '↑' : '↓'} {trend.value}%
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {trend && (
+            <div
+              className={`text-md font-black px-1.5 py-0.5 ${trend.isPositive ? 'text-emerald-600' : 'text-rose-600'}`}
+            >
+              {trend.isPositive ? '↑' : '↓'} {trend.value}%
+            </div>
+          )}
+          {explanation && (
+            <HelpCircle
+              size={14}
+              className={`text-slate-300 group-hover:text-primary transition-colors ${showInfo ? 'text-primary' : ''}`}
+            />
+          )}
+        </div>
       </div>
 
       <div className="space-y-1">
@@ -102,8 +112,8 @@ export function DashboardMetric({
         )}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between">
-        <div className={`h-1 flex-1 ${style.bg} relative overflow-hidden`}>
+      <div className="mt-4 pt-4 border-t border-slate-100 mb-2">
+        <div className={`h-1 w-full ${style.bg} relative overflow-hidden`}>
           <motion.div
             initial={{ width: 0 }}
             animate={{ width: '60%' }}
@@ -111,6 +121,35 @@ export function DashboardMetric({
           />
         </div>
       </div>
+
+      <AnimatePresence>
+        {showInfo && explanation && (
+          <motion.div
+            initial={{ height: 0, opacity: 0, marginTop: 0 }}
+            animate={{ height: 'auto', opacity: 1, marginTop: 16 }}
+            exit={{ height: 0, opacity: 0, marginTop: 0 }}
+            className="overflow-hidden"
+          >
+            <div
+              className={`p-3 border-2 ${style.border} ${style.bg} relative`}
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <HelpCircle size={10} className={style.icon} />
+                <span
+                  className={`text-[9px] font-black uppercase tracking-widest ${style.text}`}
+                >
+                  Definition
+                </span>
+              </div>
+              <p
+                className={`text-sm font-semibold leading-relaxed ${style.text} opacity-80`}
+              >
+                {explanation}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
