@@ -24,25 +24,26 @@ export default function ExplanationYearly({
   const contentTwo = (
     <div className="space-y-3 text-primary">
       <p className="font-bold uppercase tracking-wider">
-        1. Net Cash Flow:
+        1. Performance Index:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          The <b>Slate Row</b> shows your monthly survivability (Income -
-          Expenses). A positive number means you added to your pool that month.
+          The sidebar summarizes your <b>Savings Rate</b> (YTD speed) and{' '}
+          <b>Living Efficiency</b> (capacity to stay in budget) for all months
+          so far.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        2. Savings Rate:
+        2. Yearly Settlement:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          The <b>Emerald Row</b> is your efficiency score. It shows what
-          percentage of your total income was actually saved after all burn.
+          The <b>Final Balance</b> calculates your Forecast vs Reality. Watch
+          for the "Plan Deficit" warning if your annual target expenses exceed
+          your income.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        3. Source Breakdown:
+        3. Master Efficiency:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          At the bottom, we break down total spending by <b>His</b>, <b>Her</b>,
-          and <b>Family</b>. Perfect for seeing who is driving the burn in
-          specific periods.
+          Maintain a 30%+ annual savings rate to unlock the <b>Chess King 👑</b>{' '}
+          status—the mark of world-class long-term financial management.
         </span>
       </p>
     </div>
@@ -51,24 +52,26 @@ export default function ExplanationYearly({
   const contentThree = (
     <div className="space-y-3 text-primary">
       <p className="font-bold uppercase tracking-wider">
-        - Interactive Details:
-        <span className="font-normal block normal-case tracking-normal mt-1">
-          Click any cell with a value to see the specific transactions that make
-          up that amount for that specific month.
-        </span>
-      </p>
-      <p className="font-bold uppercase tracking-wider">
-        - Year-To-Date (YTD):
+        - Total YTD:
         <span className="font-normal block normal-case tracking-normal mt-1">
           The rightmost column gives you the <b>Total sum</b> for every single
           item across the whole year—perfect for tax season or annual reviews.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
-        - Consistent Logic:
+        - Interactive Details:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          The colors and names match your Planner exactly. Any change you make
-          there (like renaming a category) updates here instantly.
+          Click any cell with a value to see the transactions.{' '}
+          <b>Need a definition?</b> Click any metric label on the sidebar for a
+          deep dive.
+        </span>
+      </p>
+      <p className="font-bold uppercase tracking-wider">
+        - Annual Status Badge:
+        <span className="font-normal block normal-case tracking-normal mt-1">
+          As you fix the past or adjust future forecasts, your{' '}
+          <b>Status Badge</b> and <b>Final Settlement</b> update to reflect your
+          new annual trajectory.
         </span>
       </p>
     </div>

@@ -818,6 +818,7 @@ export default function Planner({
           <MonthSettlement
             transactions={allTransactions}
             brlRate={brlRate}
+            month={selectedMonth}
             onSourceClick={(source, txs) =>
               setSelectedDetails({
                 name: `${source} Activity`,

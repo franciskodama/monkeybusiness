@@ -1,7 +1,15 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { CheckCircle2, Plus, X } from 'lucide-react';
+import {
+  AlarmClockCheck,
+  CheckCircle2,
+  CheckLine,
+  ListCheck,
+  Plus,
+  Ribbon,
+  X
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,71 +86,10 @@ export function SignalsRibbon({
   };
 
   return (
-    <div className="w-full flex items-center gap-4 bg-slate-50 border-y border-slate-200 py-3 px-6 relative overflow-hidden group">
-      <div className="flex items-center gap-3 shrink-0 pr-4 border-r border-slate-200">
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              size="icon"
-              className="h-7 w-7 rounded-none bg-primary text-white hover:bg-primary/90"
-            >
-              <Plus size={14} />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            className="w-80 p-4 rounded-none border-slate-300 shadow-xl"
-            align="start"
-          >
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  New Signal
-                </h5>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <X size={14} />
-                </Button>
-              </div>
-              <Input
-                placeholder="What's the mission?"
-                className="h-9 text-xs rounded-none border-slate-200"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <Select value={targetUserId} onValueChange={setTargetUserId}>
-                  <SelectTrigger className="grow h-9 text-[10px] uppercase font-bold rounded-none">
-                    <SelectValue placeholder="Assign To" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {householdUsers.map((u) => (
-                      <SelectItem
-                        key={u.uid}
-                        value={u.uid}
-                        className="uppercase text-[10px] font-bold"
-                      >
-                        {u.name.split(' ')[0]}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button
-                  onClick={handleAdd}
-                  disabled={isAdding || !text}
-                  className="h-9 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase px-4"
-                >
-                  {isAdding ? 'SND...' : 'Send'}
-                </Button>
-              </div>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+    <div className="flex items-center gap-4 w-full bg-slate-50 border-y border-slate-200 py-3 px-6 relative overflow-hidden group">
+      <p className="text-[10px] mr-2 leading-2 font-black uppercase text-slate-500 tracking-widest">
+        <Ribbon size={32} strokeWidth={1.6} className="text-slate-900" />
+      </p>
 
       {/* The Scrollable Feed */}
       <div
@@ -221,6 +168,71 @@ export function SignalsRibbon({
             })
           )}
         </AnimatePresence>
+
+        <div className="shrink-0 flex items-center pr-10">
+          <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                size="icon"
+                className="h-7 w-7 rounded-none bg-primary text-white hover:bg-primary/90 shadow-sm"
+              >
+                <Plus size={14} />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-80 p-4 rounded-none border-slate-300 shadow-xl"
+              align="start"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h5 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                    New Signal
+                  </h5>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <X size={14} />
+                  </Button>
+                </div>
+                <Input
+                  placeholder="What's the mission?"
+                  className="h-9 text-xs rounded-none border-slate-200"
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  autoFocus
+                />
+                <div className="flex gap-2">
+                  <Select value={targetUserId} onValueChange={setTargetUserId}>
+                    <SelectTrigger className="grow h-9 text-[10px] uppercase font-bold rounded-none">
+                      <SelectValue placeholder="Assign To" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {householdUsers.map((u) => (
+                        <SelectItem
+                          key={u.uid}
+                          value={u.uid}
+                          className="uppercase text-[10px] font-bold"
+                        >
+                          {u.name.split(' ')[0]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    onClick={handleAdd}
+                    disabled={isAdding || !text}
+                    className="h-9 rounded-none bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] uppercase px-4"
+                  >
+                    {isAdding ? 'SND...' : 'Send'}
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       {/* Visual Indicator of more items (fade) */}

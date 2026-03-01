@@ -1,6 +1,18 @@
 'use client';
 
 import React, { useState } from 'react';
+import {
+  Info,
+  Award,
+  AlertCircle,
+  ChessKing,
+  TrendingUp,
+  X,
+  Target,
+  Minus
+} from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+
 import { Category } from '@prisma/client';
 import {
   getColorCode,
@@ -14,20 +26,8 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import {
-  Info,
-  Landmark,
-  Scale,
-  Award,
-  TrendingUp,
-  Target,
-  Plus,
-  Minus,
-  Equal
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AnimatePresence, motion } from 'framer-motion';
 import Help from '@/components/Help';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ExplanationYearly from './explanation-yearly';
 
 interface YearlyTableProps {
@@ -46,6 +46,74 @@ export function YearlyTable({
     month: number;
     transactions: any[];
   } | null>(null);
+
+  const [activeMetric, setActiveMetric] = useState<string | null>(null);
+
+  const metricExplanations: Record<
+    string,
+    { label: string; desc: string; icon: any }
+  > = {
+    savingsRate: {
+      label: 'Savings Rate',
+      desc: 'Annualized percentage of effort assigned to investments. Tracks wealth building consistency over the year.',
+      icon: TrendingUp
+    },
+    efficiency: {
+      label: 'Living Efficiency',
+      desc: 'Measures how well you are staying within the pool budget across all months so far.',
+      icon: Target
+    },
+    burn: {
+      label: 'YTD Burn',
+      desc: 'The cumulative total of all living expenses paid from the family pool since January.',
+      icon: Minus
+    },
+    settlement: {
+      label: 'Final Settlement',
+      desc: 'The net result of all year-to-date income versus all spending and saving missions.',
+      icon: Target
+    },
+    status: {
+      label: 'Annual Efficiency Status',
+      desc: 'Master Efficiency is awarded when your investment speed and living costs are perfectly optimized at an annual scale. Stable Growth means your velocity is active.',
+      icon: ChessKing
+    }
+  };
+
+  const MetricTooltip = ({ metric }: { metric: string }) => (
+    <AnimatePresence>
+      {activeMetric === metric && metricExplanations[metric] && (
+        <motion.div
+          initial={{ opacity: 0, height: 0, marginTop: 0 }}
+          animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+          exit={{ opacity: 0, height: 0, marginTop: 0 }}
+          className="bg-slate-900 border-2 border-slate-700 p-4 relative shadow-[4px_4px_0px_rgba(30,41,59,1)] mb-4"
+        >
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveMetric(null);
+            }}
+            className="absolute top-2 right-2 text-slate-500 hover:text-white"
+          >
+            <X size={12} />
+          </button>
+          <div className="flex items-center gap-2 mb-2">
+            {React.createElement(metricExplanations[metric].icon, {
+              size: 10,
+              className: 'text-slate-400'
+            })}
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+              Annual Definition / {metricExplanations[metric].label}
+            </span>
+          </div>
+          <p className="text-[10px] leading-relaxed text-slate-300 font-bold">
+            {metricExplanations[metric].desc}
+          </p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
@@ -734,84 +802,252 @@ export function YearlyTable({
 
         {/* YEARLY SETTLEMENT SUMMARY */}
         <div className="mt-16 border-t pt-12">
-          <div className="flex items-center gap-3 mb-20">
-            <div className="p-2.5 bg-slate-900 rounded-none">
-              <Scale size={20} className="text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black uppercase tracking-tight">
-                Yearly Settlement
-              </h3>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
-                Aggregated Financial Logic (YTD + Forecast)
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
             {/* Logic Rows */}
-            <div className="lg:col-span-9 space-y-12">
-              {/* 1 - FORECAST */}
-              <section>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
-                    1
-                  </div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    Forecast / Annual Plan
-                  </h4>
+            <div className="lg:col-span-9 space-y-20">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-slate-900 rounded-none">
+                  <ChessKing size={20} className="text-white" />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      Total Effort
-                    </span>
-                    <span className="text-xl font-mono font-black text-slate-900">
-                      ${formatCurrency(settlement.forecast.effort)}
-                    </span>
-                  </div>
-                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      Total Expenses
-                    </span>
-                    <span className="text-xl font-mono font-black text-slate-900">
-                      ${formatCurrency(settlement.forecast.expenses)}
-                    </span>
-                  </div>
-                  <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                    <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-                      Total Investments
-                    </span>
-                    <span className="text-xl font-mono font-black text-slate-900">
-                      ${formatCurrency(settlement.forecast.investments)}
-                    </span>
-                  </div>
+                <div>
+                  <h3 className="text-lg font-black uppercase tracking-tight">
+                    Yearly Settlement
+                  </h3>
+                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                    Aggregated Financial Logic (YTD + Forecast)
+                  </p>
                 </div>
-              </section>
+              </div>
 
-              {/* 2 - REALITY */}
-              <section>
-                <div className="flex items-center gap-2 mb-6">
-                  <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
-                    2
+              <div className="space-y-12">
+                {/* 1 - FORECAST */}
+                <section>
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                      1
+                    </div>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                      Forecast / Annual Plan
+                    </h4>
                   </div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">
-                    Reality / Year-To-Date
-                  </h4>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
-                    <div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
-                        His Contribution
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                        Total Effort
                       </span>
-                      <span className="text-2xl font-mono font-black text-cyan-900">
-                        ${formatCurrency(settlement.reality.hisActual)}
+                      <span className="text-xl font-mono font-black text-slate-900">
+                        ${formatCurrency(settlement.forecast.effort)}
                       </span>
                     </div>
-                    <div className="text-right">
-                      <span className="text-sm text-cyan-600 font-black">
+                    <div className="flex flex-col gap-2 h-full">
+                      <div
+                        className={`p-6 border-2 flex flex-col gap-1 flex-1 transition-colors duration-500 shadow-[4px_4px_0px_rgba(241,245,249,1)] ${
+                          settlement.forecast.expenses >
+                          settlement.forecast.effort
+                            ? 'bg-rose-50 border-rose-200 shadow-[4px_4px_0px_rgba(251,113,133,0.1)]'
+                            : 'bg-white border-slate-100'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span
+                            className={`text-[9px] font-black uppercase tracking-widest ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-600' : 'text-slate-400'}`}
+                          >
+                            Total Expenses
+                          </span>
+                          {settlement.forecast.expenses >
+                            settlement.forecast.effort && (
+                            <AlertCircle size={12} className="text-rose-500" />
+                          )}
+                        </div>
+                        <span
+                          className={`text-xl font-mono font-black ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-900' : 'text-slate-900'}`}
+                        >
+                          ${formatCurrency(settlement.forecast.expenses)}
+                        </span>
+                      </div>
+                      {settlement.forecast.expenses >
+                        settlement.forecast.effort && (
+                        <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                          <AlertCircle size={10} className="text-white" />
+                          <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                            Plan Deficit Warning
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
+                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                        Total Investments
+                      </span>
+                      <span className="text-xl font-mono font-black text-slate-900">
+                        ${formatCurrency(settlement.forecast.investments)}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+
+                {/* 2 - REALITY */}
+                <section>
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                      2
+                    </div>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">
+                      Reality / Year-To-Date
+                    </h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
+                      <div>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
+                          His Contribution
+                        </span>
+                        <span className="text-2xl font-mono font-black text-cyan-900">
+                          ${formatCurrency(settlement.reality.hisActual)}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sm text-cyan-600 font-black">
+                          {Math.round(
+                            (settlement.reality.hisActual /
+                              (settlement.reality.effort || 1)) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
+                      <div>
+                        <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
+                          Her Contribution
+                        </span>
+                        <span className="text-2xl font-mono font-black text-orange-900">
+                          ${formatCurrency(settlement.reality.herActual)}
+                        </span>
+                      </div>
+                      <div className="text-right">
+                        <span className="text-sm text-orange-600 font-semibold">
+                          {Math.round(
+                            (settlement.reality.herActual /
+                              (settlement.reality.effort || 1)) *
+                              100
+                          )}
+                          %
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-6 bg-emerald-50 border-2 border-emerald-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(209,250,229,1)]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-1.5 h-1.5 bg-emerald-400" />
+                        <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700">
+                          Total Effort
+                        </span>
+                      </div>
+                      <span className="text-xl font-mono font-black text-emerald-900">
+                        ${formatCurrency(settlement.reality.effort)}
+                      </span>
+                    </div>
+                    <div className="flex flex-col gap-2 h-full">
+                      <div
+                        className={`p-6 border-2 flex flex-col gap-1 flex-1 transition-colors duration-500 shadow-[4px_4px_0px_rgba(241,245,249,1)] ${
+                          settlement.reality.expenses >
+                          settlement.reality.effort
+                            ? 'bg-rose-50 border-rose-200 shadow-[4px_4px_0px_rgba(251,113,133,0.1)]'
+                            : 'bg-white border-slate-100'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div
+                              className={`w-1.5 h-1.5 ${settlement.reality.expenses > settlement.reality.effort ? 'bg-rose-400' : 'bg-slate-300'}`}
+                            />
+                            <span
+                              className={`text-[9px] font-black uppercase tracking-widest ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-700' : 'text-slate-400'}`}
+                            >
+                              Total Expenses
+                            </span>
+                          </div>
+                          {settlement.reality.expenses >
+                            settlement.reality.effort && (
+                            <AlertCircle size={12} className="text-rose-500" />
+                          )}
+                        </div>
+                        <span
+                          className={`text-xl font-mono font-black ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-900' : 'text-slate-900'}`}
+                        >
+                          ${formatCurrency(settlement.reality.expenses)}
+                        </span>
+                      </div>
+                      {settlement.reality.expenses >
+                        settlement.reality.effort && (
+                        <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
+                          <AlertCircle size={10} className="text-white" />
+                          <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                            Reality Deficit Warning
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6 bg-blue-50 border-2 border-blue-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(239,246,255,1)]">
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="w-1.5 h-1.5 bg-blue-400" />
+                        <span className="text-[9px] font-black uppercase tracking-widest text-blue-700">
+                          Total Investments
+                        </span>
+                      </div>
+                      <span className="text-xl font-mono font-black text-blue-900">
+                        ${formatCurrency(settlement.reality.investments)}
+                      </span>
+                    </div>
+                  </div>
+                </section>
+              </div>
+            </div>
+
+            {/* Final Balance Sidebar */}
+            <div className="lg:col-span-3 h-full">
+              <div className="bg-slate-900 rounded-none p-8 text-white border-2 border-slate-800 h-full flex flex-col justify-between shadow-[6px_6px_0px_rgba(15,23,42,0.3)] min-h-[600px]">
+                <div className="space-y-12">
+                  {/* Yearly Header */}
+                  <div className="border-b-2 border-slate-700 pb-8 -mx-2">
+                    <span className="text-[10px] uppercase font-black tracking-[0.4em] text-emerald-500 block mb-1">
+                      Annual Settlement
+                    </span>
+                    <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
+                      2026
+                    </h2>
+                  </div>
+
+                  {/* 1. Score: Yearly Effort */}
+                  <div>
+                    <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
+                      Yearly Effort
+                    </span>
+                    <div className="space-y-1">
+                      <div className="flex items-end gap-2">
+                        <span className="text-3xl font-mono font-black text-emerald-400">
+                          ${formatCurrency(settlement.reality.effort)}
+                        </span>
+                        <span className="text-xs font-bold text-slate-500 mb-1.5 underline decoration-emerald-500/30 font-mono">
+                          YTD
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-2 leading-relaxed uppercase font-bold tracking-widest">
+                        Total Year-To-Date Reality
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 2. Annual Funding Split Bar */}
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
+                      <span>
+                        His{' '}
                         {Math.round(
                           (settlement.reality.hisActual /
                             (settlement.reality.effort || 1)) *
@@ -819,19 +1055,8 @@ export function YearlyTable({
                         )}
                         %
                       </span>
-                    </div>
-                  </div>
-                  <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
-                    <div>
-                      <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
-                        Her Contribution
-                      </span>
-                      <span className="text-2xl font-mono font-black text-orange-900">
-                        ${formatCurrency(settlement.reality.herActual)}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-sm text-orange-600 font-semibold">
+                      <span>
+                        Her{' '}
                         {Math.round(
                           (settlement.reality.herActual /
                             (settlement.reality.effort || 1)) *
@@ -840,74 +1065,47 @@ export function YearlyTable({
                         %
                       </span>
                     </div>
+                    <div className="h-1.5 w-full bg-slate-800 flex rounded-none overflow-hidden">
+                      <div
+                        className="h-full bg-cyan-500 transition-all duration-1000"
+                        style={{
+                          width: `${(settlement.reality.hisActual / (settlement.reality.effort || 1)) * 100}%`
+                        }}
+                      />
+                      <div
+                        className="h-full bg-orange-500 transition-all duration-1000"
+                        style={{
+                          width: `${(settlement.reality.herActual / (settlement.reality.effort || 1)) * 100}%`
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="p-6 bg-emerald-50 border-2 border-emerald-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(209,250,229,1)]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1.5 h-1.5 bg-emerald-400" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700">
-                        Total Effort
-                      </span>
-                    </div>
-                    <span className="text-xl font-mono font-black text-emerald-900">
-                      ${formatCurrency(settlement.reality.effort)}
+                  {/* 3. Annual Performance Index Table */}
+                  <div className="space-y-4 pt-4 border-t border-slate-800/50">
+                    <span className="text-[9px] uppercase font-black tracking-widest text-slate-600">
+                      Performance Index
                     </span>
-                  </div>
-                  <div className="p-6 bg-rose-50 border-2 border-rose-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(255,241,242,1)]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1.5 h-1.5 bg-rose-400" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-rose-700">
-                        Total Expenses
-                      </span>
-                    </div>
-                    <span className="text-xl font-mono font-black text-rose-900">
-                      ${formatCurrency(settlement.reality.expenses)}
-                    </span>
-                  </div>
-                  <div className="p-6 bg-blue-50 border-2 border-blue-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(239,246,255,1)]">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="w-1.5 h-1.5 bg-blue-400" />
-                      <span className="text-[9px] font-black uppercase tracking-widest text-blue-700">
-                        Total Investments
-                      </span>
-                    </div>
-                    <span className="text-xl font-mono font-black text-blue-900">
-                      ${formatCurrency(settlement.reality.investments)}
-                    </span>
-                  </div>
-                </div>
-              </section>
-            </div>
-
-            {/* Final Balance Sidebar */}
-            <div className="lg:col-span-3">
-              <div className="bg-slate-900 rounded-none p-8 text-white shadow-xl border-2 border-slate-800 h-full flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
-                    Annual Result
-                  </span>
-                  <div className="space-y-6">
-                    <div>
-                      <span
-                        className={`text-4xl font-mono font-black block ${settlement.finalBalance < 0 ? 'text-rose-500' : 'text-emerald-400'}`}
+                    <div className="space-y-4">
+                      <div
+                        onClick={() =>
+                          setActiveMetric(
+                            activeMetric === 'savingsRate'
+                              ? null
+                              : 'savingsRate'
+                          )
+                        }
+                        className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'savingsRate' ? 'bg-white/10' : 'hover:bg-white/5'}`}
                       >
-                        ${formatCurrency(settlement.finalBalance)}
-                      </span>
-                      <p className="text-[10px] text-slate-500 mt-2 leading-relaxed uppercase font-bold">
-                        {settlement.finalBalance < 0
-                          ? 'Negative Year Projection'
-                          : 'Positive Year Projection'}
-                      </p>
-                    </div>
-
-                    <div className="pt-6 border-t border-slate-800 space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] uppercase font-bold text-slate-500">
-                          Savings Rate
-                        </span>
-                        <span className="font-mono text-sm text-emerald-400">
+                        <div className="flex items-center gap-2 text-slate-400 group-hover:text-emerald-400 transition-colors">
+                          <div
+                            className={`w-1 h-1 transition-all ${activeMetric === 'savingsRate' ? 'bg-emerald-400 scale-150' : 'bg-emerald-500'}`}
+                          />
+                          <span className="text-[10px] font-bold uppercase transition-all">
+                            Savings Rate
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm font-black text-emerald-400">
                           {settlement.reality.effort > 0
                             ? (
                                 (settlement.reality.investments /
@@ -918,11 +1116,25 @@ export function YearlyTable({
                           %
                         </span>
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-[9px] uppercase font-bold text-slate-500">
-                          Living Efficiency
-                        </span>
-                        <span className="font-mono text-sm text-blue-400">
+                      <MetricTooltip metric="savingsRate" />
+
+                      <div
+                        onClick={() =>
+                          setActiveMetric(
+                            activeMetric === 'efficiency' ? null : 'efficiency'
+                          )
+                        }
+                        className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'efficiency' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                      >
+                        <div className="flex items-center gap-2 text-slate-400 group-hover:text-blue-400 transition-colors">
+                          <div
+                            className={`w-1 h-1 transition-all ${activeMetric === 'efficiency' ? 'bg-blue-400 scale-150' : 'bg-blue-500'}`}
+                          />
+                          <span className="text-[10px] font-bold uppercase transition-all">
+                            Living Efficiency
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm font-black text-blue-400">
                           {settlement.reality.effort > 0
                             ? (
                                 (1 -
@@ -934,14 +1146,99 @@ export function YearlyTable({
                           %
                         </span>
                       </div>
+                      <MetricTooltip metric="efficiency" />
+
+                      <div
+                        onClick={() =>
+                          setActiveMetric(
+                            activeMetric === 'burn' ? null : 'burn'
+                          )
+                        }
+                        className={`flex justify-between items-center group cursor-help transition-all p-1.5 -mx-1.5 border border-transparent hover:border-slate-800 ${activeMetric === 'burn' ? 'bg-white/10' : 'hover:bg-white/5'}`}
+                      >
+                        <div className="flex items-center gap-2 text-slate-400 group-hover:text-slate-100 transition-colors">
+                          <div
+                            className={`w-1 h-1 transition-all ${activeMetric === 'burn' ? 'bg-slate-100 scale-150' : 'bg-slate-500'}`}
+                          />
+                          <span className="text-[10px] font-bold uppercase transition-all">
+                            YTD Burn
+                          </span>
+                        </div>
+                        <span className="font-mono text-sm font-black text-slate-300">
+                          ${formatCurrency(settlement.reality.expenses)}
+                        </span>
+                      </div>
+                      <MetricTooltip metric="burn" />
                     </div>
                   </div>
+
+                  {/* 4. Final Balance Anchor */}
+                  <div
+                    onClick={() =>
+                      setActiveMetric(
+                        activeMetric === 'settlement' ? null : 'settlement'
+                      )
+                    }
+                    className={`p-6 rounded-none border-2 transition-all duration-1000 cursor-help ${
+                      settlement.finalBalance < 0
+                        ? 'bg-rose-500/5 border-rose-500/50'
+                        : 'bg-emerald-500/5 border-emerald-500/50'
+                    } ${activeMetric === 'settlement' ? 'ring-2 ring-slate-400 border-slate-400' : ''}`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
+                        Final Settlement
+                      </span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span
+                        className={`text-3xl font-mono font-black ${
+                          settlement.finalBalance < 0
+                            ? 'text-rose-500'
+                            : 'text-emerald-400'
+                        }`}
+                      >
+                        ${formatCurrency(settlement.finalBalance)}
+                      </span>
+                      <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
+                        {settlement.finalBalance < 0
+                          ? 'Deficit Year Projection'
+                          : 'Positive Year Projection'}
+                      </p>
+                    </div>
+                  </div>
+                  <MetricTooltip metric="settlement" />
                 </div>
 
-                <div className="mt-8 text-center bg-white/5 p-4 rounded-none border border-white/10">
-                  <p className="text-[9px] uppercase font-black text-slate-400 tracking-widest">
-                    Target: $0.00 Balance
-                  </p>
+                {/* 5. Annual Status Badge */}
+                <div className="mt-8 pt-6 border-t border-slate-800">
+                  <div
+                    onClick={() =>
+                      setActiveMetric(
+                        activeMetric === 'status' ? null : 'status'
+                      )
+                    }
+                    className={`p-3 border-2 flex items-center justify-center gap-3 group transition-all cursor-help ${activeMetric === 'status' ? 'bg-slate-800 border-slate-600' : 'bg-white/5 border-slate-800 hover:bg-slate-800'}`}
+                  >
+                    {settlement.reality.investments /
+                      (settlement.reality.effort || 1) >
+                    0.3 ? (
+                      <ChessKing
+                        size={14}
+                        className="text-emerald-400 group-hover:scale-125 transition-transform"
+                      />
+                    ) : (
+                      <TrendingUp size={14} className="text-slate-500" />
+                    )}
+                    <span className="text-[10px] uppercase font-black text-slate-300 tracking-[0.2em]">
+                      {settlement.reality.investments /
+                        (settlement.reality.effort || 1) >
+                      0.3
+                        ? 'Master Efficiency'
+                        : 'Consistency Build'}
+                    </span>
+                  </div>
+                  <MetricTooltip metric="status" />
                 </div>
               </div>
             </div>
