@@ -21,13 +21,19 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
   }, []);
 
   const currentMonth = new Date().getMonth() + 1;
+  const currentYear = new Date().getFullYear();
 
-  // 1. Extract transactions for the current month (EXCLUDING income categories)
+  // 1. Extract transactions for the YEAR-TO-DATE (EXCLUDING income categories)
   const transactions = subcategories
-    .filter((s) => s.month === currentMonth && !s.category?.isIncome)
+    .filter(
+      (s) =>
+        s.year === currentYear &&
+        s.month <= currentMonth &&
+        !s.category?.isIncome
+    )
     .flatMap((s) => s.transactions || []);
 
-  // 2. Calculate totals per source
+  // 2. Calculate totals per source (Accumulated YTD)
   const sourceData: Record<string, number> = {
     FAMILY: 0,
     HIS: 0,
@@ -56,7 +62,7 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
 
   const COLOR_MAP: Record<string, string> = {
     FAMILY: '#EF4444',
-    HIS: '#00FFFF',
+    HIS: '#22D3EE',
     HER: '#F97316'
   };
 
@@ -85,7 +91,7 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
             tick={{
               fontSize: 10,
               fontWeight: 900,
-              fill: '#0F172A',
+              fill: '#94A3B8',
               letterSpacing: '0.05em'
             }}
           />
@@ -95,7 +101,7 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
                 return (
-                  <div className="bg-white border border-slate-200 p-2 shadow-sm rounded-none">
+                  <div className="bg-white border border-slate-200 p-2 shadow-sm rounded-none text-slate-900">
                     <p className="text-[10px] font-black uppercase tracking-widest">
                       {data.name}
                     </p>
@@ -113,7 +119,7 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
             dataKey="percentage"
             radius={0}
             barSize={24}
-            background={{ fill: '#f1f5f9' }}
+            background={{ fill: '#1e293b' }}
           >
             {data.map((entry, index) => (
               <Cell
@@ -128,8 +134,9 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
               style={{
                 fontSize: '10px',
                 fontWeight: 'bold',
-                fill: '#0F172A',
-                fontFamily: 'monospace'
+                fill: '#FFFFFF',
+                fontFamily: 'monospace',
+                textShadow: '0px 0px 2px rgba(0,0,0,0.5)'
               }}
             />
           </Bar>

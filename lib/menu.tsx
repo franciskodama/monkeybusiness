@@ -11,10 +11,10 @@ export const menuItems = [
     label: 'Yearly Table',
     href: '/yearly',
     icon: <Table className="h-5 w-5" />
-  },
-  {
-    label: 'Chart',
-    href: '/chart',
-    icon: <BarChart className="h-5 w-5" />
   }
+  // {
+  //   label: 'Chart',
+  //   href: '/chart',
+  //   icon: <BarChart className="h-5 w-5" />
+  // }
 ];

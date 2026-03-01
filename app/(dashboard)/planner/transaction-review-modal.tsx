@@ -196,7 +196,7 @@ export function TransactionReviewModal({
                         }}
                       >
                         <SelectTrigger className="h-9 text-[10px] flex-1 bg-white rounded-none border-slate-300 uppercase font-bold tracking-wider">
-                          <SelectValue placeholder="SELECT CATEGORY..." />
+                          <SelectValue placeholder="SELECT SUBCATEGORY..." />
                         </SelectTrigger>
                         <SelectContent
                           position="popper"
@@ -204,14 +204,26 @@ export function TransactionReviewModal({
                         >
                           {filteredSubcategories.length > 0 ? (
                             filteredSubcategories
-                              .sort((a, b) => a.name.localeCompare(b.name))
+                              .sort((a, b) => {
+                                // Sort by category first, then by subcategory name
+                                const catComp = (
+                                  a.category?.name || ''
+                                ).localeCompare(b.category?.name || '');
+                                if (catComp !== 0) return catComp;
+                                return a.name.localeCompare(b.name);
+                              })
                               .map((item) => (
                                 <SelectItem
                                   key={item.id}
                                   value={item.id}
                                   className="rounded-none text-[10px] uppercase font-black"
                                 >
-                                  {item.name}
+                                  <div className="flex items-center gap-2">
+                                    <span>{item.name}</span>
+                                    <span className="text-[9px] text-slate-400 font-bold">
+                                      / {item.category?.name}
+                                    </span>
+                                  </div>
                                 </SelectItem>
                               ))
                           ) : (
