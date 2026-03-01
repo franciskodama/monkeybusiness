@@ -573,7 +573,7 @@ export default function InClient({
           <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)] relative overflow-hidden">
             <div className="flex justify-between items-center mb-10 border-b border-slate-100 pb-6">
               <div className="flex items-center gap-4">
-                <div className="p-2">
+                <div className="py-2 pr-2">
                   <ChartColumn
                     size={32}
                     strokeWidth={1.6}
