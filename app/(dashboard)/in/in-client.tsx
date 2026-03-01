@@ -7,11 +7,12 @@ import {
   Target,
   TrendingUp,
   Flame,
-  ShieldAlert,
   ArrowUpRight,
   Activity,
   Calendar,
-  ChartColumn
+  ChartColumn,
+  ShieldAlert,
+  X
 } from 'lucide-react';
 import Help from '@/components/Help';
 import ExplanationIn from './explanation-in';
@@ -42,6 +43,8 @@ export default function InClient({
   householdId
 }: InClientProps) {
   const [openAction, setOpenAction] = useState(false);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
+  const [showLogic, setShowLogic] = useState(false);
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
@@ -53,7 +56,7 @@ export default function InClient({
   const monthlyEfficiencies = ytdMonths.map((m) => {
     const monthSubs = subcategories.filter((s) => s.month === m);
     const contribution = monthSubs.reduce(
-      (sum, s) =>
+      (sum: number, s: any) =>
         sum +
         (s.transactions || [])
           .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
@@ -63,7 +66,7 @@ export default function InClient({
     const expenses = monthSubs
       .filter((s) => !s.category?.isIncome && !s.category?.isSavings)
       .reduce(
-        (sum, s) =>
+        (sum: number, s: any) =>
           sum +
           (s.transactions || []).reduce(
             (ts: number, t: any) => ts + (t.amount || 0),
@@ -80,7 +83,7 @@ export default function InClient({
   const totalYtdContribution = subcategories
     .filter((s) => s.month <= currentMonth)
     .reduce(
-      (sum, s) =>
+      (sum: number, s: any) =>
         sum +
         (s.transactions || [])
           .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
@@ -90,7 +93,7 @@ export default function InClient({
   const totalYtdSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
     .reduce(
-      (sum, s) =>
+      (sum: number, s: any) =>
         sum +
         (s.transactions || []).reduce(
           (ts: number, t: any) => ts + (t.amount || 0),
@@ -112,7 +115,7 @@ export default function InClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum, s) =>
+      (sum: number, s: any) =>
         sum +
         (s.transactions || []).reduce(
           (ts: number, t: any) => ts + (t.amount || 0),
@@ -128,7 +131,7 @@ export default function InClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum, s) =>
+      (sum: number, s: any) =>
         sum +
         (s.transactions || []).reduce(
           (ts: number, t: any) => ts + (t.amount || 0),
@@ -143,27 +146,325 @@ export default function InClient({
       : 0;
 
   // 4. Strategic Friction (New System Health Logic)
+  const frictionPoints: {
+    type: 'expense' | 'forecast' | 'savings';
+    message: string;
+  }[] = [];
+
+  // A. Current Month Overruns
   const currentMonthSubs = subcategories.filter(
     (s) => s.month === currentMonth
   );
-  const budgetBreaches = currentMonthSubs.filter((s) => {
-    if (s.category?.isIncome || s.category?.isSavings) return false;
+  currentMonthSubs.forEach((s: any) => {
+    if (s.category?.isIncome || s.category?.isSavings) return;
     const actual = (s.transactions || []).reduce(
       (sum: number, tx: any) => sum + (tx.amount || 0),
       0
     );
     const target = s.amount || 0;
-    return target > 0 && actual > target * 1.1; // 10% tolerance
-  }).length;
+    if (target > 0 && actual > target * 1.1) {
+      frictionPoints.push({
+        type: 'expense',
+        message: `Budget Overrun: ${s.name}`
+      });
+    }
+  });
 
-  const activeSignals = reminders.filter(
-    (r) => !r.isDone && r.targetUserId === user?.uid
-  ).length;
+  // B. Annual Deficit (Actuals YTD)
+  const ytdActualExpenses = subcategories
+    .filter(
+      (s) =>
+        s.month <= currentMonth &&
+        !s.category?.isIncome &&
+        !s.category?.isSavings
+    )
+    .reduce(
+      (sum: number, s: any) =>
+        sum +
+        (s.transactions || []).reduce(
+          (ts: number, t: any) => ts + (t.amount || 0),
+          0
+        ),
+      0
+    );
 
-  const totalFriction = budgetBreaches + activeSignals;
+  const ytdActualContribution = subcategories
+    .filter((s) => s.month <= currentMonth)
+    .reduce(
+      (sum: number, s: any) =>
+        sum +
+        (s.transactions || [])
+          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+      0
+    );
+
+  if (ytdActualExpenses > ytdActualContribution) {
+    frictionPoints.push({
+      type: 'expense',
+      message: 'Annual Deficit: YTD Expenses exceed Contribution'
+    });
+  }
+
+  // C. Annual Forecast Risk (Planned Full Year)
+  const fullYearPlannedExpenses = subcategories
+    .filter((s) => !s.category?.isIncome && !s.category?.isSavings)
+    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+
+  const fullYearPlannedContribution = subcategories
+    .filter((s) => s.category?.isIncome)
+    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+
+  if (fullYearPlannedExpenses > fullYearPlannedContribution) {
+    frictionPoints.push({
+      type: 'forecast',
+      message: 'Forecast Risk: Total 2026 Budget is Negative'
+    });
+  }
+
+  // D. Savings Performance Gap
+  const ytdActualSavings = subcategories
+    .filter((s) => s.month <= currentMonth && s.category?.isSavings)
+    .reduce(
+      (sum: number, s: any) =>
+        sum +
+        (s.transactions || []).reduce(
+          (ts: number, t: any) => ts + (t.amount || 0),
+          0
+        ),
+      0
+    );
+
+  const ytdPlannedSavings = subcategories
+    .filter((s) => s.month <= currentMonth && s.category?.isSavings)
+    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+
+  if (ytdPlannedSavings > 0 && ytdActualSavings < ytdPlannedSavings * 0.9) {
+    frictionPoints.push({
+      type: 'savings',
+      message: 'Savings Gap: Below 90% of Investment Target'
+    });
+  }
+
+  const totalFriction = frictionPoints.length;
 
   return (
     <div className="flex flex-col gap-10 p-8 mb-12 max-w-[1600px] mx-auto">
+      {/* DIAGNOSTIC DRAWER */}
+      <AnimatePresence>
+        {showDiagnostics && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDiagnostics(false)}
+              className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 cursor-zoom-out"
+            />
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 h-full w-full max-w-[450px] bg-white z-[60] shadow-2xl border-l-2 border-slate-200"
+            >
+              <div className="h-full flex flex-col">
+                <div className="p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-amber-100 p-3 rounded-none border border-amber-200">
+                      <ShieldAlert className="text-amber-600" size={20} />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-black uppercase tracking-tighter text-slate-900 leading-none">
+                        System Diagnostics
+                      </h3>
+                      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
+                        Friction Point Audit
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowDiagnostics(false)}
+                    className="p-2 hover:bg-slate-200 transition-colors"
+                  >
+                    <X size={20} className="text-slate-500" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto p-8 space-y-8">
+                  {/* FRICTION POINTS SECTION */}
+                  {frictionPoints.length > 0 ? (
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400 font-mono">
+                        Active Alerts ({frictionPoints.length})
+                      </h4>
+                      <div className="space-y-4">
+                        {frictionPoints.map((point, idx) => {
+                          const colors = {
+                            expense: {
+                              border: 'border-rose-100',
+                              bg: 'bg-rose-50/50',
+                              dot: 'bg-rose-500',
+                              text: 'text-rose-900',
+                              subtext: 'text-rose-700/60'
+                            },
+                            forecast: {
+                              border: 'border-amber-100',
+                              bg: 'bg-amber-50/50',
+                              dot: 'bg-amber-500',
+                              text: 'text-amber-900',
+                              subtext: 'text-amber-700/60'
+                            },
+                            savings: {
+                              border: 'border-blue-100',
+                              bg: 'bg-blue-50/50',
+                              dot: 'bg-blue-500',
+                              text: 'text-blue-900',
+                              subtext: 'text-blue-700/60'
+                            }
+                          }[point.type];
+
+                          return (
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: idx * 0.1 }}
+                              key={idx}
+                              className={`p-5 border-2 ${colors.border} ${colors.bg} flex items-start gap-4 group`}
+                            >
+                              <div
+                                className={`w-1.5 h-1.5 rounded-full ${colors.dot} mt-1.5 shrink-0`}
+                              />
+                              <div className="flex flex-col gap-1">
+                                <span
+                                  className={`text-sm font-bold ${colors.text} tracking-tight`}
+                                >
+                                  {point.message}
+                                </span>
+                                <p
+                                  className={`text-[11px] ${colors.subtext} font-semibold leading-relaxed`}
+                                >
+                                  Manual intervention suggested to restore
+                                  system efficiency.
+                                </p>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-center py-10">
+                      <div className="bg-emerald-50 p-6 rounded-full mb-6">
+                        <Activity className="text-emerald-500" size={40} />
+                      </div>
+                      <h4 className="text-xl font-black uppercase tracking-tighter text-slate-900">
+                        System Nominal
+                      </h4>
+                      <p className="text-sm text-slate-500 font-medium max-w-[250px] mx-auto mt-2">
+                        All financial vectors are within strategic parameters.
+                        No friction detected.
+                      </p>
+                    </div>
+                  )}
+
+                  {/* SYSTEM LOGIC SECTION */}
+                  <div className="pt-8 border-t border-slate-100">
+                    <button
+                      onClick={() => setShowLogic(!showLogic)}
+                      className="flex items-center justify-between w-full group"
+                    >
+                      <h4 className="text-xs font-black uppercase tracking-[0.15em] text-slate-900 group-hover:text-amber-600 transition-colors">
+                        Deconstruct Audit Protocols
+                      </h4>
+                      <div
+                        className={`transition-transform duration-300 ${showLogic ? 'rotate-180' : ''}`}
+                      >
+                        <TrendingUp className="text-slate-300" size={16} />
+                      </div>
+                    </button>
+
+                    <AnimatePresence>
+                      {showLogic && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-6 space-y-6">
+                            <div className="p-5 bg-slate-50 border border-slate-200 font-mono">
+                              <div className="flex flex-col gap-4">
+                                <div className="space-y-1">
+                                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">
+                                    Protocol 01: Budget Integrity
+                                  </span>
+                                  <p className="text-xs font-bold text-slate-600">
+                                    Actual &gt; (Target increased by 10%)
+                                  </p>
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">
+                                    Protocol 02: Annual Liquidity
+                                  </span>
+                                  <p className="text-xs font-bold text-slate-600">
+                                    YTD Expenses &gt; YTD Contributions
+                                  </p>
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">
+                                    Protocol 03: Forecast Risk
+                                  </span>
+                                  <p className="text-xs font-bold text-slate-600">
+                                    2026 Planned Deficit &gt; 0
+                                  </p>
+                                </div>
+                                <div className="space-y-1">
+                                  <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">
+                                    Protocol 04: Accumulation Gap
+                                  </span>
+                                  <p className="text-xs font-bold text-slate-600">
+                                    Actual Savings &lt; (90% of Target)
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            <p className="text-xs text-slate-500 leading-relaxed italic px-4">
+                              These protocols ensure real-time technical
+                              compliance with your 2026 Strategic Plan.
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {frictionPoints.length > 0 && (
+                    <div className="p-6 bg-slate-900 text-white space-y-4">
+                      <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 font-mono">
+                        Strategic Note
+                      </h4>
+                      <p className="text-xs font-medium leading-relaxed italic opacity-80">
+                        "Clean system health ensures maximum Wealth Velocity.
+                        Address these points to minimize capital leakage."
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-8 border-t border-slate-100 bg-slate-50">
+                  <button
+                    onClick={() => setShowDiagnostics(false)}
+                    className="w-full py-4 bg-slate-900 text-white text-xs font-black uppercase tracking-[0.2em] hover:bg-slate-800 transition-all shadow-[6px_6px_0px_rgba(0,0,0,0.1)] active:translate-x-1 active:translate-y-1 active:shadow-none"
+                  >
+                    Close Diagnostics
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
       {/* HEADER SECTION */}
       <div className="flex justify-between items-end pb-4">
         <div className="flex items-center gap-6">
@@ -196,9 +497,7 @@ export default function InClient({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
           >
-            <Card className="rounded-none border-2 border-slate-300 shadow-none">
-              <ExplanationIn setOpenAction={setOpenAction} />
-            </Card>
+            <ExplanationIn setOpenAction={setOpenAction} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -246,9 +545,10 @@ export default function InClient({
               ? `${totalFriction} Friction Points`
               : 'Mission Clear'
           }
-          explanation="Measures the alignment of your financial mission. Friction points are triggered by Budget Overruns (>10%) or Unresolved Signals assigned to you. 0 is the goal."
+          explanation="Real-time audit of your financial system. It identifies friction points like budget overruns, annual deficits, and savings gaps that require immediate attention."
           icon={ShieldAlert}
           color={totalFriction > 0 ? 'amber' : 'emerald'}
+          onClick={() => setShowDiagnostics(true)}
         />
       </div>
 

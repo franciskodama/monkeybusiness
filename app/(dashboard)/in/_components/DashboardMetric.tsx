@@ -7,12 +7,14 @@ interface DashboardMetricProps {
   value: string | number;
   subValue?: string;
   explanation?: string;
+  details?: string[];
   icon: LucideIcon;
   color: 'emerald' | 'blue' | 'rose' | 'amber' | 'slate';
   trend?: {
     value: number;
     isPositive: boolean;
   };
+  onClick?: () => void;
 }
 
 export function DashboardMetric({
@@ -20,9 +22,11 @@ export function DashboardMetric({
   value,
   subValue,
   explanation,
+  details,
   icon: Icon,
   color,
-  trend
+  trend,
+  onClick
 }: DashboardMetricProps) {
   const [showInfo, setShowInfo] = useState(false);
   const colorStyles = {
@@ -72,8 +76,8 @@ export function DashboardMetric({
 
   return (
     <div
-      onClick={() => explanation && setShowInfo(!showInfo)}
-      className={`p-6 border-2 flex flex-col justify-between h-full bg-white ${style.border} ${style.shadow} group transition-all hover:bg-slate-50 relative overflow-hidden ${explanation ? 'cursor-help' : ''}`}
+      onClick={() => onClick?.()}
+      className={`p-6 border-2 flex flex-col justify-between h-full bg-white ${style.border} ${style.shadow} group transition-all hover:bg-slate-50 relative overflow-hidden ${onClick ? 'cursor-pointer' : ''}`}
     >
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
@@ -91,10 +95,18 @@ export function DashboardMetric({
             </div>
           )}
           {explanation && (
-            <HelpCircle
-              size={14}
-              className={`text-slate-300 group-hover:text-primary transition-colors ${showInfo ? 'text-primary' : ''}`}
-            />
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowInfo(!showInfo);
+              }}
+              className="p-1 -mr-1 hover:bg-slate-100 rounded-full transition-colors group/btn"
+            >
+              <HelpCircle
+                size={14}
+                className={`text-slate-300 group-hover/btn:text-primary transition-colors ${showInfo ? 'text-primary' : ''}`}
+              />
+            </button>
           )}
         </div>
       </div>
@@ -131,14 +143,14 @@ export function DashboardMetric({
             className="overflow-hidden"
           >
             <div
-              className={`p-3 border-2 ${style.border} ${style.bg} relative`}
+              className={`p-4 border-2 ${style.border} ${style.bg} relative`}
             >
               <div className="flex items-center gap-2 mb-2">
                 <HelpCircle size={10} className={style.icon} />
                 <span
                   className={`text-[9px] font-black uppercase tracking-widest ${style.text}`}
                 >
-                  Definition
+                  Diagnostic Insight
                 </span>
               </div>
               <p
