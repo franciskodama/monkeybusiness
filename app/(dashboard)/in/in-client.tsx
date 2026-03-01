@@ -396,7 +396,7 @@ export default function InClient({
                             <div className="p-5 bg-slate-50 border border-slate-200 font-mono">
                               <div className="flex flex-col gap-4">
                                 <div className="space-y-1">
-                                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">
+                                  <span className="text-[9px] font-black px-2 py-1 bg-rose-500 text-white  uppercase tracking-widest">
                                     Protocol 01: Budget Integrity
                                   </span>
                                   <p className="text-xs font-bold text-slate-600">
@@ -404,7 +404,7 @@ export default function InClient({
                                   </p>
                                 </div>
                                 <div className="space-y-1">
-                                  <span className="text-[9px] font-black text-rose-500 uppercase tracking-widest">
+                                  <span className="text-[9px] font-black px-2 py-1 bg-rose-500 text-white uppercase tracking-widest">
                                     Protocol 02: Annual Liquidity
                                   </span>
                                   <p className="text-xs font-bold text-slate-600">
@@ -412,7 +412,7 @@ export default function InClient({
                                   </p>
                                 </div>
                                 <div className="space-y-1">
-                                  <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest">
+                                  <span className="text-[9px] font-black px-2 py-1 bg-amber-500 text-white uppercase tracking-widest">
                                     Protocol 03: Forecast Risk
                                   </span>
                                   <p className="text-xs font-bold text-slate-600">
@@ -420,7 +420,7 @@ export default function InClient({
                                   </p>
                                 </div>
                                 <div className="space-y-1">
-                                  <span className="text-[9px] font-black text-blue-500 uppercase tracking-widest">
+                                  <span className="text-[9px] font-black px-2 py-1 bg-blue-500 text-white uppercase tracking-widest">
                                     Protocol 04: Accumulation Gap
                                   </span>
                                   <p className="text-xs font-bold text-slate-600">
