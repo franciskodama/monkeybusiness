@@ -10,7 +10,8 @@ import {
   ShieldAlert,
   ArrowUpRight,
   Activity,
-  Calendar
+  Calendar,
+  ChartColumn
 } from 'lucide-react';
 import Help from '@/components/Help';
 import ExplanationIn from './explanation-in';
@@ -241,8 +242,12 @@ export default function InClient({
           <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)] relative overflow-hidden">
             <div className="flex justify-between items-center mb-10 border-b border-slate-100 pb-6">
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-slate-100 border border-slate-200">
-                  <Calendar size={20} className="text-slate-900" />
+                <div className="p-2">
+                  <ChartColumn
+                    size={32}
+                    strokeWidth={1.6}
+                    className="text-slate-900"
+                  />
                 </div>
                 <div>
                   <h2 className="text-xl font-black uppercase tracking-tight leading-none text-slate-900">
@@ -277,11 +282,8 @@ export default function InClient({
 
             <AnnualStrategicChart subcategories={subcategories} />
 
-            <div className="mt-8 pt-8 border-t border-slate-100 flex justify-between items-center italic text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-              <span>Mission Timeline: Jan 2026 - Dec 2026</span>
-              <span className="px-3 py-1 bg-slate-900 text-white not-italic">
-                Strategy Live
-              </span>
+            <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end items-center italic text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+              Jan 2026 - Dec 2026
             </div>
           </div>
         </div>
