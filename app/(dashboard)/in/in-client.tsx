@@ -142,6 +142,26 @@ export default function InClient({
       ? ((currentMonthExpenses - avgMonthlyExpense) / avgMonthlyExpense) * 100
       : 0;
 
+  // 4. Strategic Friction (New System Health Logic)
+  const currentMonthSubs = subcategories.filter(
+    (s) => s.month === currentMonth
+  );
+  const budgetBreaches = currentMonthSubs.filter((s) => {
+    if (s.category?.isIncome || s.category?.isSavings) return false;
+    const actual = (s.transactions || []).reduce(
+      (sum: number, tx: any) => sum + (tx.amount || 0),
+      0
+    );
+    const target = s.amount || 0;
+    return target > 0 && actual > target * 1.1; // 10% tolerance
+  }).length;
+
+  const activeSignals = reminders.filter(
+    (r) => !r.isDone && r.targetUserId === user?.uid
+  ).length;
+
+  const totalFriction = budgetBreaches + activeSignals;
+
   return (
     <div className="flex flex-col gap-10 p-8 mb-12 max-w-[1600px] mx-auto">
       {/* HEADER SECTION */}
@@ -220,11 +240,15 @@ export default function InClient({
         />
         <DashboardMetric
           label="System Health"
-          value={pendingCount}
-          subValue={pendingCount > 0 ? 'Pending Tasks' : 'All Tasks Mapped'}
-          explanation="Ensures all imported transactions are mapped to categories. When this is 0, your strategic data is 100% accurate."
+          value={totalFriction}
+          subValue={
+            totalFriction > 0
+              ? `${totalFriction} Friction Points`
+              : 'Mission Clear'
+          }
+          explanation="Measures the alignment of your financial mission. Friction points are triggered by Budget Overruns (>10%) or Unresolved Signals assigned to you. 0 is the goal."
           icon={ShieldAlert}
-          color={pendingCount > 0 ? 'amber' : 'emerald'}
+          color={totalFriction > 0 ? 'amber' : 'emerald'}
         />
       </div>
 
