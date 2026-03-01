@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Target,
@@ -9,10 +8,11 @@ import {
   Flame,
   ArrowUpRight,
   Activity,
-  Calendar,
   ChartColumn,
   ShieldAlert,
-  X
+  X,
+  PiggyBank,
+  Binoculars
 } from 'lucide-react';
 import Help from '@/components/Help';
 import ExplanationIn from './explanation-in';
@@ -300,29 +300,34 @@ export default function InClient({
                       </h4>
                       <div className="space-y-4">
                         {frictionPoints.map((point, idx) => {
-                          const colors = {
+                          const config = {
                             expense: {
                               border: 'border-rose-100',
                               bg: 'bg-rose-50/50',
-                              dot: 'bg-rose-500',
+                              icon: Flame,
+                              iconColor: 'text-rose-600',
                               text: 'text-rose-900',
                               subtext: 'text-rose-700/60'
                             },
                             forecast: {
                               border: 'border-amber-100',
                               bg: 'bg-amber-50/50',
-                              dot: 'bg-amber-500',
+                              icon: Binoculars,
+                              iconColor: 'text-amber-600',
                               text: 'text-amber-900',
                               subtext: 'text-amber-700/60'
                             },
                             savings: {
                               border: 'border-blue-100',
                               bg: 'bg-blue-50/50',
-                              dot: 'bg-blue-500',
+                              icon: PiggyBank,
+                              iconColor: 'text-blue-600',
                               text: 'text-blue-900',
                               subtext: 'text-blue-700/60'
                             }
                           }[point.type];
+
+                          const Icon = config.icon;
 
                           return (
                             <motion.div
@@ -330,19 +335,21 @@ export default function InClient({
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: idx * 0.1 }}
                               key={idx}
-                              className={`p-5 border-2 ${colors.border} ${colors.bg} flex items-start gap-4 group`}
+                              className={`p-5 border-2 ${config.border} ${config.bg} flex items-start gap-4 group`}
                             >
                               <div
-                                className={`w-1.5 h-1.5 rounded-full ${colors.dot} mt-1.5 shrink-0`}
-                              />
+                                className={`${config.iconColor} mt-0.5 shrink-0`}
+                              >
+                                <Icon size={18} />
+                              </div>
                               <div className="flex flex-col gap-1">
                                 <span
-                                  className={`text-sm font-bold ${colors.text} tracking-tight`}
+                                  className={`text-sm font-bold ${config.text} tracking-tight`}
                                 >
                                   {point.message}
                                 </span>
                                 <p
-                                  className={`text-[11px] ${colors.subtext} font-semibold leading-relaxed`}
+                                  className={`text-[11px] ${config.subtext} font-semibold leading-relaxed`}
                                 >
                                   Manual intervention suggested to restore
                                   system efficiency.
@@ -395,7 +402,7 @@ export default function InClient({
                           <div className="mt-6 space-y-6">
                             <div className="p-5 bg-slate-50 border border-slate-200 font-mono">
                               <div className="flex flex-col gap-4">
-                                <div className="space-y-1">
+                                <div className="space-y-1 mb-1">
                                   <span className="text-[9px] font-black px-2 py-1 bg-rose-500 text-white  uppercase tracking-widest">
                                     Protocol 01: Budget Integrity
                                   </span>
@@ -403,7 +410,7 @@ export default function InClient({
                                     Actual &gt; (Target increased by 10%)
                                   </p>
                                 </div>
-                                <div className="space-y-1">
+                                <div className="space-y-1 mb-1">
                                   <span className="text-[9px] font-black px-2 py-1 bg-rose-500 text-white uppercase tracking-widest">
                                     Protocol 02: Annual Liquidity
                                   </span>
@@ -411,7 +418,7 @@ export default function InClient({
                                     YTD Expenses &gt; YTD Contributions
                                   </p>
                                 </div>
-                                <div className="space-y-1">
+                                <div className="space-y-1 mb-1">
                                   <span className="text-[9px] font-black px-2 py-1 bg-amber-500 text-white uppercase tracking-widest">
                                     Protocol 03: Forecast Risk
                                   </span>
