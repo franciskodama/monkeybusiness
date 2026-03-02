@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Info,
   Award,
@@ -9,8 +9,12 @@ import {
   TrendingUp,
   X,
   Target,
-  Minus
+  Minus,
+  FileText,
+  Loader2
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Category } from '@prisma/client';
@@ -29,6 +33,7 @@ import {
 import Help from '@/components/Help';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ExplanationYearly from './explanation-yearly';
+import { Button } from '@/components/ui/button';
 
 interface YearlyTableProps {
   categories: Category[];
@@ -47,7 +52,56 @@ export function YearlyTable({
     transactions: any[];
   } | null>(null);
 
+  const [isExporting, setIsExporting] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
+
   const [activeMetric, setActiveMetric] = useState<string | null>(null);
+
+  const handleExportPDF = async () => {
+    if (!tableRef.current) return;
+    setIsExporting(true);
+
+    try {
+      const element = tableRef.current;
+      const fullWidth = element.scrollWidth;
+      const fullHeight = element.scrollHeight;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: fullWidth,
+        height: fullHeight,
+        windowWidth: fullWidth + 100, // Add a small buffer
+        onclone: (clonedDoc) => {
+          const table = clonedDoc.getElementById('yearly-table-capture');
+          if (table) {
+            table.style.width = `${fullWidth}px`;
+            table.style.height = `${fullHeight}px`;
+            table.style.overflow = 'visible';
+            table.style.position = 'absolute';
+            table.style.left = '0';
+            table.style.top = '0';
+          }
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'l' : 'p',
+        unit: 'px',
+        format: [canvas.width / 2, canvas.height / 2]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save(`family-audit-2026.pdf`);
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const metricExplanations: Record<
     string,
@@ -360,8 +414,23 @@ export function YearlyTable({
               financial year.
             </p>
           </div>
-          <div className="hidden sm:block">
-            {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleExportPDF}
+              disabled={isExporting}
+              variant="outline"
+              // className="group relative flex items-center gap-2 border-2 border-slate-900 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all hover:bg-slate-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isExporting ? (
+                <Loader2 className="animate-spin" size={14} />
+              ) : (
+                <FileText size={14} className="mr-2" />
+              )}
+              <span>{isExporting ? 'Preparing...' : 'Export PDF'}</span>
+            </Button>
+            {/* <div className="hidden sm:block">
+              {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+            </div> */}
           </div>
         </CardTitle>
       </CardHeader>
@@ -382,7 +451,11 @@ export function YearlyTable({
           )}
         </AnimatePresence>
 
-        <div className="overflow-x-auto border bg-background shadow-sm no-scrollbar">
+        <div
+          ref={tableRef}
+          id="yearly-table-capture"
+          className="overflow-x-auto border bg-background shadow-sm no-scrollbar p-1 bg-white"
+        >
           <table className="w-full border-collapse min-w-[1600px]">
             <thead>
               <tr className="bg-secondary/30">
