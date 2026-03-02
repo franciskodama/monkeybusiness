@@ -1,12 +1,12 @@
 import { getSubcategories } from '@/lib/actions';
-import WasteWatcherClient from './waste-watcher-client';
+import WasteCutterClient from './waste-cutter-client';
 
-export default async function WasteWatcher({ user }: { user: any }) {
+export default async function WasteCutter({ user }: { user: any }) {
   const householdId = user?.householdId!;
   const subcategories = await getSubcategories(householdId);
 
   return (
-    <WasteWatcherClient
+    <WasteCutterClient
       user={user}
       subcategories={subcategories}
       householdId={householdId}

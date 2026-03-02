@@ -20,8 +20,8 @@ export const menuItems = [
     icon: <Table className="h-5 w-5" />
   },
   {
-    label: 'Waste Watcher',
-    href: '/waste-watcher',
+    label: 'Waste Cutter',
+    href: '/waste-cutter',
     icon: <Scissors className="h-5 w-5" />
   }
 ];

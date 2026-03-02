@@ -1,12 +1,12 @@
 export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 
-import WasteWatcher from './waste-watcher';
 import { auth } from '@/lib/auth';
 import { getUser } from '@/lib/actions';
 import { Spinner } from '@/lib/icons';
+import WasteCutter from './waste-cutter';
 
-export default async function WasteWatcherPage() {
+export default async function WasteCutterPage() {
   const session = await auth();
 
   if (!session || !session.user) {
@@ -21,7 +21,7 @@ export default async function WasteWatcherPage() {
 
   return (
     <>
-      <div>{dbUser ? <WasteWatcher user={dbUser} /> : <Spinner />} </div>
+      <div>{dbUser ? <WasteCutter user={dbUser} /> : <Spinner />} </div>
     </>
   );
 }
