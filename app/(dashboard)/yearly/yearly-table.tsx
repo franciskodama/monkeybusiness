@@ -419,7 +419,6 @@ export function YearlyTable({
               onClick={handleExportPDF}
               disabled={isExporting}
               variant="outline"
-              // className="group relative flex items-center gap-2 border-2 border-slate-900 bg-white px-4 py-2 text-[10px] font-black uppercase tracking-widest text-slate-900 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all hover:bg-slate-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isExporting ? (
                 <Loader2 className="animate-spin" size={14} />
@@ -428,9 +427,6 @@ export function YearlyTable({
               )}
               <span>{isExporting ? 'Preparing...' : 'Export PDF'}</span>
             </Button>
-            {/* <div className="hidden sm:block">
-              {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
-            </div> */}
           </div>
         </CardTitle>
       </CardHeader>
