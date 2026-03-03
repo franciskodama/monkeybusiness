@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { AnimatePresence } from 'framer-motion';
 import {
   BarChart3,
   PieChart as PieChartIcon,
@@ -8,12 +9,15 @@ import {
   ArrowUpRight,
   Activity,
   Box,
-  LayoutDashboard
+  LayoutDashboard,
+  ChartSpline
 } from 'lucide-react';
 import { CategoryShareChart } from '@/components/CategoryShareChart';
 import { VolatilityAnalysisChart } from '@/components/VolatilityAnalysisChart';
 import { AnnualStrategicChart } from '@/components/AnnualStrategicChart';
 import { CategoryTrendChart } from '@/components/CategoryTrendChart';
+import Help from '@/components/Help';
+import ExplanationStabilityIndex from './explanation-stability-index';
 
 import Link from 'next/link';
 
@@ -30,6 +34,7 @@ export default function AnalyticsClient({
   subcategories,
   householdId
 }: AnalyticsClientProps) {
+  const [openAction, setOpenAction] = React.useState(false);
   const now = new Date();
 
   return (
@@ -91,13 +96,20 @@ export default function AnalyticsClient({
                   <Activity size={20} className="text-rose-400" />
                 </div>
                 <h2 className="text-xl font-black uppercase tracking-tighter text-white">
-                  Allocation Entropy Index
+                  Stability Index
                 </h2>
+                <Help setOpenAction={setOpenAction} />
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-800 px-3 py-1">
-                Strategic Volatility
+                Behavioral Audit
               </span>
             </div>
+
+            <AnimatePresence>
+              {openAction && (
+                <ExplanationStabilityIndex setOpenAction={setOpenAction} />
+              )}
+            </AnimatePresence>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="h-[350px]">
@@ -106,19 +118,20 @@ export default function AnalyticsClient({
               <div className="space-y-8">
                 <div className="p-6 border-2 border-slate-800 bg-slate-800/20">
                   <p className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-2">
-                    Behavioral Audit
+                    Stability Diagnostic
                   </p>
                   <p className="text-sm font-medium leading-relaxed italic text-slate-300">
-                    "Volatility measures the unpredictability of your spending.
-                    Categories high on the vertical axis represent 'chaotic'
-                    behavior that challenges your strategic planning. Focus on
-                    stabilizing the largest bubbles."
+                    "This index measures how consistent your spending habits
+                    are. Bubbles at the top represent higher
+                    volatility—behaviors that are unpredictable and harder to
+                    budget for. Stable systems keep their largest bubbles at the
+                    bottom."
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-slate-800/40 border border-slate-800">
                     <p className="text-[9px] font-black uppercase text-slate-500 mb-1">
-                      System Chaos
+                      System Volatility
                     </p>
                     <p className="text-lg font-mono font-black text-rose-400">
                       MEDIUM
@@ -126,7 +139,7 @@ export default function AnalyticsClient({
                   </div>
                   <div className="p-4 bg-slate-800/40 border border-slate-800">
                     <p className="text-[9px] font-black uppercase text-slate-500 mb-1">
-                      Target Discipline
+                      Predictability
                     </p>
                     <p className="text-lg font-mono font-black text-emerald-400">
                       HIGH
@@ -138,7 +151,7 @@ export default function AnalyticsClient({
 
             <div className="mt-8 flex justify-end">
               <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-600">
-                Lower vertical position = Higher strategy adherence
+                Lower vertical position = Higher behavioral stability
               </p>
             </div>
           </div>
@@ -185,7 +198,7 @@ export default function AnalyticsClient({
       <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)]">
         <div className="flex items-center gap-3 mb-8">
           <div className="p-2 bg-slate-100">
-            <Activity size={20} className="text-slate-900" />
+            <ChartSpline size={20} className="text-slate-900" />
           </div>
           <div>
             <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">

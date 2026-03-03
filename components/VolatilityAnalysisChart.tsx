@@ -33,17 +33,20 @@ export function VolatilityAnalysisChart({
   );
   const targetYear = years[0] || 2026;
 
-  // 2. Group data by category
-  const categoryDataMap: Record<string, { totals: number[]; color: string }> =
-    {};
+  // 2. Group data by Subcategory
+  const subcategoryDataMap: Record<
+    string,
+    { totals: number[]; color: string; parentCategory: string }
+  > = {};
 
   subcategories.forEach((s) => {
-    if (s.year === targetYear && !s.category?.isIncome && s.category?.name) {
-      const catName = s.category.name;
-      if (!categoryDataMap[catName]) {
-        categoryDataMap[catName] = {
-          totals: new Array(12).fill(0), // Always analyze full 12 month cycle
-          color: s.category.color
+    if (s.year === targetYear && !s.category?.isIncome && s.name) {
+      const subName = s.name;
+      if (!subcategoryDataMap[subName]) {
+        subcategoryDataMap[subName] = {
+          totals: new Array(12).fill(0),
+          color: s.category?.color || 'GRAY',
+          parentCategory: s.category?.name || 'Uncategorized'
         };
       }
 
@@ -51,16 +54,42 @@ export function VolatilityAnalysisChart({
         (sum: number, tx: any) => sum + (tx.amount || 0),
         0
       );
-      categoryDataMap[catName].totals[s.month - 1] += txSum;
+      subcategoryDataMap[subName].totals[s.month - 1] += txSum;
     }
   });
 
-  // 3. Calculate metrics (Volatility & Volume)
-  // We analyze the window up to the current month of the target year or the full year if it's a past year
-  const analysisMonths =
-    targetYear === new Date().getFullYear() ? new Date().getMonth() + 1 : 12;
+  // 3. Calculate metrics
+  const now = new Date();
+  const currentFullYear = now.getFullYear();
+  const currentMonthIdx = now.getMonth(); // 0-indexed (2 for March)
 
-  const chartData = Object.entries(categoryDataMap)
+  // Use closed months only for current year behavior (e.g., if it's March, show Jan-Feb)
+  let analysisMonths = 12;
+  let dynamicLabel = `Jan - Dec ${targetYear}`;
+
+  if (targetYear === currentFullYear) {
+    analysisMonths = currentMonthIdx > 0 ? currentMonthIdx : 1;
+    const monthNamesShort = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
+    dynamicLabel =
+      currentMonthIdx > 0
+        ? `Analyzing Closed Behavior: Jan - ${monthNamesShort[currentMonthIdx - 1]}`
+        : `Analyzing Current Window: Jan`;
+  }
+
+  const chartData = Object.entries(subcategoryDataMap)
     .map(([name, data], index) => {
       const relevantTotals = data.totals.slice(0, analysisMonths);
       const sum = relevantTotals.reduce((a, b) => a + b, 0);
@@ -77,6 +106,7 @@ export function VolatilityAnalysisChart({
 
       return {
         name,
+        parentCategory: data.parentCategory,
         x: index + 1,
         y: parseFloat(volatility.toFixed(1)),
         z: mean,
@@ -84,8 +114,16 @@ export function VolatilityAnalysisChart({
         average: mean
       };
     })
-    .filter((d) => d.average > 0)
+    .filter((d) => d.average > 1)
     .sort((a, b) => b.y - a.y);
+
+  // Helper to ensure colors are visible on dark background
+  const getVisibleColor = (hex: string) => {
+    // If it's too dark (like black or dark brown), we'll lighten it for the index
+    if (hex === '#000000') return '#475569'; // Slate 600
+    if (hex === '#A52A2A') return '#C2410C'; // Brighter Orange/Brown
+    return hex;
+  };
 
   if (!mounted)
     return <div className="w-full h-[350px] bg-slate-900/10 animate-pulse" />;
@@ -94,7 +132,7 @@ export function VolatilityAnalysisChart({
     return (
       <div className="w-full h-[350px] flex items-center justify-center border-2 border-dashed border-slate-800/30">
         <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">
-          Awaiting Behavioral Data
+          Awaiting Subcategory Data
         </p>
       </div>
     );
@@ -107,8 +145,8 @@ export function VolatilityAnalysisChart({
           <CartesianGrid
             strokeDasharray="3 3"
             vertical={false}
-            stroke="#334155"
-            opacity={0.3}
+            stroke="#f1f5f9"
+            opacity={0.1}
           />
           <XAxis
             type="number"
@@ -123,46 +161,49 @@ export function VolatilityAnalysisChart({
             unit="%"
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 10, fill: '#64748b', fontWeight: 'bold' }}
+            tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 'bold' }}
             domain={[0, 'auto']}
           />
           <ZAxis
             type="number"
             dataKey="z"
-            range={[100, 2000]}
+            range={[80, 2000]}
             name="Avg Monthly Spend"
           />
           <Tooltip
-            cursor={{ strokeDasharray: '3 3' }}
+            cursor={{ strokeDasharray: '3 3', stroke: '#475569' }}
             content={({ active, payload }) => {
               if (active && payload && payload.length) {
                 const data = payload[0].payload;
                 return (
                   <div className="bg-slate-900 border-2 border-slate-700 p-4 shadow-xl text-white">
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-2 border-b border-white/10 pb-2 text-emerald-400">
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1 text-emerald-400">
                       {data.name}
+                    </p>
+                    <p className="text-[8px] font-bold text-slate-500 uppercase mb-3 border-b border-white/10 pb-2">
+                      {data.parentCategory}
                     </p>
                     <div className="space-y-2">
                       <div className="flex justify-between gap-8">
                         <span className="text-[9px] font-bold text-slate-500 uppercase">
                           Avg Spend /Mo
                         </span>
-                        <span className="text-xs font-mono font-black">
+                        <span className="text-xs font-mono font-black border-b border-slate-800">
                           ${formatCurrencyRounded(data.average)}
                         </span>
                       </div>
                       <div className="flex justify-between gap-8">
                         <span className="text-[9px] font-bold text-slate-500 uppercase">
-                          Volatility Index
+                          Stability Index
                         </span>
                         <span className="text-xs font-mono font-black text-rose-400">
                           {data.y}%
                         </span>
                       </div>
                       <p className="text-[8px] text-slate-500 italic mt-2 leading-tight">
-                        {data.y > 50
-                          ? 'High variance: Spending behavior is unpredictable.'
-                          : 'Stable category: Behavior is consistent.'}
+                        {data.y > 60
+                          ? 'High variance: Volatile spending behavior detected.'
+                          : 'Stable: This behavior follows a consistent pattern.'}
                       </p>
                     </div>
                   </div>
@@ -171,33 +212,27 @@ export function VolatilityAnalysisChart({
               return null;
             }}
           />
-          <Scatter name="Categories" data={chartData}>
+          <Scatter name="Subcategories" data={chartData}>
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={entry.color}
-                fillOpacity={0.8}
-                stroke={entry.color}
-                strokeWidth={2}
+                fill={getVisibleColor(entry.color)}
+                fillOpacity={1}
+                stroke="#ffffff"
+                strokeWidth={1}
+                style={{
+                  filter: 'drop-shadow(0px 0px 4px rgba(255,255,255,0.15))'
+                }}
               />
             ))}
           </Scatter>
         </ScatterChart>
       </ResponsiveContainer>
 
-      {/* Label overlays for specific high volatility or high volume bubbles */}
-      <div className="absolute bottom-0 left-0 right-0 flex flex-wrap justify-center gap-4 px-4 pb-2">
-        {chartData.slice(0, 5).map((d, i) => (
-          <div key={i} className="flex items-center gap-1.5 opacity-60">
-            <div
-              className="w-1.5 h-1.5 rounded-full"
-              style={{ backgroundColor: d.color }}
-            />
-            <span className="text-[8px] font-bold uppercase text-slate-500 tracking-tighter">
-              {d.name}
-            </span>
-          </div>
-        ))}
+      <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-2">
+        <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-500 bg-slate-900 px-3 py-1.5 border border-slate-800 shadow-xl">
+          {dynamicLabel}
+        </p>
       </div>
     </div>
   );

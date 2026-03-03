@@ -4,7 +4,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { CircleHelp } from 'lucide-react';
+import { HelpCircle } from 'lucide-react';
 
 export default function Help({
   setOpenAction
@@ -21,7 +21,11 @@ export default function Help({
               setOpenAction(true);
             }}
           >
-            <CircleHelp size={32} strokeWidth={1} />
+            <HelpCircle
+              size={14}
+              strokeWidth={2}
+              className="text-slate-400 hover:text-white transition-colors"
+            />
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-primary ml-2 capitalize font-light">
