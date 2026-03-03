@@ -76,79 +76,84 @@ export function CategoryShareChart({
     );
 
   return (
-    <div className="w-full h-[250px] min-h-[250px] mt-4 overflow-hidden relative group">
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={80}
-            paddingAngle={4}
-            dataKey="value"
-            stroke="none"
-          >
-            {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
-            ))}
-          </Pie>
-          <Tooltip
-            content={({ active, payload }) => {
-              if (active && payload && payload.length) {
-                const data = payload[0].payload;
-                return (
-                  <div className="bg-white border-2 border-slate-900 p-3 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] text-slate-900">
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-1 border-b border-slate-100 pb-1">
-                      {data.name}
-                    </p>
-                    <div className="flex flex-col">
-                      <p className="text-xs font-mono font-black">
-                        ${formatCurrencyRounded(data.value)}
+    <div className="w-full">
+      <div className="w-full h-[250px] min-h-[250px] mt-4 overflow-hidden relative group">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              innerRadius={60}
+              outerRadius={80}
+              paddingAngle={4}
+              dataKey="value"
+              stroke="none"
+            >
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (active && payload && payload.length) {
+                  const data = payload[0].payload;
+                  return (
+                    <div className="bg-white border-2 border-slate-900 p-3 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] text-slate-900">
+                      <p className="text-[10px] font-black uppercase tracking-widest mb-1 border-b border-slate-100 pb-1">
+                        {data.name}
                       </p>
-                      <p className="text-[9px] font-bold text-slate-400 uppercase">
-                        {data.percentage.toFixed(1)}% OF TOTAL
-                      </p>
+                      <div className="flex flex-col">
+                        <p className="text-xs font-mono font-black">
+                          ${formatCurrencyRounded(data.value)}
+                        </p>
+                        <p className="text-[9px] font-bold text-slate-400 uppercase">
+                          {data.percentage.toFixed(1)}% OF TOTAL
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                );
-              }
-              return null;
-            }}
-          />
-        </PieChart>
-      </ResponsiveContainer>
+                  );
+                }
+                return null;
+              }}
+            />
+          </PieChart>
+        </ResponsiveContainer>
 
-      {/* Center Text Labels */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
-          Total
-        </span>
-        <span className="text-xl font-mono font-black text-white">
-          ${formatCurrencyRounded(totalAmount)}
-        </span>
-      </div>
-
-      {/* Mini Legend for largest slices (Only if list is hidden) */}
-      {!showList && (
-        <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-4 pb-2">
-          {data.slice(0, 3).map((item, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <div
-                className="w-2 h-2"
-                style={{ backgroundColor: item.color }}
-              />
-              <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400">
-                {item.percentage.toFixed(0)}%
-              </span>
-            </div>
-          ))}
+        {/* Center Text Labels */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">
+            Total
+          </span>
+          <span className="text-xl font-mono font-black text-slate-900">
+            ${formatCurrencyRounded(totalAmount)}
+          </span>
         </div>
-      )}
+
+        {/* Mini Legend for largest slices (Only if list is hidden) */}
+        {!showList && (
+          <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-4 pb-2">
+            {data.slice(0, 3).map((item, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <div
+                  className="w-2 h-2"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-[8px] font-black uppercase tracking-tighter text-slate-400">
+                  {item.percentage.toFixed(0)}%
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Full Category Breakdown List */}
       {showList && (
         <div className="mt-8 space-y-3">
+          <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-4 mb-6 font-mono border-b border-slate-100 pb-2">
+            Detailed Breakdown
+          </h4>
           {data.map((item, i) => (
             <div
               key={i}

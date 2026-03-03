@@ -22,7 +22,6 @@ import { CommandCenterMetric } from './_components/CommandCenterMetric';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { FixedVariableTracker } from './_components/FixedVariableTracker';
 import { OutlierAlerts } from './_components/OutlierAlerts';
-import { CategoryShareChart } from '@/components/CategoryShareChart';
 import { formatCurrencyRounded } from '@/lib/utils';
 import { User } from '@prisma/client';
 
@@ -644,13 +643,6 @@ export default function CommandCenterClient({
 
               <div className="pt-8 border-t border-slate-800">
                 <FixedVariableTracker subcategories={subcategories} />
-              </div>
-
-              <div className="pt-8 border-t border-slate-800">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6 font-mono">
-                  Capital Allocation
-                </h4>
-                <CategoryShareChart subcategories={subcategories} />
               </div>
             </div>
           </div>
