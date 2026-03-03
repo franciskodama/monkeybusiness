@@ -86,11 +86,11 @@ export function AnnualStrategicChart({
     return <div className="w-full h-[400px] bg-slate-50 animate-pulse" />;
 
   return (
-    <div className="w-full h-[400px]">
+    <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={chartData}
-          margin={{ top: 20, right: 30, left: 10, bottom: 20 }}
+          margin={{ top: 20, right: 30, left: 10, bottom: 40 }}
           barGap={2}
           barCategoryGap="15%"
         >

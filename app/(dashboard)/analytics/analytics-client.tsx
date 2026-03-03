@@ -11,7 +11,7 @@ import {
   LayoutDashboard
 } from 'lucide-react';
 import { CategoryShareChart } from '@/components/CategoryShareChart';
-import { SourceBurnChart } from '@/components/SourceBurnChart';
+import { VolatilityAnalysisChart } from '@/components/VolatilityAnalysisChart';
 import { AnnualStrategicChart } from '@/components/AnnualStrategicChart';
 import { CategoryTrendChart } from '@/components/CategoryTrendChart';
 
@@ -87,67 +87,94 @@ export default function AnalyticsClient({
           <div className="bg-slate-900 p-8 text-white shadow-[10px_10px_0px_rgba(15,23,42,0.1)]">
             <div className="flex justify-between items-center mb-10">
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-emerald-500/20">
-                  <Activity size={20} className="text-emerald-400" />
+                <div className="p-2 bg-rose-500/20">
+                  <Activity size={20} className="text-rose-400" />
                 </div>
-                <h2 className="text-xl font-black uppercase tracking-tighter">
-                  Velocity Source Analysis
+                <h2 className="text-xl font-black uppercase tracking-tighter text-white">
+                  Allocation Entropy Index
                 </h2>
               </div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-800 px-3 py-1">
-                Live Data Link
+                Strategic Volatility
               </span>
             </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-              <div>
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6 font-mono">
-                  Spending by Source
-                </h3>
-                <SourceBurnChart subcategories={subcategories} />
+              <div className="h-[350px]">
+                <VolatilityAnalysisChart subcategories={subcategories} />
               </div>
               <div className="space-y-8">
                 <div className="p-6 border-2 border-slate-800 bg-slate-800/20">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2">
-                    Analytic Insight
+                  <p className="text-[10px] font-black uppercase tracking-widest text-rose-400 mb-2">
+                    Behavioral Audit
                   </p>
                   <p className="text-sm font-medium leading-relaxed italic text-slate-300">
-                    "Source diversity in spending helps maintain household
-                    resilience. Monitor the Family pool vs Individual accounts
-                    to ensure balanced liquidity."
+                    "Volatility measures the unpredictability of your spending.
+                    Categories high on the vertical axis represent 'chaotic'
+                    behavior that challenges your strategic planning. Focus on
+                    stabilizing the largest bubbles."
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-slate-800/40 border border-slate-800">
                     <p className="text-[9px] font-black uppercase text-slate-500 mb-1">
-                      Stability
+                      System Chaos
                     </p>
-                    <p className="text-lg font-mono font-black text-white">
-                      94%
+                    <p className="text-lg font-mono font-black text-rose-400">
+                      MEDIUM
                     </p>
                   </div>
                   <div className="p-4 bg-slate-800/40 border border-slate-800">
                     <p className="text-[9px] font-black uppercase text-slate-500 mb-1">
-                      Leverage
+                      Target Discipline
                     </p>
-                    <p className="text-lg font-mono font-black text-white">
-                      LOW
+                    <p className="text-lg font-mono font-black text-emerald-400">
+                      HIGH
                     </p>
                   </div>
                 </div>
               </div>
             </div>
+
+            <div className="mt-8 flex justify-end">
+              <p className="text-[8px] font-black uppercase tracking-[0.3em] text-slate-600">
+                Lower vertical position = Higher strategy adherence
+              </p>
+            </div>
           </div>
 
           <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)]">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-slate-100">
-                <TrendingUp size={20} className="text-slate-900" />
+            <div className="flex justify-between items-center mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-slate-100">
+                  <TrendingUp size={20} className="text-slate-900" />
+                </div>
+                <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                  Yearly Trajectory
+                </h2>
               </div>
-              <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
-                Yearly Trajectory
-              </h2>
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-emerald-500" />
+                  <span className="text-[9px] font-black uppercase text-slate-500">
+                    Contribution
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-rose-500" />
+                  <span className="text-[9px] font-black uppercase text-slate-500">
+                    Expenses
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 bg-blue-500" />
+                  <span className="text-[9px] font-black uppercase text-slate-500">
+                    Savings
+                  </span>
+                </div>
+              </div>
             </div>
-            <div className="h-[300px]">
+            <div className="h-[350px]">
               <AnnualStrategicChart subcategories={subcategories} />
             </div>
           </div>

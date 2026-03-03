@@ -611,7 +611,9 @@ export default function CommandCenterClient({
               </div>
             </div>
 
-            <AnnualStrategicChart subcategories={subcategories} />
+            <div className="h-[400px]">
+              <AnnualStrategicChart subcategories={subcategories} />
+            </div>
 
             <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end items-center italic text-slate-400 text-[10px] font-bold uppercase tracking-widest">
               Jan 2026 - Dec 2026
