@@ -218,8 +218,8 @@ export function VolatilityAnalysisChart({
                 key={`cell-${index}`}
                 fill={getVisibleColor(entry.color)}
                 fillOpacity={1}
-                stroke="#ffffff"
-                strokeWidth={1}
+                stroke="#62748c"
+                strokeWidth={0.5}
                 style={{
                   filter: 'drop-shadow(0px 0px 4px rgba(255,255,255,0.15))'
                 }}
