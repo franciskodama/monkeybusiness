@@ -15,17 +15,18 @@ import {
   Binoculars
 } from 'lucide-react';
 import Help from '@/components/Help';
-import ExplanationIn from './explanation-in';
+import ExplanationCommandCenter from './explanation-command-center';
 import { SignalsRibbon } from './_components/SignalsRibbon';
 import { AnnualStrategicChart } from '@/components/AnnualStrategicChart';
-import { DashboardMetric } from './_components/DashboardMetric';
+import { CommandCenterMetric } from './_components/CommandCenterMetric';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { FixedVariableTracker } from './_components/FixedVariableTracker';
 import { OutlierAlerts } from './_components/OutlierAlerts';
+import { CategoryShareChart } from '@/components/CategoryShareChart';
 import { formatCurrencyRounded } from '@/lib/utils';
 import { User } from '@prisma/client';
 
-interface InClientProps {
+interface CommandCenterClientProps {
   user: any;
   subcategories: any[];
   pendingCount: number;
@@ -34,14 +35,14 @@ interface InClientProps {
   householdId: string;
 }
 
-export default function InClient({
+export default function CommandCenterClient({
   user,
   subcategories,
   pendingCount,
   reminders,
   householdUsers,
   householdId
-}: InClientProps) {
+}: CommandCenterClientProps) {
   const [openAction, setOpenAction] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [showLogic, setShowLogic] = useState(false);
@@ -504,14 +505,14 @@ export default function InClient({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
           >
-            <ExplanationIn setOpenAction={setOpenAction} />
+            <ExplanationCommandCenter setOpenAction={setOpenAction} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* TOP ROW: STRATEGIC METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardMetric
+        <CommandCenterMetric
           label="Strategic Efficiency"
           value={`${avgEfficiency.toFixed(1)}%`}
           subValue="Year-to-Date Average"
@@ -520,7 +521,7 @@ export default function InClient({
           color="emerald"
           trend={{ value: 4, isPositive: true }}
         />
-        <DashboardMetric
+        <CommandCenterMetric
           label="Wealth Velocity"
           value={`${savingsVelocity.toFixed(1)}%`}
           subValue="Savings / Effort Ratio"
@@ -528,7 +529,7 @@ export default function InClient({
           icon={TrendingUp}
           color="blue"
         />
-        <DashboardMetric
+        <CommandCenterMetric
           label="Monthly Burn Rate"
           value={`$${formatCurrencyRounded(currentMonthExpenses)}`}
           subValue={
@@ -544,7 +545,7 @@ export default function InClient({
             isPositive: burnDiff <= 0
           }}
         />
-        <DashboardMetric
+        <CommandCenterMetric
           label="System Health"
           value={totalFriction}
           subValue={
@@ -643,6 +644,13 @@ export default function InClient({
 
               <div className="pt-8 border-t border-slate-800">
                 <FixedVariableTracker subcategories={subcategories} />
+              </div>
+
+              <div className="pt-8 border-t border-slate-800">
+                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6 font-mono">
+                  Capital Allocation
+                </h4>
+                <CategoryShareChart subcategories={subcategories} />
               </div>
             </div>
           </div>

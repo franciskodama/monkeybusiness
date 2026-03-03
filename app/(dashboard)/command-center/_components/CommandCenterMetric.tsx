@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideIcon, HelpCircle, X } from 'lucide-react';
 
-interface DashboardMetricProps {
+interface CommandCenterMetricProps {
   label: string;
   value: string | number;
   subValue?: string;
@@ -17,7 +17,7 @@ interface DashboardMetricProps {
   onClick?: () => void;
 }
 
-export function DashboardMetric({
+export function CommandCenterMetric({
   label,
   value,
   subValue,
@@ -27,7 +27,7 @@ export function DashboardMetric({
   color,
   trend,
   onClick
-}: DashboardMetricProps) {
+}: CommandCenterMetricProps) {
   const [showInfo, setShowInfo] = useState(false);
   const colorStyles = {
     emerald: {

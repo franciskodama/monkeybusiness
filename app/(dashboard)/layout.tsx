@@ -1,8 +1,8 @@
 import Footer from '@/components/Footer';
-import { DashboardBreadcrumb } from './in/_components/Breadcrumb';
-import Greeting from './in/_components/Greeting';
-import PencilBanner from './in/_components/Pencil-Banner';
-import { User } from './in/_components/User';
+import { CommandCenterBreadcrumb } from './command-center/_components/Breadcrumb';
+import Greeting from './command-center/_components/Greeting';
+import PencilBanner from './command-center/_components/Pencil-Banner';
+import { User } from './command-center/_components/User';
 import Providers from './providers';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -28,7 +28,7 @@ export default function DashboardLayout({
         <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
           <div>
             <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-              <DashboardBreadcrumb />
+              <CommandCenterBreadcrumb />
               {/* <SearchInput /> */}
               <div className="flex items-center gap-4 sm:gap-8">
                 <Greeting />

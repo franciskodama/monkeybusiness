@@ -1,7 +1,7 @@
 import { LayoutDashboard, Zap, Activity } from 'lucide-react';
 import ExplanationBox from '@/components/ExplanationBox';
 
-export default function ExplanationIn({
+export default function ExplanationCommandCenter({
   setOpenAction
 }: {
   setOpenAction: (value: boolean) => void;

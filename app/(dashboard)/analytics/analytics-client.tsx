@@ -1,0 +1,211 @@
+'use client';
+
+import React from 'react';
+import {
+  BarChart3,
+  PieChart as PieChartIcon,
+  TrendingUp,
+  ArrowUpRight,
+  Activity,
+  Box,
+  LayoutDashboard
+} from 'lucide-react';
+import { CategoryShareChart } from '@/components/CategoryShareChart';
+import { SourceBurnChart } from '@/components/SourceBurnChart';
+import { AnnualStrategicChart } from '@/components/AnnualStrategicChart';
+
+import Link from 'next/link';
+
+interface AnalyticsClientProps {
+  user: any;
+  subcategories: any[];
+  reminders: any[];
+  householdUsers: any[];
+  householdId: string;
+}
+
+export default function AnalyticsClient({
+  user,
+  subcategories,
+  householdId
+}: AnalyticsClientProps) {
+  const now = new Date();
+
+  return (
+    <div className="flex flex-col gap-10 p-8 mb-12 max-w-[1600px] mx-auto">
+      {/* HEADER SECTION */}
+      <div className="flex justify-between items-end pb-4 border-b-2 border-slate-100">
+        <div className="flex items-center gap-6">
+          <div className="bg-slate-900 p-4 shadow-[6px_6px_0px_rgba(0,0,0,0.1)]">
+            <BarChart3 className="text-white" size={20} />
+          </div>
+          <div className="flex flex-col">
+            <h1 className="text-3xl font-black tracking-tighter uppercase leading-none text-slate-900">
+              Analytics Suite
+            </h1>
+            <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-2">
+              Advanced Behavioral Insights & Financial Topology
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* TOP ROW: DISTRIBUTION & BEHAVIOR */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        {/* LARGE PIE CHART SECTION */}
+        <div className="lg:col-span-4 flex flex-col gap-6">
+          <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)] h-full">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-slate-100">
+                <PieChartIcon size={20} className="text-slate-900" />
+              </div>
+              <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                Capital Allocation
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-4">
+              Category Distribution YTD
+            </p>
+            <div className="scale-110 origin-center py-4">
+              <CategoryShareChart
+                subcategories={subcategories}
+                showList={true}
+              />
+            </div>
+            <div className="mt-8 pt-8 border-t border-slate-50">
+              <p className="text-[10px] text-slate-400 font-medium italic leading-relaxed">
+                * Includes all expense and savings allocations. Income
+                categories are excluded from this view to focus on deployment.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* SOURCE BREAKDOWN & TRENDS */}
+        <div className="lg:col-span-8 flex flex-col gap-10">
+          <div className="bg-slate-900 p-8 text-white shadow-[10px_10px_0px_rgba(15,23,42,0.1)]">
+            <div className="flex justify-between items-center mb-10">
+              <div className="flex items-center gap-4">
+                <div className="p-2 bg-emerald-500/20">
+                  <Activity size={20} className="text-emerald-400" />
+                </div>
+                <h2 className="text-xl font-black uppercase tracking-tighter">
+                  Velocity Source Analysis
+                </h2>
+              </div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-800 px-3 py-1">
+                Live Data Link
+              </span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+              <div>
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6 font-mono">
+                  Spending by Source
+                </h3>
+                <SourceBurnChart subcategories={subcategories} />
+              </div>
+              <div className="space-y-8">
+                <div className="p-6 border-2 border-slate-800 bg-slate-800/20">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 mb-2">
+                    Analytic Insight
+                  </p>
+                  <p className="text-sm font-medium leading-relaxed italic text-slate-300">
+                    "Source diversity in spending helps maintain household
+                    resilience. Monitor the Family pool vs Individual accounts
+                    to ensure balanced liquidity."
+                  </p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-slate-800/40 border border-slate-800">
+                    <p className="text-[9px] font-black uppercase text-slate-500 mb-1">
+                      Stability
+                    </p>
+                    <p className="text-lg font-mono font-black text-white">
+                      94%
+                    </p>
+                  </div>
+                  <div className="p-4 bg-slate-800/40 border border-slate-800">
+                    <p className="text-[9px] font-black uppercase text-slate-500 mb-1">
+                      Leverage
+                    </p>
+                    <p className="text-lg font-mono font-black text-white">
+                      LOW
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)]">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-slate-100">
+                <TrendingUp size={20} className="text-slate-900" />
+              </div>
+              <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
+                Yearly Trajectory
+              </h2>
+            </div>
+            <div className="h-[300px]">
+              <AnnualStrategicChart subcategories={subcategories} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* FOOTER / CTAs */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <Link
+          href="/yearly"
+          className="p-6 border-2 border-slate-200 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer group"
+        >
+          <div className="p-3 bg-slate-900 group-hover:scale-110 transition-transform">
+            <Box className="text-white" size={20} />
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-tight text-slate-900">
+              View Raw Data
+            </p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Yearly Audit Table
+            </p>
+          </div>
+        </Link>
+        <Link
+          href="/command-center"
+          className="p-6 border-2 border-slate-200 flex items-center gap-4 hover:bg-slate-50 transition-colors cursor-pointer group"
+        >
+          <div className="p-3 bg-slate-900 group-hover:scale-110 transition-transform">
+            <LayoutDashboard className="text-white" size={20} />
+          </div>
+          <div>
+            <p className="text-xs font-black uppercase tracking-tight text-slate-900">
+              Back to Base
+            </p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+              Command Center
+            </p>
+          </div>
+        </Link>
+        <Link
+          href="#"
+          className="p-6 bg-slate-900 text-white flex items-center justify-between group cursor-pointer overflow-hidden relative"
+        >
+          <div className="relative z-10">
+            <p className="text-xs font-black uppercase tracking-tight">
+              Export Intelligence
+            </p>
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+              PDF Strategy Report
+            </p>
+          </div>
+          <ArrowUpRight
+            className="relative z-10 text-emerald-400 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"
+            size={24}
+          />
+          <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 group-hover:scale-150 transition-transform duration-700" />
+        </Link>
+      </div>
+    </div>
+  );
+}

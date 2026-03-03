@@ -8,7 +8,16 @@ import {
 } from 'lucide-react';
 
 export const menuItems = [
-  { label: 'Dashboard', href: '/in', icon: <Home className="h-5 w-5" /> },
+  {
+    label: 'Command Center',
+    href: '/command-center',
+    icon: <Home className="h-5 w-5" />
+  },
+  {
+    label: 'Analytics',
+    href: '/analytics',
+    icon: <BarChart className="h-5 w-5" />
+  },
   {
     label: 'Planner',
     href: '/planner',

@@ -1,12 +1,12 @@
 export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 
-import In from './in';
+import CommandCenterServer from './command-center-server';
 import { auth } from '@/lib/auth';
 import { getUser } from '@/lib/actions';
 import { Spinner } from '@/lib/icons';
 
-export default async function InPage() {
+export default async function CommandCenterPage() {
   const session = await auth();
 
   if (!session || !session.user) {
@@ -21,7 +21,7 @@ export default async function InPage() {
 
   return (
     <>
-      <div>{dbUser ? <In user={dbUser} /> : <Spinner />} </div>
+      <div>{dbUser ? <CommandCenterServer user={dbUser} /> : <Spinner />} </div>
     </>
   );
 }

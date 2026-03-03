@@ -1,8 +1,8 @@
 import { getSubcategories, getReminders } from '@/lib/actions';
 import { User } from '@prisma/client';
-import InClient from './in-client';
+import CommandCenterClient from './command-center-client';
 
-export default async function In({ user }: { user: any }) {
+export default async function CommandCenterServer({ user }: { user: any }) {
   const householdId = user?.householdId!;
   const subcategories = await getSubcategories(householdId);
   const currentMonth = new Date().getMonth() + 1;
@@ -17,7 +17,7 @@ export default async function In({ user }: { user: any }) {
   const householdUsers = (user.household?.users || []) as User[];
 
   return (
-    <InClient
+    <CommandCenterClient
       user={user}
       subcategories={subcategories}
       pendingCount={pendingCount}

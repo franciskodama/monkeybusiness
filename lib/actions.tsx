@@ -311,8 +311,10 @@ export async function joinHousehold(inviteCode: string) {
     });
 
     revalidatePath('/settings');
-    revalidatePath('/in');
+    revalidatePath('/command-center');
+    rrevalidatePath('/analytics');
     revalidatePath('/planner');
+    revalidatePath('/analytics');
 
     return { success: true };
   } catch (error) {
@@ -447,6 +449,7 @@ export async function updateCategory(data: {
       }
     });
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true, category: updated };
   } catch (error) {
     console.error('❌ Error updating category:', error);
@@ -464,6 +467,7 @@ export async function reorderCategories(orderedIds: string[]) {
     );
     await prisma.$transaction(updates);
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true };
   } catch (error) {
     console.error('❌ Error reordering categories:', error);
@@ -585,6 +589,7 @@ export async function addSubcategory(data: {
     });
 
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true, _currentSubcategories };
   } catch (error: any) {
     console.error('--- ❌ Database Error:', error.message);
@@ -659,6 +664,7 @@ export async function renameSubcategory(data: {
       }
     });
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true };
   } catch (error) {
     console.error('❌ Error renaming subcategory:', error);
@@ -761,6 +767,7 @@ export async function bulkAddTransactions(
     const updatedItems = await getSubcategories(householdId);
 
     revalidatePath('/planner');
+    revalidatePath('/analytics');
 
     return {
       success: true,
@@ -786,6 +793,7 @@ export async function deleteTransaction(
 
     const updatedItems = await getSubcategories(householdId);
     revalidatePath('/planner');
+    revalidatePath('/analytics');
 
     return { success: true, updatedItems };
   } catch (error) {
@@ -989,7 +997,7 @@ export async function addReminder(data: {
             </p>
             
             <div style="text-align: center; margin-top: 40px;">
-              <a href="https://monkeybusiness-olive.vercel.app/in" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
+              <a href="https://monkeybusiness-olive.vercel.app/command-center" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
                 Open Dashboard
               </a>
             </div>
@@ -1004,7 +1012,7 @@ export async function addReminder(data: {
       });
     }
 
-    revalidatePath('/in');
+    revalidatePath('/command-center');
     return { success: true, reminder };
   } catch (error) {
     console.error('❌ Error adding reminder:', error);
@@ -1078,7 +1086,7 @@ export async function deleteReminder(id: string) {
       where: { id }
     });
 
-    revalidatePath('/in');
+    revalidatePath('/command-center');
     return { success: true };
   } catch (error) {
     console.error('❌ Error deleting reminder:', error);

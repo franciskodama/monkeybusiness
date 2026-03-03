@@ -74,7 +74,7 @@ export default async function Login() {
               action={async () => {
                 'use server';
                 await signIn('github', {
-                  redirectTo: '/in'
+                  redirectTo: '/command-center'
                 });
               }}
               className="w-full"
@@ -93,7 +93,7 @@ export default async function Login() {
               action={async () => {
                 'use server';
                 await signIn('google', {
-                  redirectTo: '/in'
+                  redirectTo: '/command-center'
                 });
               }}
               className="w-full"
