@@ -594,6 +594,20 @@ export default function Planner({
                   new Date(allTransactions[0]?.date || new Date()).getFullYear()
             );
 
+            const categoryTargetTotal = itemsInThisCategory.reduce(
+              (sum, item) => sum + (item.amount || 0),
+              0
+            );
+            const categoryActualTotal = itemsInThisCategory.reduce(
+              (sum, item) =>
+                sum +
+                (item.transactions?.reduce(
+                  (s: number, t: any) => s + (t.amount || 0),
+                  0
+                ) || 0),
+              0
+            );
+
             return (
               <motion.div
                 key={category.id}
@@ -601,21 +615,56 @@ export default function Planner({
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col border overflow-hidden shadow-sm"
               >
-                <div className="flex items-center justify-between p-4 bg-secondary/30 border-b">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-none shadow-inner"
-                      style={getColorCode(category.color)}
-                    />
-                    <h3
-                      className={`font-bold uppercase text-sm ${kumbh_sans.className}`}
-                    >
-                      {category.name}
-                    </h3>
+                <div className="flex items-center justify-between px-6 py-4 bg-secondary/30 border-b">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-4 h-4 rounded-none shadow-inner"
+                        style={getColorCode(category.color)}
+                      />
+                      <h3
+                        className={`font-bold uppercase text-sm ${kumbh_sans.className}`}
+                      >
+                        {category.name}
+                      </h3>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono hidden sm:inline lowercase">
+                      {itemsInThisCategory.length} Items
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    {itemsInThisCategory.length} Items
-                  </span>
+
+                  <div className="flex items-center justify-end gap-10 flex-1">
+                    <div className="flex flex-col items-end w-32">
+                      <span className="text-[10px] text-slate-400 uppercase mb-1 font-semibold">
+                        Total Target
+                      </span>
+                      <span className="text-sm font-mono font-regular text-slate-400 px-2 py-1">
+                        ${formatCurrency(categoryTargetTotal)}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-end w-32">
+                      <span className="text-[10px] text-slate-400 uppercase mb-1 font-semibold">
+                        Total Actual
+                      </span>
+                      <span
+                        className={`text-sm font-mono font-regular px-2 py-1 ${
+                          categoryActualTotal > categoryTargetTotal
+                            ? 'text-rose-600'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        ${formatCurrency(categoryActualTotal)}
+                      </span>
+                    </div>
+
+                    {/* Precise invisible clone of the actions column to ensure alignment */}
+                    <div className="flex items-center justify-end gap-3 min-w-[7em] invisible pointer-events-none">
+                      <div className="w-24 h-8" />
+                      <div className="w-8 h-8" />
+                      <div className="w-8 h-8" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex flex-col divide-y divide-secondary/50">
