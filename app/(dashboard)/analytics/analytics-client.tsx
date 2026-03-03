@@ -13,6 +13,7 @@ import {
 import { CategoryShareChart } from '@/components/CategoryShareChart';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { AnnualStrategicChart } from '@/components/AnnualStrategicChart';
+import { CategoryTrendChart } from '@/components/CategoryTrendChart';
 
 import Link from 'next/link';
 
@@ -150,6 +151,26 @@ export default function AnalyticsClient({
               <AnnualStrategicChart subcategories={subcategories} />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* BOTTOM ROW: ALLOCATION TRENDS */}
+      <div className="bg-white border-2 border-slate-200 p-8 shadow-[10px_10px_0px_rgba(15,23,42,0.05)]">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="p-2 bg-slate-100">
+            <Activity size={20} className="text-slate-900" />
+          </div>
+          <div>
+            <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
+              Allocation Trend Architecture
+            </h2>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-1">
+              Monthly Behavioral Shifts by Category
+            </p>
+          </div>
+        </div>
+        <div className="h-[450px]">
+          <CategoryTrendChart subcategories={subcategories} />
         </div>
       </div>
 
