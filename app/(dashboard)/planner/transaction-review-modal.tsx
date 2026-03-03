@@ -140,7 +140,10 @@ export function TransactionReviewModal({
                   className={`py-6 flex flex-col gap-4 transition-opacity ${tx.ignored ? 'opacity-40' : 'opacity-100'}`}
                 >
                   {isDuplicate && !tx.ignored && (
-                    <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-200 rounded-none mb-[-8px] animate-pulse">
+                    <div
+                      className="flex items-center gap-2 p-4 bg-red-100 border border-red-200 rounded-none mb-[-8px] animate-pulse"
+                      style={{ animationDuration: '2s' }}
+                    >
                       <AlertCircle size={14} className="text-red-600" />
                       <p className="text-[10px] font-black uppercase text-red-700 tracking-widest">
                         Potential Duplicate Detected: Match found in this

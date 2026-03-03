@@ -1,7 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Plus, Calendar as CalendarIcon, AlertTriangle } from 'lucide-react';
+import {
+  Plus,
+  Calendar as CalendarIcon,
+  AlertTriangle,
+  AlertCircle
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addTransaction } from '@/lib/actions';
@@ -137,6 +142,27 @@ export function AddTransactionModal({
     }
   };
 
+  // Duplicate detection
+  // If month mismatch, we're looking at a different subcategory ID potentially
+  const getSubToCheck = () => {
+    if (!isMonthMismatch)
+      return allAvailableSubcategories.find((s) => s.id === subcategoryId);
+    const dateParts = date.split('-');
+    const m = parseInt(dateParts[1], 10);
+    const y = parseInt(dateParts[0], 10);
+    return allAvailableSubcategories.find(
+      (s) => s.name === itemName && s.month === m && s.year === y
+    );
+  };
+
+  const subToCheck = getSubToCheck();
+  const isDuplicate =
+    amount &&
+    !isNaN(parseFloat(amount)) &&
+    subToCheck?.transactions?.some(
+      (tx: any) => Math.abs(tx.amount) === Math.abs(parseFloat(amount))
+    );
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -191,6 +217,26 @@ export function AddTransactionModal({
                     is in <strong>{targetMonthName}</strong>. This expense will
                     be automatically "teleported" to your{' '}
                     <strong>{targetMonthName}</strong> budget.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isDuplicate && (
+            <div
+              className="bg-red-50 border-l-4 border-red-500 p-4 animate-pulse"
+              style={{ animationDuration: '0.1s' }}
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle className="text-red-600 shrink-0" size={18} />
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-tight text-red-800">
+                    Potential Duplicate
+                  </p>
+                  <p className="text-[11px] text-red-700 leading-relaxed font-bold">
+                    You already have a transaction with the same amount in this
+                    category.
                   </p>
                 </div>
               </div>
