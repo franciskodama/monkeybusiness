@@ -178,7 +178,7 @@ export function AddTransactionModal({
           <Plus size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl [&>button:last-child]:text-white">
         <DialogHeader
           className={`flex flex-col items-start p-6 text-white space-y-1 ${
             isIncome ? 'bg-emerald-700' : 'bg-slate-900'
@@ -226,7 +226,7 @@ export function AddTransactionModal({
           {isDuplicate && (
             <div
               className="bg-red-50 border-l-4 border-red-500 p-4 animate-pulse"
-              style={{ animationDuration: '0.1s' }}
+              style={{ animationDuration: '1s' }}
             >
               <div className="flex items-start gap-3">
                 <AlertCircle className="text-red-600 shrink-0" size={18} />

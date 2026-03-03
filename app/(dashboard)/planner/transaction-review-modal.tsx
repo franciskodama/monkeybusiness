@@ -142,7 +142,7 @@ export function TransactionReviewModal({
                   {isDuplicate && !tx.ignored && (
                     <div
                       className="flex items-center gap-2 p-4 bg-red-100 border border-red-200 rounded-none mb-[-8px] animate-pulse"
-                      style={{ animationDuration: '2s' }}
+                      style={{ animationDuration: '1s' }}
                     >
                       <AlertCircle size={14} className="text-red-600" />
                       <p className="text-[10px] font-black uppercase text-red-700 tracking-widest">
