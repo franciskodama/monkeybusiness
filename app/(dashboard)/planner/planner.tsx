@@ -635,20 +635,20 @@ export default function Planner({
 
                   <div className="flex items-center justify-end gap-10 flex-1">
                     <div className="flex flex-col items-end w-32">
-                      <span className="text-[10px] text-slate-400 uppercase mb-1 font-semibold">
+                      <span className="text-[9px] text-slate-400 uppercase mb-1 font-semibold">
                         Total Target
                       </span>
-                      <span className="text-sm font-mono font-regular text-slate-400 px-2 py-1">
+                      <span className="text-[12px] font-mono font-regular text-slate-400 px-2 py-1">
                         ${formatCurrency(categoryTargetTotal)}
                       </span>
                     </div>
 
                     <div className="flex flex-col items-end w-32">
-                      <span className="text-[10px] text-slate-400 uppercase mb-1 font-semibold">
+                      <span className="text-[9px] text-slate-400 uppercase mb-1 font-semibold">
                         Total Actual
                       </span>
                       <span
-                        className={`text-sm font-mono font-regular px-2 py-1 ${
+                        className={`text-[12px] font-mono font-regular px-2 py-1 ${
                           categoryActualTotal > categoryTargetTotal
                             ? 'text-rose-600'
                             : 'text-slate-400'

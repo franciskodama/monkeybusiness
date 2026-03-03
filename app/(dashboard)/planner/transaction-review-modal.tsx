@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -121,11 +122,33 @@ export function TransactionReviewModal({
                 (s) => s.month === txMonth && s.year === txYear
               );
 
+              // --- DUPLICATE DETECTION ---
+              const selectedSub = allAvailableSubcategories.find(
+                (s) => s.id === tx.subcategoryId
+              );
+              const isDuplicate =
+                tx.subcategoryId &&
+                selectedSub?.transactions?.some(
+                  (existing: any) =>
+                    Math.abs(existing.amount) === Math.abs(tx.amount) &&
+                    !existing.ignored // If existing system has ignoring, check it
+                );
+
               return (
                 <div
                   key={index}
                   className={`py-6 flex flex-col gap-4 transition-opacity ${tx.ignored ? 'opacity-40' : 'opacity-100'}`}
                 >
+                  {isDuplicate && !tx.ignored && (
+                    <div className="flex items-center gap-2 p-4 bg-red-100 border border-red-200 rounded-none mb-[-8px] animate-pulse">
+                      <AlertCircle size={14} className="text-red-600" />
+                      <p className="text-[10px] font-black uppercase text-red-700 tracking-widest">
+                        Potential Duplicate Detected: Match found in this
+                        category.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-end gap-2">
                     <Checkbox
                       id={`skip-${index}`}
