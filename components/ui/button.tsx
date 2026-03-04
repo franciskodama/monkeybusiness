@@ -42,7 +42,7 @@ export interface ButtonProps
     React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean;
-  formAction?: any;
+  formAction?: string | ((formData: FormData) => void);
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(

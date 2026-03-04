@@ -1,11 +1,4 @@
-import {
-  Home,
-  BarChart,
-  Table,
-  PiggyBank,
-  CalendarDays,
-  Scissors
-} from 'lucide-react';
+import { Home, BarChart, Table, CalendarDays, Scissors } from 'lucide-react';
 
 export const menuItems = [
   {

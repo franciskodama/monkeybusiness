@@ -45,7 +45,9 @@ export const months = [
   'December'
 ];
 
-export const getSourceTotals = (transactions: any[]) => {
+export const getSourceTotals = (
+  transactions: { amount: number; source: string | null }[]
+) => {
   const totals: Record<string, number> = {};
 
   transactions.forEach((tx) => {
