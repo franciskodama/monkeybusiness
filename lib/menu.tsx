@@ -1,21 +1,27 @@
-import { Home, BarChart, Table, CalendarDays, Scissors } from 'lucide-react';
+import {
+  CalendarDays,
+  Scissors,
+  NotebookPen,
+  ChartScatter,
+  Flag
+} from 'lucide-react';
 
 export const menuItems = [
   {
     label: 'Command Center',
     href: '/command-center',
-    icon: <Home className="h-5 w-5" />
+    icon: <Flag className="h-5 w-5" />
   },
 
   {
     label: 'Planner',
     href: '/planner',
-    icon: <CalendarDays className="h-5 w-5" />
+    icon: <NotebookPen className="h-5 w-5" />
   },
   {
     label: 'Yearly Table',
     href: '/yearly',
-    icon: <Table className="h-5 w-5" />
+    icon: <CalendarDays className="h-5 w-5" />
   },
   {
     label: 'Waste Cutter',
@@ -25,6 +31,6 @@ export const menuItems = [
   {
     label: 'Analytics',
     href: '/analytics',
-    icon: <BarChart className="h-5 w-5" />
+    icon: <ChartScatter className="h-5 w-5" />
   }
 ];
