@@ -20,5 +20,5 @@ export default async function HomePage() {
     });
   }
 
-  return <div>{user ? redirect('/in') : redirect('/login')}</div>;
+  return <div>{user ? redirect('/command-center') : redirect('/login')}</div>;
 }

@@ -15,33 +15,32 @@ import {
   Binoculars
 } from 'lucide-react';
 import Help from '@/components/Help';
-import ExplanationIn from './explanation-in';
+import ExplanationCommandCenter from './explanation-command-center';
 import { SignalsRibbon } from './_components/SignalsRibbon';
 import { AnnualStrategicChart } from '@/components/AnnualStrategicChart';
-import { DashboardMetric } from './_components/DashboardMetric';
+import { CommandCenterMetric } from './_components/CommandCenterMetric';
 import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { FixedVariableTracker } from './_components/FixedVariableTracker';
 import { OutlierAlerts } from './_components/OutlierAlerts';
 import { formatCurrencyRounded } from '@/lib/utils';
-import { User } from '@prisma/client';
+import { User, Reminder } from '@prisma/client';
+import { SubcategoryWithCategory } from '@/lib/types';
 
-interface InClientProps {
-  user: any;
-  subcategories: any[];
-  pendingCount: number;
-  reminders: any[];
+interface CommandCenterClientProps {
+  user: User;
+  subcategories: SubcategoryWithCategory[];
+  reminders: Reminder[];
   householdUsers: User[];
   householdId: string;
 }
 
-export default function InClient({
+export default function CommandCenterClient({
   user,
   subcategories,
-  pendingCount,
   reminders,
   householdUsers,
   householdId
-}: InClientProps) {
+}: CommandCenterClientProps) {
   const [openAction, setOpenAction] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [showLogic, setShowLogic] = useState(false);
@@ -56,20 +55,20 @@ export default function InClient({
   const monthlyEfficiencies = ytdMonths.map((m) => {
     const monthSubs = subcategories.filter((s) => s.month === m);
     const contribution = monthSubs.reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
     const expenses = monthSubs
       .filter((s) => !s.category?.isIncome && !s.category?.isSavings)
       .reduce(
-        (sum: number, s: any) =>
+        (sum: number, s) =>
           sum +
           (s.transactions || []).reduce(
-            (ts: number, t: any) => ts + (t.amount || 0),
+            (ts: number, t) => ts + (Number(t.amount) || 0),
             0
           ),
         0
@@ -83,20 +82,20 @@ export default function InClient({
   const totalYtdContribution = subcategories
     .filter((s) => s.month <= currentMonth)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
   const totalYtdSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -115,10 +114,10 @@ export default function InClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -131,10 +130,10 @@ export default function InClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -155,10 +154,10 @@ export default function InClient({
   const currentMonthSubs = subcategories.filter(
     (s) => s.month === currentMonth
   );
-  currentMonthSubs.forEach((s: any) => {
+  currentMonthSubs.forEach((s) => {
     if (s.category?.isIncome || s.category?.isSavings) return;
     const actual = (s.transactions || []).reduce(
-      (sum: number, tx: any) => sum + (tx.amount || 0),
+      (sum: number, tx) => sum + (Number(tx.amount) || 0),
       0
     );
     const target = s.amount || 0;
@@ -179,10 +178,10 @@ export default function InClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -191,11 +190,11 @@ export default function InClient({
   const ytdActualContribution = subcategories
     .filter((s) => s.month <= currentMonth)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
 
@@ -209,11 +208,11 @@ export default function InClient({
   // C. Annual Forecast Risk (Planned Full Year)
   const fullYearPlannedExpenses = subcategories
     .filter((s) => !s.category?.isIncome && !s.category?.isSavings)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .reduce((sum: number, s) => sum + (s.amount || 0), 0);
 
   const fullYearPlannedContribution = subcategories
     .filter((s) => s.category?.isIncome)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .reduce((sum: number, s) => sum + (s.amount || 0), 0);
 
   if (fullYearPlannedExpenses > fullYearPlannedContribution) {
     frictionPoints.push({
@@ -226,10 +225,10 @@ export default function InClient({
   const ytdActualSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -237,7 +236,7 @@ export default function InClient({
 
   const ytdPlannedSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .reduce((sum: number, s) => sum + (s.amount || 0), 0);
 
   if (ytdPlannedSavings > 0 && ytdActualSavings < ytdPlannedSavings * 0.9) {
     frictionPoints.push({
@@ -452,8 +451,9 @@ export default function InClient({
                         Strategic Note
                       </h4>
                       <p className="text-xs font-medium leading-relaxed italic opacity-80">
-                        "Clean system health ensures maximum Wealth Velocity.
-                        Address these points to minimize capital leakage."
+                        &quot;Clean system health ensures maximum Wealth
+                        Velocity. Address these points to minimize capital
+                        leakage.&quot;
                       </p>
                     </div>
                   )}
@@ -504,14 +504,14 @@ export default function InClient({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95 }}
           >
-            <ExplanationIn setOpenAction={setOpenAction} />
+            <ExplanationCommandCenter setOpenAction={setOpenAction} />
           </motion.div>
         )}
       </AnimatePresence>
 
       {/* TOP ROW: STRATEGIC METRIC CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <DashboardMetric
+        <CommandCenterMetric
           label="Strategic Efficiency"
           value={`${avgEfficiency.toFixed(1)}%`}
           subValue="Year-to-Date Average"
@@ -520,7 +520,7 @@ export default function InClient({
           color="emerald"
           trend={{ value: 4, isPositive: true }}
         />
-        <DashboardMetric
+        <CommandCenterMetric
           label="Wealth Velocity"
           value={`${savingsVelocity.toFixed(1)}%`}
           subValue="Savings / Effort Ratio"
@@ -528,7 +528,7 @@ export default function InClient({
           icon={TrendingUp}
           color="blue"
         />
-        <DashboardMetric
+        <CommandCenterMetric
           label="Monthly Burn Rate"
           value={`$${formatCurrencyRounded(currentMonthExpenses)}`}
           subValue={
@@ -544,7 +544,7 @@ export default function InClient({
             isPositive: burnDiff <= 0
           }}
         />
-        <DashboardMetric
+        <CommandCenterMetric
           label="System Health"
           value={totalFriction}
           subValue={
@@ -611,7 +611,9 @@ export default function InClient({
               </div>
             </div>
 
-            <AnnualStrategicChart subcategories={subcategories} />
+            <div className="h-[400px]">
+              <AnnualStrategicChart subcategories={subcategories} />
+            </div>
 
             <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end items-center italic text-slate-400 text-[10px] font-bold uppercase tracking-widest">
               Jan 2026 - Dec 2026

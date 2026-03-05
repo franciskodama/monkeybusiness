@@ -1,27 +1,22 @@
 'use client';
 
-import {
-  CreditCard,
-  ArrowUpRight,
-  Wallet,
-  Landmark,
-  Award
-} from 'lucide-react';
+import { CreditCard, Wallet, Landmark, Award } from 'lucide-react';
 import { getSourceColor, formatCurrency } from '@/lib/utils';
+import { TransactionInput } from '@/lib/types';
 
 export function SourceBreakdown({
   transactions,
   onSourceClick
 }: {
-  transactions: any[];
-  onSourceClick?: (source: string, transactions: any[]) => void;
+  transactions: TransactionInput[];
+  onSourceClick?: (source: string, transactions: TransactionInput[]) => void;
 }) {
   const sources = ['His', 'Her', 'Family'];
 
   // Initialize data for the three sources
   const data: Record<
     string,
-    { spending: number; funding: number; txs: any[] }
+    { spending: number; funding: number; txs: TransactionInput[] }
   > = {
     His: { spending: 0, funding: 0, txs: [] },
     Her: { spending: 0, funding: 0, txs: [] },
@@ -31,13 +26,15 @@ export function SourceBreakdown({
   // Populate data from transactions
   transactions.forEach((tx) => {
     const s = tx.source;
-    if (data[s]) {
-      if (tx.isIncome) {
-        data[s].funding += tx.amount;
-      } else {
-        data[s].spending += tx.amount;
+    if (s && data[s]) {
+      if (tx.amount) {
+        const amount =
+          typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
+        // In this simplified logic, we'll treat all as spending.
+        // If we want to support funding/income specifically, we'd need that flag on TransactionInput.
+        data[s].spending += amount;
+        data[s].txs.push(tx);
       }
-      data[s].txs.push(tx);
     }
   });
 

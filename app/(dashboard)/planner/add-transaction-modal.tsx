@@ -1,7 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Plus, Calendar as CalendarIcon, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import {
+  Plus,
+  Calendar as CalendarIcon,
+  AlertTriangle,
+  AlertCircle
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { addTransaction } from '@/lib/actions';
@@ -21,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 export function AddTransactionModal({
   subcategoryId,
@@ -35,9 +41,9 @@ export function AddTransactionModal({
   householdId: string;
   itemName: string;
   selectedMonth: number;
-  allAvailableSubcategories: any[];
+  allAvailableSubcategories: SubcategoryWithCategory[];
   isIncome?: boolean;
-  onSuccess: (updatedItems: any[]) => void;
+  onSuccess: (updatedItems: SubcategoryWithCategory[]) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -53,35 +59,27 @@ export function AddTransactionModal({
       : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
 
   const [date, setDate] = useState(initialDate);
-  const [isMonthMismatch, setIsMonthMismatch] = useState(false);
-  const [targetMonthName, setTargetMonthName] = useState('');
 
-  // Sync date when selectedMonth changes or modal opens
-  useEffect(() => {
-    if (open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
       const today = new Date();
-      if (selectedMonth === today.getMonth() + 1) {
-        setDate(today.toISOString().split('T')[0]);
-      } else {
-        setDate(`2026-${selectedMonth.toString().padStart(2, '0')}-01`);
-      }
+      const initialDate =
+        selectedMonth === today.getMonth() + 1
+          ? today.toISOString().split('T')[0]
+          : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
+      setDate(initialDate);
       setDescription(itemName);
     }
-  }, [open, selectedMonth, itemName]);
+  };
 
-  // Handle month mismatch detection
-  useEffect(() => {
-    const dateParts = date.split('-');
-    if (dateParts.length === 3) {
-      const monthFromDate = parseInt(dateParts[1], 10);
-      if (monthFromDate !== selectedMonth) {
-        setIsMonthMismatch(true);
-        setTargetMonthName(months[monthFromDate - 1]);
-      } else {
-        setIsMonthMismatch(false);
-      }
-    }
-  }, [date, selectedMonth]);
+  // Month mismatch detection during render
+  const dateParts = date.split('-');
+  const monthFromDate =
+    dateParts.length === 3 ? parseInt(dateParts[1], 10) : selectedMonth;
+  const isMonthMismatch =
+    dateParts.length === 3 && monthFromDate !== selectedMonth;
+  const targetMonthName = isMonthMismatch ? months[monthFromDate - 1] : '';
 
   const handleSubmit = async () => {
     if (!amount || isNaN(parseFloat(amount))) {
@@ -137,8 +135,29 @@ export function AddTransactionModal({
     }
   };
 
+  // Duplicate detection
+  // If month mismatch, we're looking at a different subcategory ID potentially
+  const getSubToCheck = () => {
+    if (!isMonthMismatch)
+      return allAvailableSubcategories.find((s) => s.id === subcategoryId);
+    const dateParts = date.split('-');
+    const m = parseInt(dateParts[1], 10);
+    const y = parseInt(dateParts[0], 10);
+    return allAvailableSubcategories.find(
+      (s) => s.name === itemName && s.month === m && s.year === y
+    );
+  };
+
+  const subToCheck = getSubToCheck();
+  const isDuplicate =
+    amount &&
+    !isNaN(parseFloat(amount)) &&
+    subToCheck?.transactions?.some(
+      (tx) => Math.abs(Number(tx.amount)) === Math.abs(parseFloat(amount))
+    );
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -152,7 +171,7 @@ export function AddTransactionModal({
           <Plus size={16} />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl">
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden border-slate-300 shadow-2xl [&>button:last-child]:text-white">
         <DialogHeader
           className={`flex flex-col items-start p-6 text-white space-y-1 ${
             isIncome ? 'bg-emerald-700' : 'bg-slate-900'
@@ -189,8 +208,29 @@ export function AddTransactionModal({
                     You are currently in{' '}
                     <strong>{months[selectedMonth - 1]}</strong>, but the date
                     is in <strong>{targetMonthName}</strong>. This expense will
-                    be automatically "teleported" to your{' '}
+                    is in <strong>{targetMonthName}</strong>. This expense will
+                    be automatically &quot;teleported&quot; to your{' '}
                     <strong>{targetMonthName}</strong> budget.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {isDuplicate && (
+            <div
+              className="bg-red-50 border-l-4 border-red-500 p-4 animate-pulse"
+              style={{ animationDuration: '1s' }}
+            >
+              <div className="flex items-start gap-3">
+                <AlertCircle className="text-red-600 shrink-0" size={18} />
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-tight text-red-800">
+                    Potential Duplicate
+                  </p>
+                  <p className="text-[11px] text-red-700 leading-relaxed font-bold">
+                    You already have a transaction with the same amount in this
+                    category.
                   </p>
                 </div>
               </div>

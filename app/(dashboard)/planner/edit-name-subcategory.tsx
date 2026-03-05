@@ -56,7 +56,7 @@ export function EditableSubcategoryName({
         toast.error('Failed to rename. Name might already exist.');
         setName(initialName);
       }
-    } catch (error) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setIsLoading(false);

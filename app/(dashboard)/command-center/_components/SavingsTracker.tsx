@@ -1,10 +1,15 @@
 'use client';
 
-import { PiggyBank, ArrowRight, Target } from 'lucide-react';
+import { Target } from 'lucide-react';
 import { formatCurrencyRounded } from '@/lib/utils';
 import { tagClass } from '@/lib/classes';
+import { SubcategoryWithCategory } from '@/lib/types';
 
-export function SavingsTracker({ subcategories }: { subcategories: any[] }) {
+export function SavingsTracker({
+  subcategories
+}: {
+  subcategories: SubcategoryWithCategory[];
+}) {
   const currentMonth = new Date().getMonth() + 1;
 
   // 1. Filter savings categories
@@ -18,7 +23,7 @@ export function SavingsTracker({ subcategories }: { subcategories: any[] }) {
   );
   const actualSavings = savingsItems.reduce((sum, s) => {
     const txTotal = (s.transactions || []).reduce(
-      (tSum: number, tx: any) => tSum + tx.amount,
+      (tSum: number, tx) => tSum + (Number(tx.amount) || 0),
       0
     );
     return sum + txTotal;

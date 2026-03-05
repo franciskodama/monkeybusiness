@@ -1,19 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function PencilBanner() {
   const [randomIndex, setRandomIndex] = useState(0);
 
   useEffect(() => {
-    setRandomIndex(Math.floor(Math.random() * quotes.length));
+    const nextIndex = Math.floor(Math.random() * quotes.length);
+    setTimeout(() => setRandomIndex(nextIndex), 0);
   }, []);
 
   return (
     <div>
       <div className="flex flex-col items-center px-8 py-2 bg-primary border-0">
         <div className="flex tracking-wide text-[10px] sm:text-xs md:text-sm text-white text-center uppercase font-semibold">
-          <p>"{quotes[randomIndex].quote}"</p>
+          <p>&quot;{quotes[randomIndex].quote}&quot;</p>
           <p className="mx-2">—</p>
           <p>{quotes[randomIndex].author}</p>
         </div>

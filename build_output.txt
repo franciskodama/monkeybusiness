@@ -1,0 +1,291 @@
+   ▲ Next.js 15.0.6
+   - Environments: .env.local, .env
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+Failed to compile.
+
+./app/(dashboard)/analytics/analytics-client.tsx
+25:9  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+26:18  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+27:14  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:19  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+33:3  Warning: 'user' is defined but never used.  @typescript-eslint/no-unused-vars
+35:3  Warning: 'householdId' is defined but never used.  @typescript-eslint/no-unused-vars
+38:9  Warning: 'now' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+124:21  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+128:28  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./app/(dashboard)/analytics/explanation-stability-index.tsx
+1:36  Warning: 'HelpCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+37:61  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+37:69  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+90:23  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+90:28  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+106:45  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+
+./app/(dashboard)/analytics/page.tsx
+7:10  Warning: 'Spinner' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/(dashboard)/command-center/_components/CardMessage.tsx
+17:52  Error: Error: Cannot access variable before it is declared
+
+`numberOfGifsAvailable` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/command-center/_components/CardMessage.tsx:17:52
+  15 |   const getRandomMessage = () => {
+  16 |     const randomIndex = Math.floor(Math.random() * messages.length);
+> 17 |     const randomImage = Math.floor(Math.random() * numberOfGifsAvailable + 1);
+     |                                                    ^^^^^^^^^^^^^^^^^^^^^ `numberOfGifsAvailable` accessed before it is declared
+  18 |     setCurrentMessage(messages[randomIndex]);
+  19 |     setImageNumber(randomImage);
+  20 |   };
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/command-center/_components/CardMessage.tsx:26:3
+  24 |   }, []);
+  25 |
+> 26 |   const numberOfGifsAvailable = 20;
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ `numberOfGifsAvailable` is declared here
+  27 |
+  28 |   return (
+  29 |     <>  react-hooks/immutability
+
+./app/(dashboard)/command-center/_components/CommandCenterMetric.tsx
+3:34  Warning: 'X' is defined but never used.  @typescript-eslint/no-unused-vars
+25:3  Warning: 'details' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/(dashboard)/command-center/_components/FixedVariableTracker.tsx
+3:25  Warning: 'Info' is defined but never used.  @typescript-eslint/no-unused-vars
+5:10  Warning: 'tagClass' is defined but never used.  @typescript-eslint/no-unused-vars
+10:18  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+12:9  Warning: 'currentMonth' is assigned a value but never used.  @typescript-eslint/no-unused-vars
+
+./app/(dashboard)/command-center/_components/OutlierAlerts.tsx
+3:37  Warning: 'MinusCircle' is defined but never used.  @typescript-eslint/no-unused-vars
+6:67  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+28:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+38:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/(dashboard)/command-center/_components/Pencil-Banner.tsx
+9:5  Error: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/command-center/_components/Pencil-Banner.tsx:9:5
+   7 |
+   8 |   useEffect(() => {
+>  9 |     setRandomIndex(Math.floor(Math.random() * quotes.length));
+     |     ^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  10 |   }, []);
+  11 |
+  12 |   return (  react-hooks/set-state-in-effect
+16:14  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+16:42  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./app/(dashboard)/command-center/_components/ProjectionCard.tsx
+3:18  Warning: 'AlertTriangle' is defined but never used.  @typescript-eslint/no-unused-vars
+7:68  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/(dashboard)/command-center/_components/ReminderCard.tsx
+6:3  Warning: 'Send' is defined but never used.  @typescript-eslint/no-unused-vars
+8:3  Warning: 'Trash2' is defined but never used.  @typescript-eslint/no-unused-vars
+9:11  Warning: 'UserIcon' is defined but never used.  @typescript-eslint/no-unused-vars
+12:10  Warning: 'motion' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/(dashboard)/command-center/_components/SavingsTracker.tsx
+3:10  Warning: 'PiggyBank' is defined but never used.  @typescript-eslint/no-unused-vars
+3:21  Warning: 'ArrowRight' is defined but never used.  @typescript-eslint/no-unused-vars
+7:68  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+21:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/(dashboard)/command-center/_components/Search.tsx
+14:9  Error: 'value' is never reassigned. Use 'const' instead.  prefer-const
+15:9  Error: 'params' is never reassigned. Use 'const' instead.  prefer-const
+
+./app/(dashboard)/command-center/_components/SignalsRibbon.tsx
+5:3  Warning: 'AlarmClockCheck' is defined but never used.  @typescript-eslint/no-unused-vars
+7:3  Warning: 'CheckLine' is defined but never used.  @typescript-eslint/no-unused-vars
+8:3  Warning: 'ListCheck' is defined but never used.  @typescript-eslint/no-unused-vars
+40:16  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+
+./app/(dashboard)/command-center/_components/User.tsx
+14:7  Error: 'session' is never reassigned. Use 'const' instead.  prefer-const
+15:7  Error: 'user' is never reassigned. Use 'const' instead.  prefer-const
+
+./app/(dashboard)/command-center/command-center-client.tsx
+30:18  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+32:14  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+40:3  Warning: 'pendingCount' is defined but never used.  @typescript-eslint/no-unused-vars
+59:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+62:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+63:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+69:26  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+72:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+86:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+89:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+90:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+96:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+99:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+118:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+121:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+134:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+137:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+158:32  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+161:25  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+182:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+185:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+194:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+197:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+198:35  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+212:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+216:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+229:24  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+232:27  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+240:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+455:25  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+456:74  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./app/(dashboard)/command-center/command-center-server.tsx
+5:69  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+6:23  Error: Optional chain expressions can return undefined by design - using a non-null assertion is unsafe and wrong.  @typescript-eslint/no-non-null-asserted-optional-chain
+
+./app/(dashboard)/planner/add-category.tsx
+68:3  Warning: 'user' is defined but never used.  @typescript-eslint/no-unused-vars
+90:7  Error: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/planner/add-category.tsx:90:7
+  88 |   useEffect(() => {
+  89 |     if (!open) {
+> 90 |       setFormErrors({});
+     |       ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  91 |       setEditingId(null);
+  92 |     }
+  93 |   }, [open]);  react-hooks/set-state-in-effect
+95:46  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+142:7  Error: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/planner/add-category.tsx:142:7
+  140 |     if (data?.success && data._currentCategories) {
+  141 |       setCurrentCategoriesAction(data._currentCategories);
+> 142 |       setOpen(false); // Close sheet
+      |       ^^^^^^^ Avoid calling setState() directly within an effect
+  143 |       toast.success(`Category "${data.newCategoryName}" added! 🎉`);
+  144 |     }
+  145 |  react-hooks/set-state-in-effect
+164:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/(dashboard)/planner/add-subcategory.tsx
+35:3  Warning: 'user' is defined but never used.  @typescript-eslint/no-unused-vars
+59:7  Error: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/planner/add-subcategory.tsx:59:7
+  57 |   useEffect(() => {
+  58 |     if (open && defaultCategoryId) {
+> 59 |       setSelectedCategory(defaultCategoryId);
+     |       ^^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  60 |     }
+  61 |   }, [open, defaultCategoryId]);
+  62 |  react-hooks/set-state-in-effect
+64:5  Error: Compilation Skipped: Existing memoization could not be preserved
+
+React Compiler has skipped optimizing this component because the existing manual memoization could not be preserved. The inferred dependencies did not match the manually specified dependencies, which could cause the value to change more or less frequently than expected. The inferred dependency was `currentCategories`, but the source dependencies were [selectedMonth, applyToFuture, householdId]. Inferred different dependency than source.
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/planner/add-subcategory.tsx:64:5
+   62 |
+   63 |   const handleSubmit = useCallback(
+>  64 |     async (previousState: unknown, formData: FormData) => {
+      |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  65 |       setFormErrors({});
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+>  66 |
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 113 |       return result;
+      | ^^^^^^^^^^^^^^^^^^^^^^^^
+> 114 |     },
+      | ^^^^^^ Could not preserve existing manual memoization
+  115 |     [selectedMonth, applyToFuture, householdId]
+  116 |   );
+  117 |  react-hooks/preserve-manual-memoization
+115:5  Warning: React Hook useCallback has a missing dependency: 'currentCategories'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+./app/(dashboard)/planner/add-transaction-modal.tsx
+43:30  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+45:29  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+69:9  Error: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/planner/add-transaction-modal.tsx:69:9
+  67 |       const today = new Date();
+  68 |       if (selectedMonth === today.getMonth() + 1) {
+> 69 |         setDate(today.toISOString().split('T')[0]);
+     |         ^^^^^^^ Avoid calling setState() directly within an effect
+  70 |       } else {
+  71 |         setDate(`2026-${selectedMonth.toString().padStart(2, '0')}-01`);
+  72 |       }  react-hooks/set-state-in-effect
+83:9  Error: Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/Users/franciskodama/dev/monkeybusiness/app/(dashboard)/planner/add-transaction-modal.tsx:83:9
+  81 |       const monthFromDate = parseInt(dateParts[1], 10);
+  82 |       if (monthFromDate !== selectedMonth) {
+> 83 |         setIsMonthMismatch(true);
+     |         ^^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  84 |         setTargetMonthName(months[monthFromDate - 1]);
+  85 |       } else {
+  86 |         setIsMonthMismatch(false);  react-hooks/set-state-in-effect
+163:12  Error: Unexpected any. Specify a different type.  @typescript-eslint/no-explicit-any
+218:38  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+218:49  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+./app/(dashboard)/planner/edit-name-subcategory.tsx
+59:14  Warning: 'error' is defined but never used.  @typescript-eslint/no-unused-vars
+
+./app/(dashboard)/planner/explanation-planner.tsx
+40:11  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+40:27  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+40:41  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+40:71  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+47:25  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+47:34  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+54:14  Error: `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`.  react/no-unescaped-entities
+54:31  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+54:44  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+74:14  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+74:35  Error: `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`.  react/no-unescaped-entities
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/building-your-application/configuring/eslint#disabling-rules

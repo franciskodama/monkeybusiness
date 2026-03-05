@@ -1,11 +1,22 @@
 'use server';
 
-import { ColorEnum } from '@prisma/client';
+import { ColorEnum, Prisma } from '@prisma/client';
 import prisma from './prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { revalidatePath } from 'next/cache';
 import { auth } from './auth';
 import { resend } from './resend';
+import {
+  TransactionInput,
+  SubcategoryWithCategory,
+  BudgetTemplateCategory
+} from './types';
+
+export {
+  type TransactionInput,
+  type SubcategoryWithCategory,
+  type BudgetTemplateCategory
+};
 
 // AI --------------------------------------------------------------------
 
@@ -14,7 +25,7 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 // --- actions.tsx ---
 
 export async function matchTransactionsWithRules(
-  txList: any[],
+  txList: TransactionInput[],
   householdId: string
 ) {
   const [savedRules, allSubcategories] = await Promise.all([
@@ -27,10 +38,16 @@ export async function matchTransactionsWithRules(
 
   return txList.map((tx) => {
     // 1. Identify the target month safely (handle YYYY-MM-DD strings without TZ shifts)
-    let currentId = tx.subcategoryId || null;
-    const dateParts = tx.date.split('-');
+    const currentId = tx.subcategoryId || null;
+    const dateParts =
+      typeof tx.date === 'string'
+        ? tx.date.split('-')
+        : [
+            tx.date.getFullYear().toString(),
+            (tx.date.getMonth() + 1).toString(),
+            tx.date.getDate().toString()
+          ];
     const txMonth = parseInt(dateParts[1], 10);
-    const txYear = parseInt(dateParts[0], 10);
 
     // 2. Check for "Smart Rules" match (highest priority)
     const foundRule = savedRules.find((rule) =>
@@ -74,7 +91,7 @@ export async function matchTransactionsWithRules(
 export async function processStatementWithAI(
   base64File: string,
   householdId: string,
-  subcategoriesForCurrentMonth: any[]
+  subcategoriesForCurrentMonth: SubcategoryWithCategory[]
 ) {
   // 🟢 MOCK MODE
   const MOCK_MODE = false; // Turn off mock for real testing if needed, though prompt is below
@@ -187,12 +204,12 @@ export async function processStatementWithAI(
       success: true,
       transactions: processedTransactions
     };
-  } catch (error: any) {
-    console.error('--- ❌ Server Action Error:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('--- ❌ Server Action Error:', message);
     return {
       success: false,
-      error:
-        error.message || 'A server error occurred while processing the PDF.'
+      error: message || 'A server error occurred while processing the PDF.'
     };
   }
 }
@@ -239,9 +256,12 @@ export async function addUser(user: {
         }
       });
       return newUser;
-    } catch (err: any) {
+    } catch (err: unknown) {
       // Handle race condition: if user was created by another simultaneous request
-      if (err.code === 'P2002') {
+      if (
+        err instanceof Prisma.PrismaClientKnownRequestError &&
+        err.code === 'P2002'
+      ) {
         return await prisma.user.findUnique({
           where: { uid: user.uid },
           include: { household: true }
@@ -311,7 +331,8 @@ export async function joinHousehold(inviteCode: string) {
     });
 
     revalidatePath('/settings');
-    revalidatePath('/in');
+    revalidatePath('/command-center');
+    revalidatePath('/analytics');
     revalidatePath('/planner');
 
     return { success: true };
@@ -366,7 +387,7 @@ export const getCategories = async (householdId: string) => {
     return categories;
   } catch (error) {
     console.log(error);
-    return null;
+    return [];
   }
 };
 
@@ -401,10 +422,14 @@ export async function addCategory({
 
     console.log('--- ✅ Category Created:', newCategory.name);
     return newCategory;
-  } catch (error: any) {
-    console.error('--- ❌ PRISMA ERROR DETAILS:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('--- ❌ PRISMA ERROR DETAILS:', message);
 
-    if (error.code === 'P2003') {
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === 'P2003'
+    ) {
       console.error(
         '--- ❌ ERROR: The householdId does not exist in the User table.'
       );
@@ -447,6 +472,7 @@ export async function updateCategory(data: {
       }
     });
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true, category: updated };
   } catch (error) {
     console.error('❌ Error updating category:', error);
@@ -464,6 +490,7 @@ export async function reorderCategories(orderedIds: string[]) {
     );
     await prisma.$transaction(updates);
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true };
   } catch (error) {
     console.error('❌ Error reordering categories:', error);
@@ -585,9 +612,11 @@ export async function addSubcategory(data: {
     });
 
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true, _currentSubcategories };
-  } catch (error: any) {
-    console.error('--- ❌ Database Error:', error.message);
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    console.error('--- ❌ Database Error:', message);
     return {
       success: false,
       error: 'Database error. Check for duplicate names.'
@@ -659,6 +688,7 @@ export async function renameSubcategory(data: {
       }
     });
     revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true };
   } catch (error) {
     console.error('❌ Error renaming subcategory:', error);
@@ -700,7 +730,7 @@ export async function deleteSubcategory(
       });
     }
     return { success: true };
-  } catch (error) {
+  } catch {
     return { success: false };
   }
 }
@@ -716,7 +746,7 @@ export async function addTransaction(data: {
   source: string;
 }) {
   try {
-    const transaction = await prisma.transaction.create({
+    await prisma.transaction.create({
       data: {
         description: data.description,
         amount: data.amount,
@@ -736,18 +766,18 @@ export async function addTransaction(data: {
 }
 
 export async function bulkAddTransactions(
-  transactions: any[],
+  transactions: TransactionInput[],
   householdId: string
 ) {
   try {
     // 1. Prepare the data for Prisma
     const dataToSave = transactions.map((tx) => ({
       description: tx.description,
-      amount: parseFloat(tx.amount),
+      amount: typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount,
       // AI sometimes gives weird date formats, we ensure it's a valid Date object
       date: new Date(tx.date),
       householdId: householdId,
-      source: tx.source,
+      source: tx.source || 'Unknown',
       // This is the ID from your dropdown/AI match
       subcategoryId: tx.subcategoryId || null
     }));
@@ -761,6 +791,7 @@ export async function bulkAddTransactions(
     const updatedItems = await getSubcategories(householdId);
 
     revalidatePath('/planner');
+    revalidatePath('/analytics');
 
     return {
       success: true,
@@ -786,6 +817,7 @@ export async function deleteTransaction(
 
     const updatedItems = await getSubcategories(householdId);
     revalidatePath('/planner');
+    revalidatePath('/analytics');
 
     return { success: true, updatedItems };
   } catch (error) {
@@ -828,7 +860,7 @@ export async function deleteTransactionRule(id: string) {
     await prisma.transactionRule.delete({
       where: {
         id: id
-      } as any
+      }
     });
 
     revalidatePath('/settings');
@@ -868,7 +900,7 @@ export async function getTransactionRules(householdId: string) {
 
 export async function seedHouseholdBudget(
   householdId: string,
-  template: any[]
+  template: BudgetTemplateCategory[]
 ) {
   try {
     for (const cat of template) {
@@ -989,7 +1021,7 @@ export async function addReminder(data: {
             </p>
             
             <div style="text-align: center; margin-top: 40px;">
-              <a href="https://monkeybusiness-olive.vercel.app/in" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
+              <a href="https://monkeybusiness-olive.vercel.app/command-center" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
                 Open Dashboard
               </a>
             </div>
@@ -1004,7 +1036,7 @@ export async function addReminder(data: {
       });
     }
 
-    revalidatePath('/in');
+    revalidatePath('/command-center');
     return { success: true, reminder };
   } catch (error) {
     console.error('❌ Error adding reminder:', error);
@@ -1029,7 +1061,6 @@ export async function deleteReminder(id: string) {
       // Get the name of the person who finished it
       const session = await auth();
       const finisherName = session?.user?.name || 'Someone';
-      const creatorLabel = creatorUser.name.split(' ')[0].toUpperCase();
       const logoUrl =
         'https://monkeybusiness-olive.vercel.app/logo/logo-monkeybusiness-150x124-shaved.png';
 
@@ -1078,7 +1109,7 @@ export async function deleteReminder(id: string) {
       where: { id }
     });
 
-    revalidatePath('/in');
+    revalidatePath('/command-center');
     return { success: true };
   } catch (error) {
     console.error('❌ Error deleting reminder:', error);

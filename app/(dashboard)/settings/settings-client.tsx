@@ -19,10 +19,17 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Help from '@/components/Help';
 import ExplanationSettings from './explanation-settings';
 
+import { User } from '@prisma/client';
+import {
+  TransactionRuleWithSubcategory,
+  SubcategoryWithCategory,
+  HouseholdWithUsers
+} from '@/lib/types';
+
 interface SettingsClientProps {
-  user: any;
-  rules: any[];
-  subcategories: any[];
+  user: User & { household: HouseholdWithUsers | null };
+  rules: TransactionRuleWithSubcategory[];
+  subcategories: SubcategoryWithCategory[];
   automationCoverage: number;
   householdId: string;
 }

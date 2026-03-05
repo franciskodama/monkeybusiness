@@ -1,24 +1,29 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Info,
-  Award,
   AlertCircle,
   ChessKing,
   TrendingUp,
   X,
   Target,
-  Minus
+  Minus,
+  FileText,
+  Loader2
 } from 'lucide-react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Category } from '@prisma/client';
+import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 import {
   getColorCode,
   months,
   formatCurrency,
-  getSourceColor
+  getSourceColor,
+  formatDate
 } from '@/lib/utils';
 import {
   Dialog,
@@ -26,13 +31,13 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
-import Help from '@/components/Help';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ExplanationYearly from './explanation-yearly';
+import { Button } from '@/components/ui/button';
 
 interface YearlyTableProps {
   categories: Category[];
-  initialSubcategories: any[];
+  initialSubcategories: SubcategoryWithCategory[];
 }
 
 export function YearlyTable({
@@ -40,17 +45,68 @@ export function YearlyTable({
   initialSubcategories
 }: YearlyTableProps) {
   const [openAction, setOpenAction] = useState(false);
-  const [subcategories] = useState(initialSubcategories);
+  const [subcategories] =
+    useState<SubcategoryWithCategory[]>(initialSubcategories);
   const [selectedDetails, setSelectedDetails] = useState<{
     name: string;
     month: number;
-    transactions: any[];
+    transactions: TransactionInput[];
   } | null>(null);
+
+  const [isExporting, setIsExporting] = useState(false);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const [activeMetric, setActiveMetric] = useState<string | null>(null);
 
+  const handleExportPDF = async () => {
+    if (!tableRef.current) return;
+    setIsExporting(true);
+
+    try {
+      const element = tableRef.current;
+      const fullWidth = element.scrollWidth;
+      const fullHeight = element.scrollHeight;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: fullWidth,
+        height: fullHeight,
+        windowWidth: fullWidth + 100, // Add a small buffer
+        onclone: (clonedDoc) => {
+          const table = clonedDoc.getElementById('yearly-table-capture');
+          if (table) {
+            table.style.width = `${fullWidth}px`;
+            table.style.height = `${fullHeight}px`;
+            table.style.overflow = 'visible';
+            table.style.position = 'absolute';
+            table.style.left = '0';
+            table.style.top = '0';
+          }
+        }
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF({
+        orientation: canvas.width > canvas.height ? 'l' : 'p',
+        unit: 'px',
+        format: [canvas.width / 2, canvas.height / 2]
+      });
+
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
+      pdf.save(`family-audit-2026.pdf`);
+    } catch (err) {
+      console.error('Export failed:', err);
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const metricExplanations: Record<
     string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     { label: string; desc: string; icon: any }
   > = {
     savingsRate: {
@@ -119,6 +175,13 @@ export function YearlyTable({
   const currentMonth = now.getMonth() + 1;
   const currentYear = 2026; // Hardcoded to match the project's current scope
 
+  const getAmount = (amount: number | string | null | undefined): number => {
+    if (amount === null || amount === undefined) return 0;
+    if (typeof amount === 'number') return amount;
+    const parsed = parseFloat(amount);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
   const getMonthStatus = (month: number) => {
     if (month < currentMonth) return 'PAST';
     if (month === currentMonth) return 'CURRENT';
@@ -138,66 +201,12 @@ export function YearlyTable({
     if (status !== 'FUTURE') {
       return (
         data?.transactions?.reduce(
-          (sum: number, tx: any) => sum + (tx.amount || 0),
+          (sum: number, tx) => sum + getAmount(tx.amount),
           0
         ) || 0
       );
     }
     return data?.amount || 0;
-  };
-
-  // Helper to get total income for a specific month using hybrid logic
-  const getMonthlyIncome = (month: number) => {
-    const status = getMonthStatus(month);
-    return subcategories
-      .filter((s) => s.category?.isIncome && s.month === month)
-      .reduce((sum, s) => {
-        if (status !== 'FUTURE') {
-          const actual =
-            s.transactions?.reduce(
-              (s: number, t: any) => s + (t.amount || 0),
-              0
-            ) || 0;
-          return sum + actual;
-        }
-        return sum + (s.amount || 0);
-      }, 0);
-  };
-
-  // Helper to get net cash flow (Income - Expenses) using hybrid logic
-  const getMonthlyNet = (month: number) => {
-    const status = getMonthStatus(month);
-    return subcategories
-      .filter((s) => s.month === month && s.year === currentYear)
-      .reduce((acc, s) => {
-        const isIncome = s.category?.isIncome;
-        let amount = 0;
-        if (status !== 'FUTURE') {
-          amount =
-            s.transactions?.reduce(
-              (sum: number, t: any) => sum + (t.amount || 0),
-              0
-            ) || 0;
-        } else {
-          amount = s.amount || 0;
-        }
-        return isIncome ? acc + amount : acc - amount;
-      }, 0);
-  };
-
-  // Helper to get total spending by source for a month (Excluding Income)
-  const getMonthlySourceTotal = (month: number, source: string) => {
-    return subcategories
-      .filter(
-        (s) =>
-          s.month === month && s.year === currentYear && !s.category?.isIncome
-      )
-      .reduce((acc, s) => {
-        const sourceTotal = (s.transactions || [])
-          .filter((tx: any) => tx.source === source)
-          .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
-        return acc + sourceTotal;
-      }, 0);
   };
 
   //--- YEARLY SETTLEMENT LOGIC (Separate Forecast vs Reality) ---
@@ -230,7 +239,7 @@ export function YearlyTable({
         if (status !== 'FUTURE') {
           const actualAmount =
             sub.transactions?.reduce(
-              (sum: number, t: any) => sum + (t.amount || 0),
+              (sum: number, t) => sum + getAmount(t.amount),
               0
             ) || 0;
 
@@ -240,11 +249,11 @@ export function YearlyTable({
 
           // Individual actuals (His vs Her)
           const his = (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'His')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'His')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           const her = (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'Her')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'Her')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
 
           reality.hisActual += his;
           reality.herActual += her;
@@ -293,7 +302,7 @@ export function YearlyTable({
       if (status !== 'FUTURE') {
         amount =
           sub.transactions?.reduce(
-            (sum: number, t: any) => sum + (t.amount || 0),
+            (sum: number, t) => sum + getAmount(t.amount),
             0
           ) || 0;
       } else {
@@ -304,31 +313,31 @@ export function YearlyTable({
         credits += amount;
         if (status !== 'FUTURE') {
           hisEffort += (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'His')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'His')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           herEffort += (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'Her')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'Her')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else if (isSavings) {
         investments += amount;
         if (status !== 'FUTURE') {
           hisEffort += (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'His')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'His')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           herEffort += (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'Her')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'Her')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else {
         livingExpenses += amount;
         if (status !== 'FUTURE') {
           hisEffort += (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'His')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'His')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           herEffort += (sub.transactions || [])
-            .filter((tx: any) => tx.source === 'Her')
-            .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+            .filter((tx) => tx.source === 'Her')
+            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       }
     });
@@ -360,8 +369,19 @@ export function YearlyTable({
               financial year.
             </p>
           </div>
-          <div className="hidden sm:block">
-            {!openAction ? <Help setOpenAction={setOpenAction} /> : <div />}
+          <div className="flex items-center gap-4">
+            <Button
+              onClick={handleExportPDF}
+              disabled={isExporting}
+              variant="outline"
+            >
+              {isExporting ? (
+                <Loader2 className="animate-spin" size={14} />
+              ) : (
+                <FileText size={14} className="mr-2" />
+              )}
+              <span>{isExporting ? 'Preparing...' : 'Export PDF'}</span>
+            </Button>
           </div>
         </CardTitle>
       </CardHeader>
@@ -382,7 +402,11 @@ export function YearlyTable({
           )}
         </AnimatePresence>
 
-        <div className="overflow-x-auto border bg-background shadow-sm no-scrollbar">
+        <div
+          ref={tableRef}
+          id="yearly-table-capture"
+          className="overflow-x-auto border bg-background shadow-sm no-scrollbar p-1 bg-white"
+        >
           <table className="w-full border-collapse min-w-[1600px]">
             <thead>
               <tr className="bg-secondary/30">
@@ -514,7 +538,7 @@ export function YearlyTable({
                                     setSelectedDetails({
                                       name: name,
                                       month: i + 1,
-                                      transactions: data.transactions
+                                      transactions: data?.transactions || []
                                     });
                                   }
                                 }}
@@ -532,7 +556,7 @@ export function YearlyTable({
                                   {(data?.transactions?.length ?? 0) > 0 && (
                                     <div className="flex items-center gap-1 text-[8px] uppercase tracking-tighter opacity-0 group-hover:opacity-100 transition-opacity absolute -bottom-0.5 whitespace-nowrap bg-primary text-white px-1">
                                       <Info size={8} />{' '}
-                                      {data.transactions.length} tx
+                                      {data?.transactions?.length ?? 0} tx
                                     </div>
                                   )}
                                 </div>
@@ -562,7 +586,7 @@ export function YearlyTable({
                               return (
                                 sum +
                                 (s.transactions?.reduce(
-                                  (ts: number, t: any) => ts + (t.amount || 0),
+                                  (ts: number, t) => sum + getAmount(t.amount),
                                   0
                                 ) || 0)
                               );
@@ -600,8 +624,8 @@ export function YearlyTable({
                                   return (
                                     msum +
                                     (s.transactions?.reduce(
-                                      (ts: number, t: any) =>
-                                        ts + (t.amount || 0),
+                                      (ts: number, t) =>
+                                        sum + getAmount(t.amount),
                                       0
                                     ) || 0)
                                   );
@@ -671,7 +695,8 @@ export function YearlyTable({
                   </td>
                   {months.map((_, i) => {
                     const monthlyData = calculateMonthlySettlement(i + 1);
-                    const val = (monthlyData as any)[row.key];
+                    const val =
+                      monthlyData[row.key as keyof typeof monthlyData];
                     const status = getMonthStatus(i + 1);
                     return (
                       <td
@@ -700,7 +725,11 @@ export function YearlyTable({
                       months.reduce(
                         (acc, _, i) =>
                           acc +
-                          (calculateMonthlySettlement(i + 1) as any)[row.key],
+                          calculateMonthlySettlement(i + 1)[
+                            row.key as keyof ReturnType<
+                              typeof calculateMonthlySettlement
+                            >
+                          ],
                         0
                       )
                     )}
@@ -1276,19 +1305,19 @@ export function YearlyTable({
                         {tx.source}
                       </span>
                       <span className="text-[9px] text-muted-foreground font-mono">
-                        {tx.date instanceof Date
-                          ? tx.date.toLocaleDateString()
-                          : tx.date}
+                        {tx.date ? formatDate(tx.date) : ''}
                       </span>
                     </div>
                   </div>
                   <span
                     className={`font-mono font-bold text-sm ${
-                      tx.amount < 0 ? 'text-emerald-600' : 'text-slate-900'
+                      getAmount(tx.amount) < 0
+                        ? 'text-emerald-600'
+                        : 'text-slate-900'
                     }`}
                   >
-                    {tx.amount < 0 ? '+' : ''}$
-                    {formatCurrency(Math.abs(tx.amount))}
+                    {getAmount(tx.amount) < 0 ? '+' : ''}$
+                    {formatCurrency(Math.abs(getAmount(tx.amount)))}
                   </span>
                 </div>
               ))}
@@ -1299,11 +1328,11 @@ export function YearlyTable({
             <span className="text-[10px] uppercase font-black tracking-widest text-slate-500">
               Monthly Total
             </span>
-            <span className="font-mono font-black text-lg">
+            <span className="text-xl font-black font-mono text-slate-900">
               $
               {formatCurrency(
                 selectedDetails?.transactions.reduce(
-                  (sum, tx) => sum + (tx.amount || 0),
+                  (sum, tx) => sum + getAmount(tx.amount),
                   0
                 ) || 0
               )}

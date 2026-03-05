@@ -5,7 +5,13 @@ import { Button } from '@/components/ui/button';
 import { deleteTransactionRule } from '@/lib/actions';
 import { toast } from 'sonner';
 
-export function RulesManager({ rules }: { rules: any[] }) {
+import { TransactionRuleWithSubcategory } from '@/lib/types';
+
+export function RulesManager({
+  rules
+}: {
+  rules: TransactionRuleWithSubcategory[];
+}) {
   const handleDelete = async (id: string) => {
     const res = await deleteTransactionRule(id);
     if (res.success) {
@@ -29,7 +35,7 @@ export function RulesManager({ rules }: { rules: any[] }) {
           >
             <div className="flex items-center justify-center gap-2">
               <p className="text-sm font-black uppercase tracking-tighter text-primary">
-                " {rule.pattern} "
+                &quot; {rule.pattern} &quot;
               </p>
               <span className="text-[10px] font-bold uppercase text-slate-400 pr-2">
                 <ArrowRight size={16} />

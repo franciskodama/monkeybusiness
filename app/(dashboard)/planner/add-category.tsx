@@ -51,7 +51,7 @@ import {
   reorderCategories
 } from '@/lib/actions';
 import { colors, getColorCode } from '@/lib/utils';
-import { Category, ColorEnum, User } from '@prisma/client';
+import { Category, ColorEnum } from '@prisma/client';
 
 type Color = {
   name: string;
@@ -65,12 +65,10 @@ type FormErrors = {
 };
 
 export function AddCategory({
-  user,
   householdId,
   currentCategories,
   setCurrentCategoriesAction
 }: {
-  user: User;
   householdId: string;
   currentCategories: Category[];
   setCurrentCategoriesAction: React.Dispatch<React.SetStateAction<Category[]>>;
@@ -84,15 +82,24 @@ export function AddCategory({
   const [editIsSavings, setEditIsSavings] = useState(false);
   const [editIsFixed, setEditIsFixed] = useState(false);
 
-  // Reset errors when sheet closes
-  useEffect(() => {
-    if (!open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (!newOpen) {
       setFormErrors({});
       setEditingId(null);
     }
-  }, [open]);
+  };
 
-  const handleSubmit = async (previousState: any, formData: FormData) => {
+  const handleSubmit = async (
+    _previousState: {
+      success?: boolean;
+      errors?: FormErrors;
+      serverError?: string;
+      _currentCategories?: Category[];
+      newCategoryName?: string;
+    } | null,
+    formData: FormData
+  ) => {
     const categoryName = formData.get('category') as string;
     const color = formData.get('color') as string;
     const householdId = formData.get('householdId') as string;
@@ -124,11 +131,11 @@ export function AddCategory({
     }
 
     // Fetch fresh list
-    const _currentCategories = await getCategories(householdId);
+    const fetchedCategories = (await getCategories(householdId)) || [];
 
     return {
       success: true,
-      _currentCategories,
+      _currentCategories: fetchedCategories,
       newCategoryName: categoryName
     };
   };
@@ -138,13 +145,16 @@ export function AddCategory({
   // 2. Handle UI Side-Effects (Toast/Close) after action completes
   useEffect(() => {
     if (data?.success && data._currentCategories) {
-      setCurrentCategoriesAction(data._currentCategories);
-      setOpen(false); // Close sheet
+      // Defer to next tick to avoid cascading render error in React 19 / Next 15
+      setTimeout(() => {
+        setCurrentCategoriesAction(data._currentCategories!);
+        setOpen(false); // Close sheet
+      }, 0);
       toast.success(`Category "${data.newCategoryName}" added! 🎉`);
     }
 
     if (data?.errors) {
-      setFormErrors(data.errors);
+      setTimeout(() => setFormErrors(data.errors!), 0);
     }
 
     if (data?.serverError) {
@@ -161,7 +171,7 @@ export function AddCategory({
         );
         toast.success(`The ${category.name} has been deleted.`);
       }
-    } catch (error) {
+    } catch {
       toast.error('Error deleting Category! Ensure it is empty first.');
     }
   };
@@ -207,7 +217,7 @@ export function AddCategory({
   };
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
         <Button variant="outline">
           {currentCategories.length > 0 ? 'Edit Categories' : 'Add Category'}
@@ -552,11 +562,8 @@ export function AddCategory({
                                 <Bomb size={20} /> Are you sure?
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Deleting{' '}
-                                <span className="font-bold">
-                                  {category.name}
-                                </span>{' '}
-                                will remove it from your budget view.
+                                Deleting &quot;{category.name}&quot; will remove
+                                it from your budget view.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>

@@ -3,14 +3,7 @@ import Image from 'next/image';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { menuItems } from '@/lib/menu';
-import {
-  Handshake,
-  PocketKnife,
-  Settings,
-  Shield,
-  Terminal,
-  X
-} from 'lucide-react';
+import { Handshake, PocketKnife, Shield, Terminal } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -33,9 +26,10 @@ export default function Footer() {
             </h4>
           </div>
           <p className="pr-4 max-w-80">
-            Serious about your future, but done with the "Monkey Business" of
-            manual spreadsheets. We automate the boring stuff so you can focus
-            on the bananas—the investments and pleasures that matter.
+            Serious about your future, but done with the &quot;Monkey
+            Business&quot; of manual spreadsheets. We automate the boring stuff
+            so you can focus on the bananas—the investments and pleasures that
+            matter.
           </p>
         </div>
 
@@ -230,8 +224,8 @@ export default function Footer() {
                     8. Limitation of Liability
                   </h2>
                   <p className="text-gray-700">
-                    The app is provided "as-is" without warranties. The owner is
-                    not liable for damages resulting from its use.
+                    The app is provided &quot;as-is&quot; without warranties.
+                    The owner is not liable for damages resulting from its use.
                   </p>
                 </section>
 

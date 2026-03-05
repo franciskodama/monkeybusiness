@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState, useCallback, useEffect, useState } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -20,9 +20,10 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { Subcategory, Category, User } from '@prisma/client';
+import { Category } from '@prisma/client';
 import { addSubcategory } from '@/lib/actions';
 import { getColorCode, months } from '@/lib/utils';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 type FormErrors = {
   name?: string;
@@ -31,17 +32,15 @@ type FormErrors = {
 
 export function AddSubcategory({
   householdId,
-  user,
   currentCategories,
   setCurrentSubcategoriesAction,
   defaultCategoryId,
   selectedMonth
 }: {
   householdId: string;
-  user: User;
   currentCategories: Category[];
   setCurrentSubcategoriesAction: React.Dispatch<
-    React.SetStateAction<Subcategory[]>
+    React.SetStateAction<SubcategoryWithCategory[]>
   >;
   defaultCategoryId?: string;
   selectedMonth: number;
@@ -53,52 +52,52 @@ export function AddSubcategory({
     defaultCategoryId || ''
   );
 
-  useEffect(() => {
-    if (open && defaultCategoryId) {
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen && defaultCategoryId) {
       setSelectedCategory(defaultCategoryId);
     }
-  }, [open, defaultCategoryId]);
-
-  const handleSubmit = useCallback(
-    async (previousState: unknown, formData: FormData) => {
+    if (!newOpen) {
       setFormErrors({});
+    }
+  };
 
-      const name = formData.get('name') as string;
-      const categoryId = formData.get('category') as string;
-      const rawAmount = formData.get('amount') as string;
+  const handleSubmit = async (
+    _previousState:
+      | {
+          success?: boolean;
+          error?: string;
+          _currentSubcategories?: SubcategoryWithCategory[];
+        }
+      | undefined,
+    formData: FormData
+  ) => {
+    const name = formData.get('name') as string;
+    const categoryId = formData.get('category') as string;
+    const rawAmount = formData.get('amount') as string;
+    const amount = parseFloat(rawAmount.replace(/,/g, '')) || 0;
 
-      // Sanitizing the amount: remove commas and convert to float
-      const amount = parseFloat(rawAmount.replace(/,/g, '')) || 0;
+    const errors: FormErrors = {};
+    if (!name) errors.name = 'Enter a name for your Item.';
+    else if (name.length > 20) errors.name = 'Maximum 20 characters.';
+    if (!categoryId) errors.category = 'Select a category.';
 
-      const errors: FormErrors = {};
-      if (!name) errors.name = 'Enter a name for your Item.';
-      else if (name.length > 20) errors.name = 'Maximum 20 characters.';
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
 
-      if (!categoryId) errors.category = 'Select a category.';
+    const result = await addSubcategory({
+      householdId,
+      name,
+      categoryId,
+      amount,
+      month: selectedMonth,
+      year: 2026,
+      applyToFuture: applyToFuture
+    });
 
-      if (Object.keys(errors).length > 0) {
-        setFormErrors(errors);
-        return;
-      }
-
-      const result = await addSubcategory({
-        householdId,
-        name,
-        categoryId,
-        amount,
-        month: selectedMonth,
-        year: 2026,
-        applyToFuture: applyToFuture
-      });
-
-      if (!result || !result.success) {
-        toast.error(result?.error || 'Something went wrong. 🚨');
-        return;
-      }
-
-      setOpen(false);
-      setApplyToFuture(false);
-
+    if (result.success) {
       const categoryName =
         currentCategories.find((c) => c.id === categoryId)?.name || 'Budget';
       const startMonthName = months[selectedMonth - 1];
@@ -108,25 +107,29 @@ export function AddSubcategory({
           ? `Created from ${startMonthName} to December 2026.`
           : `Created for ${startMonthName} 2026.`
       });
+    }
 
-      return result;
-    },
-    [selectedMonth, applyToFuture, householdId]
-  );
+    return result;
+  };
 
   const [data, action, isPending] = useActionState(handleSubmit, undefined);
 
   useEffect(() => {
-    if (
-      data?._currentSubcategories &&
-      Array.isArray(data._currentSubcategories)
-    ) {
-      setCurrentSubcategoriesAction(data._currentSubcategories);
+    if (data?.success) {
+      setTimeout(() => {
+        setOpen(false);
+        setApplyToFuture(false);
+        if (data._currentSubcategories) {
+          setCurrentSubcategoriesAction(data._currentSubcategories);
+        }
+      }, 0);
+    } else if (data?.error) {
+      toast.error(data.error);
     }
   }, [data, setCurrentSubcategoriesAction]);
 
   return (
-    <Sheet open={open} onOpenChange={setOpen}>
+    <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetTrigger asChild>
         <Button size="xs" variant="outline">
           Add Subcategory

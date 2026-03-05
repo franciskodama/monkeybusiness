@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideIcon, HelpCircle, X } from 'lucide-react';
+import { LucideIcon, HelpCircle } from 'lucide-react';
 
-interface DashboardMetricProps {
+interface CommandCenterMetricProps {
   label: string;
   value: string | number;
   subValue?: string;
   explanation?: string;
-  details?: string[];
   icon: LucideIcon;
   color: 'emerald' | 'blue' | 'rose' | 'amber' | 'slate';
   trend?: {
@@ -17,17 +16,16 @@ interface DashboardMetricProps {
   onClick?: () => void;
 }
 
-export function DashboardMetric({
+export function CommandCenterMetric({
   label,
   value,
   subValue,
   explanation,
-  details,
   icon: Icon,
   color,
   trend,
   onClick
-}: DashboardMetricProps) {
+}: CommandCenterMetricProps) {
   const [showInfo, setShowInfo] = useState(false);
   const colorStyles = {
     emerald: {

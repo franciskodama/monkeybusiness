@@ -45,7 +45,9 @@ export const months = [
   'December'
 ];
 
-export const getSourceTotals = (transactions: any[]) => {
+export const getSourceTotals = (
+  transactions: { amount: number; source: string | null }[]
+) => {
   const totals: Record<string, number> = {};
 
   transactions.forEach((tx) => {
@@ -78,4 +80,13 @@ export const getSourceColor = (source: string) => {
   if (s.includes('HER') || s.includes('MARIANA')) return '#F97316';
   if (s.includes('FAMILY')) return '#EF4444';
   return '#64748B';
+};
+
+export const formatDate = (date: Date | string) => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
 };

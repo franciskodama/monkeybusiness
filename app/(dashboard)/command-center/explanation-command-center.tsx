@@ -1,7 +1,7 @@
 import { LayoutDashboard, Zap, Activity } from 'lucide-react';
 import ExplanationBox from '@/components/ExplanationBox';
 
-export default function ExplanationIn({
+export default function ExplanationCommandCenter({
   setOpenAction
 }: {
   setOpenAction: (value: boolean) => void;
@@ -12,12 +12,12 @@ export default function ExplanationIn({
         The <b>Command Center</b> is your high-level financial summary. It
         transforms raw data from your Planner and automated imports into{' '}
         <b>Strategic Intelligence</b>, giving you a real-time health check of
-        your household's annual trajectory.
+        your household&apos;s annual trajectory.
       </p>
       <p>
-        Use this page to monitor your <b>Strategic Velocity</b>, see the "Big
-        Picture" of your yearly flow, and spot trends before they become
-        problems.
+        Use this page to monitor your <b>Strategic Velocity</b>, see the
+        &quot;Big Picture&quot; of your yearly flow, and spot trends before they
+        become problems.
       </p>
     </div>
   );
@@ -38,7 +38,7 @@ export default function ExplanationIn({
         <span className="font-normal block normal-case tracking-normal mt-1">
           The central map shows your 12-month mission. It tracks Income,
           Expenses, and Savings trends from January to December, allowing you to
-          see the "shape" of your year.
+          see the &quot;shape&quot; of your year.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
@@ -65,7 +65,8 @@ export default function ExplanationIn({
         - Behavioral Alignment:
         <span className="font-normal block normal-case tracking-normal mt-1">
           By seeing the year-to-date trends, you can adjust your monthly
-          behavior to ensure you land the year in a "Master Efficiency" state.
+          behavior to ensure you land the year in a &quot;Master
+          Efficiency&quot; state.
         </span>
       </p>
     </div>

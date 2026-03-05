@@ -51,7 +51,7 @@ export function EditableAmount({
 
   return (
     <span
-      className="text-sm font-mono font-bold cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded"
+      className="text-sm text-muted-foreground font-mono font-regular cursor-pointer hover:bg-secondary/20 px-2 py-1 rounded"
       onClick={() => setIsEditing(true)}
     >
       {new Intl.NumberFormat('en-US', {

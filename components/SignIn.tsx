@@ -24,11 +24,12 @@ export default function SignIn() {
           <div className="text-lg sm:text-xl pt-2 text-center">
             <div className="flex flex-col items-center gap-3">
               <div className="text-muted-foreground w-[44ch]">
-                Household chores are enough of a full-time job. You’re already
-                juggling a thousand things—don't let your budget be another
-                burden. "Monkey Business" automates your forecasting and
-                batch-syncs your data in seconds. Sign in to reclaim your time
-                and get a clear, effortless view of your family's future.
+                Household chores are enough of a full-time job. You&apos;re
+                already juggling a thousand things—don&apos;t let your budget be
+                another burden. &quot;Monkey Business&quot; automates your
+                forecasting and batch-syncs your data in seconds. Sign in to
+                reclaim your time and get a clear, effortless view of your
+                family&apos;s future.
               </div>
             </div>
           </div>

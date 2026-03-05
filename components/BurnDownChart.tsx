@@ -11,11 +11,18 @@ import {
   ResponsiveContainer
 } from 'recharts';
 
-export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
+import { SubcategoryWithCategory } from '@/lib/types';
+
+export function BurnDownChart({
+  subcategories
+}: {
+  subcategories: SubcategoryWithCategory[];
+}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   const now = new Date();
@@ -37,27 +44,28 @@ export function BurnDownChart({ subcategories }: { subcategories: any[] }) {
   const dailySpend: Record<number, number> = {};
   allTransactions.forEach((tx) => {
     const day = new Date(tx.date).getDate();
-    dailySpend[day] = (dailySpend[day] || 0) + tx.amount;
+    const amount =
+      typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount || 0;
+    dailySpend[day] = (dailySpend[day] || 0) + amount;
   });
 
   // 3. Build cumulative data array
-  let runningTotal = 0;
-  const chartData = Array.from({ length: daysInMonth }, (_, i) => {
-    const day = i + 1;
-
+  const chartData = [];
+  let currentRunningTotal = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
     // Only show actual data up until today
     if (day <= today) {
-      runningTotal += dailySpend[day] || 0;
+      currentRunningTotal += dailySpend[day] || 0;
     }
 
-    return {
+    chartData.push({
       day,
       // The "Actual" line
-      actual: day <= today ? runningTotal : null,
+      actual: day <= today ? currentRunningTotal : null,
       // The "Perfect" linear line
       planned: (totalPlanned / daysInMonth) * day
-    };
-  });
+    });
+  }
 
   if (!mounted) return <div className="w-full h-[300px]" />;
 

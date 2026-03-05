@@ -10,17 +10,17 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export function DashboardBreadcrumb() {
+export function CommandCenterBreadcrumb() {
   const pathname = usePathname();
 
   return (
     <Breadcrumb className="hidden md:flex">
       <BreadcrumbList>
-        {pathname !== '/in' ? (
+        {pathname !== '/command-center' ? (
           <>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/">Dashboard</Link>
+                <Link href="/command-center">Command Center</Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

@@ -9,9 +9,11 @@ import {
   getColorCode,
   months,
   formatCurrency,
-  formatCurrencyRounded
+  formatCurrencyRounded,
+  formatDate
 } from '@/lib/utils';
-import { Category, User } from '@prisma/client';
+import { Category } from '@prisma/client';
+import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { EditableAmount } from './edit-amount-subcategory';
 import { EditableSubcategoryName } from './edit-name-subcategory';
@@ -46,29 +48,38 @@ import { AddSubcategory } from './add-subcategory';
 import { MonthSettlement } from '@/components/MonthSettlement';
 
 export default function Planner({
-  user,
   householdId,
   categories,
   subcategories,
   brlRate
 }: {
-  user: User;
   householdId: string;
   categories: Category[];
-  subcategories: any[];
+  subcategories: SubcategoryWithCategory[];
   brlRate: number;
 }) {
   const [openAction, setOpenAction] = useState(false);
   const [currentSubcategories, setCurrentSubcategoriesAction] =
-    useState<any[]>(subcategories);
+    useState<SubcategoryWithCategory[]>(subcategories);
   const [currentCategories, setCurrentCategoriesAction] =
     useState<Category[]>(categories);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
-  const [reviewData, setReviewData] = useState<any[] | null>(null);
+  const [reviewData, setReviewData] = useState<
+    (TransactionInput & { ignored?: boolean })[] | null
+  >(null);
   const [selectedDetails, setSelectedDetails] = useState<{
     name: string;
     month: number;
-    transactions: any[];
+    transactions: {
+      id: string;
+      amount: number;
+      source: string;
+      isIncome: boolean;
+      isSavings: boolean;
+      description: string;
+      subcategoryName?: string;
+      date?: Date | string;
+    }[];
   } | null>(null);
 
   const handleUpdateAmount = (
@@ -123,6 +134,14 @@ export default function Planner({
     }
   };
 
+  // Helper to safely get numeric amount
+  const getAmount = (amount: number | string | null | undefined): number => {
+    if (amount === null || amount === undefined) return 0;
+    if (typeof amount === 'number') return amount;
+    const parsed = parseFloat(amount);
+    return isNaN(parsed) ? 0 : parsed;
+  };
+
   // 1. Get only the subcategories for the month the user is looking at
   const currentMonthSubs = currentSubcategories.filter(
     (sub) => sub.month === selectedMonth
@@ -131,7 +150,7 @@ export default function Planner({
   // 2. Flatten all transactions from those subcategories into one list with metadata
   const allTransactions = currentMonthSubs.flatMap(
     (sub) =>
-      sub.transactions?.map((tx: any) => ({
+      sub.transactions?.map((tx) => ({
         ...tx,
         isIncome: sub.category.isIncome,
         isSavings: sub.category.isSavings,
@@ -144,19 +163,20 @@ export default function Planner({
   // 3. New Refined Header Logic (Matching User's "Progress vs Target" Request)
   const stats = allTransactions.reduce(
     (acc, tx) => {
+      const amount = getAmount(tx.amount);
       // Current Effort = All transactions from His & Her (Contribution Model)
       if (tx.source === 'His') {
-        acc.hisActual += tx.amount;
-        acc.actualContribution += tx.amount;
+        acc.hisActual += amount;
+        acc.actualContribution += amount;
       }
       if (tx.source === 'Her') {
-        acc.herActual += tx.amount;
-        acc.actualContribution += tx.amount;
+        acc.herActual += amount;
+        acc.actualContribution += amount;
       }
 
       // Actual Living Expenses (excluding Savings and Income)
       if (!tx.isIncome && !tx.isSavings) {
-        acc.actualLivingExpenses += tx.amount;
+        acc.actualLivingExpenses += amount;
       }
 
       return acc;
@@ -170,18 +190,18 @@ export default function Planner({
   );
 
   // Targets (Planned Values) - Categorizing by both Subcategory and Parent Category name
-  const isHisIdentifier = (sub: any) => {
+  const isHisIdentifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
     if (nameStr.includes('HIS') || nameStr.includes('FRANCIS')) return true;
     // Fallback: check if the actual transactions already arrived are from 'His'
-    return sub.transactions?.some((tx: any) => tx.source === 'His');
+    return sub.transactions?.some((tx) => tx.source === 'His');
   };
 
-  const isHerIdentifier = (sub: any) => {
+  const isHerIdentifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
     if (nameStr.includes('HER') || nameStr.includes('MARIANA')) return true;
     // Fallback: check if the actual transactions already arrived are from 'Her'
-    return sub.transactions?.some((tx: any) => tx.source === 'Her');
+    return sub.transactions?.some((tx) => tx.source === 'Her');
   };
 
   // Total Forecast Pool = ALL income items
@@ -221,7 +241,10 @@ export default function Planner({
   //--------------------------------------------------
 
   const exportBudgetData = () => {
-    const categoriesMap: Record<string, any> = {};
+    const categoriesMap: Record<
+      string,
+      { name: string; subcategories: { name: string; amount: number | null }[] }
+    > = {};
 
     // 1. Map your current state data
     currentSubcategories.forEach((sub) => {
@@ -231,7 +254,7 @@ export default function Planner({
       }
 
       const exists = categoriesMap[catName].subcategories.find(
-        (s: any) => s.name === sub.name
+        (s) => s.name === sub.name
       );
       if (!exists) {
         categoriesMap[catName].subcategories.push({
@@ -267,7 +290,7 @@ export default function Planner({
       setCurrentSubcategoriesAction(res.updatedItems);
       if (selectedDetails) {
         const filtered = selectedDetails.transactions.filter(
-          (tx: any) => tx.id !== transactionId
+          (tx) => tx.id !== transactionId
         );
         if (filtered.length === 0) {
           setSelectedDetails(null);
@@ -305,11 +328,9 @@ export default function Planner({
             >
               <TransactionImporter
                 householdId={householdId}
-                categories={currentCategories}
                 subcategoriesForCurrentMonth={currentSubcategories.filter(
                   (i) => i.month === selectedMonth
                 )}
-                setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
                 setReviewDataAction={setReviewData}
               />
               <DirectCodeImporter
@@ -318,7 +339,6 @@ export default function Planner({
               />
               <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
                 <AddCategory
-                  user={user}
                   householdId={householdId}
                   currentCategories={currentCategories}
                   setCurrentCategoriesAction={setCurrentCategoriesAction}
@@ -594,6 +614,23 @@ export default function Planner({
                   new Date(allTransactions[0]?.date || new Date()).getFullYear()
             );
 
+            const categoryTargetTotal = itemsInThisCategory.reduce(
+              (sum, item) => sum + (item.amount || 0),
+              0
+            );
+            const categoryActualTotal = itemsInThisCategory.reduce(
+              (sum, item) =>
+                sum +
+                (item.transactions?.reduce((s: number, t) => {
+                  const amount =
+                    typeof t.amount === 'string'
+                      ? parseFloat(t.amount)
+                      : t.amount || 0;
+                  return s + amount;
+                }, 0) || 0),
+              0
+            );
+
             return (
               <motion.div
                 key={category.id}
@@ -601,21 +638,56 @@ export default function Planner({
                 animate={{ opacity: 1, y: 0 }}
                 className="flex flex-col border overflow-hidden shadow-sm"
               >
-                <div className="flex items-center justify-between p-4 bg-secondary/30 border-b">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-4 h-4 rounded-none shadow-inner"
-                      style={getColorCode(category.color)}
-                    />
-                    <h3
-                      className={`font-bold uppercase text-sm ${kumbh_sans.className}`}
-                    >
-                      {category.name}
-                    </h3>
+                <div className="flex items-center justify-between px-6 py-4 bg-secondary/30 border-b">
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className="w-4 h-4 rounded-none shadow-inner"
+                        style={getColorCode(category.color)}
+                      />
+                      <h3
+                        className={`font-bold uppercase text-sm ${kumbh_sans.className}`}
+                      >
+                        {category.name}
+                      </h3>
+                    </div>
+                    <span className="text-xs text-muted-foreground font-mono hidden sm:inline lowercase">
+                      {itemsInThisCategory.length} Items
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground font-mono">
-                    {itemsInThisCategory.length} Items
-                  </span>
+
+                  <div className="flex items-center justify-end gap-10 flex-1">
+                    <div className="flex flex-col items-end w-32">
+                      <span className="text-[9px] text-slate-400 uppercase mb-1 font-semibold">
+                        Total Target
+                      </span>
+                      <span className="text-[12px] font-mono font-regular text-slate-400 px-2 py-1">
+                        ${formatCurrency(categoryTargetTotal)}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-col items-end w-32">
+                      <span className="text-[9px] text-slate-400 uppercase mb-1 font-semibold">
+                        Total Actual
+                      </span>
+                      <span
+                        className={`text-[12px] font-mono font-regular px-2 py-1 ${
+                          categoryActualTotal > categoryTargetTotal
+                            ? 'text-rose-600'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        ${formatCurrency(categoryActualTotal)}
+                      </span>
+                    </div>
+
+                    {/* Precise invisible clone of the actions column to ensure alignment */}
+                    <div className="flex items-center justify-end gap-3 min-w-[7em] invisible pointer-events-none">
+                      <div className="w-24 h-8" />
+                      <div className="w-8 h-8" />
+                      <div className="w-8 h-8" />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="flex flex-col divide-y divide-secondary/50">
@@ -623,10 +695,13 @@ export default function Planner({
                     itemsInThisCategory.map((item) => {
                       // NEW LOGIC: Calculate Actual Spend and Differences
                       const actualAmount =
-                        item.transactions?.reduce(
-                          (sum: number, t: any) => sum + t.amount,
-                          0
-                        ) || 0;
+                        item.transactions?.reduce((sum: number, t) => {
+                          const amount =
+                            typeof t.amount === 'string'
+                              ? parseFloat(t.amount)
+                              : t.amount || 0;
+                          return sum + amount;
+                        }, 0) || 0;
                       const targetAmount = item.amount ?? 0;
                       const diff = targetAmount - actualAmount;
                       const isOverBudget = actualAmount > targetAmount;
@@ -678,7 +753,17 @@ export default function Planner({
                                   setSelectedDetails({
                                     name: item.name,
                                     month: selectedMonth,
-                                    transactions: item.transactions
+                                    transactions:
+                                      item.transactions?.map((tx) => ({
+                                        id: tx.id as string,
+                                        amount: getAmount(tx.amount),
+                                        source: tx.source || 'Unknown',
+                                        isIncome: item.category.isIncome,
+                                        isSavings: item.category.isSavings,
+                                        description: tx.description,
+                                        subcategoryName: item.name,
+                                        date: tx.date
+                                      })) || []
                                   });
                                 }
                               }}
@@ -687,7 +772,7 @@ export default function Planner({
                                 Actual
                                 {(item.transactions?.length ?? 0) > 0 && (
                                   <span className="text-[8px] bg-primary text-white px-1 leading-tight opacity-0 group-hover:opacity-100 transition-opacity">
-                                    {item.transactions.length}
+                                    {item.transactions?.length ?? 0}
                                   </span>
                                 )}
                               </span>
@@ -747,7 +832,7 @@ export default function Planner({
                                     <AlertDialogDescription>
                                       How would you like to delete{' '}
                                       <span className="font-bold text-foreground">
-                                        "{item.name}"
+                                        &quot;{item.name}&quot;
                                       </span>
                                       ?
                                     </AlertDialogDescription>
@@ -798,7 +883,6 @@ export default function Planner({
 
                   <div className="p-4 bg-secondary/5">
                     <AddSubcategory
-                      user={user}
                       householdId={householdId}
                       currentCategories={currentCategories}
                       setCurrentSubcategoriesAction={
@@ -816,7 +900,15 @@ export default function Planner({
 
         <div className="space-y-12">
           <MonthSettlement
-            transactions={allTransactions}
+            transactions={allTransactions.map((tx, index) => ({
+              id: (tx.id as string) || `tx-${index}`,
+              amount: getAmount(tx.amount),
+              source: tx.source || 'Unknown',
+              isIncome: tx.isIncome,
+              isSavings: tx.isSavings,
+              description: tx.description,
+              subcategoryName: tx.subcategoryName
+            }))}
             brlRate={brlRate}
             month={selectedMonth}
             onSourceClick={(source, txs) =>
@@ -856,7 +948,7 @@ export default function Planner({
 
           <div className="flex-1 overflow-y-auto p-6 space-y-4 no-scrollbar">
             <div className="flex flex-col divide-y border border-slate-200">
-              {selectedDetails?.transactions.map((tx: any, idx: number) => (
+              {selectedDetails?.transactions.map((tx, idx) => (
                 <div
                   key={idx}
                   className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors group"
@@ -875,20 +967,20 @@ export default function Planner({
                         </span>
                       )}
                       <span className="text-[9px] text-muted-foreground font-mono">
-                        {tx.date instanceof Date
-                          ? tx.date.toLocaleDateString()
-                          : tx.date}
+                        {tx.date ? formatDate(tx.date) : ''}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
                     <span
                       className={`font-mono font-bold text-sm ${
-                        tx.amount < 0 ? 'text-emerald-600' : 'text-slate-900'
+                        getAmount(tx.amount) < 0
+                          ? 'text-emerald-600'
+                          : 'text-slate-900'
                       }`}
                     >
-                      {tx.amount < 0 ? '+' : ''}$
-                      {formatCurrency(Math.abs(tx.amount))}
+                      {getAmount(tx.amount) < 0 ? '+' : ''}$
+                      {formatCurrency(Math.abs(getAmount(tx.amount)))}
                     </span>
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
@@ -908,10 +1000,10 @@ export default function Planner({
                           <AlertDialogDescription className="text-slate-500">
                             This will permanently remove the record for{' '}
                             <strong className="text-slate-900 uppercase">
-                              "{tx.description}"
+                              &quot;{tx.description}&quot;
                             </strong>{' '}
-                            (${formatCurrency(Math.abs(tx.amount))}). This
-                            action cannot be undone.
+                            (${formatCurrency(Math.abs(getAmount(tx.amount)))})
+                            . This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -919,7 +1011,9 @@ export default function Planner({
                             Cancel
                           </AlertDialogCancel>
                           <AlertDialogAction
-                            onClick={() => handleDeleteTransaction(tx.id)}
+                            onClick={() =>
+                              handleDeleteTransaction(tx.id as string)
+                            }
                             className="bg-destructive hover:bg-destructive/90 rounded-none uppercase font-bold text-xs tracking-widest"
                           >
                             Confirm Delete
@@ -941,11 +1035,15 @@ export default function Planner({
                 $
                 {formatCurrency(
                   selectedDetails?.transactions
-                    .filter((tx: any) => new Date(tx.date).getDate() <= 15)
-                    .reduce(
-                      (sum: number, tx: any) => sum + (tx.amount || 0),
-                      0
-                    ) || 0
+                    .filter((tx) => {
+                      if (!tx.date) return true;
+                      const date =
+                        tx.date instanceof Date ? tx.date : new Date(tx.date);
+                      return date.getDate() <= 15;
+                    })
+                    .reduce((sum: number, tx) => {
+                      return sum + getAmount(tx.amount);
+                    }, 0) || 0
                 )}
               </span>
             </div>
@@ -955,11 +1053,15 @@ export default function Planner({
                 $
                 {formatCurrency(
                   selectedDetails?.transactions
-                    .filter((tx: any) => new Date(tx.date).getDate() > 15)
-                    .reduce(
-                      (sum: number, tx: any) => sum + (tx.amount || 0),
-                      0
-                    ) || 0
+                    .filter((tx) => {
+                      if (!tx.date) return true;
+                      const date =
+                        tx.date instanceof Date ? tx.date : new Date(tx.date);
+                      return date.getDate() > 15;
+                    })
+                    .reduce((sum: number, tx) => {
+                      return sum + getAmount(tx.amount);
+                    }, 0) || 0
                 )}
               </span>
             </div>
@@ -972,10 +1074,9 @@ export default function Planner({
               <span className="font-mono font-black text-lg text-slate-900">
                 $
                 {formatCurrency(
-                  selectedDetails?.transactions.reduce(
-                    (sum: number, tx: any) => sum + (tx.amount || 0),
-                    0
-                  ) || 0
+                  selectedDetails?.transactions.reduce((sum: number, tx) => {
+                    return sum + getAmount(tx.amount);
+                  }, 0) || 0
                 )}
               </span>
             </div>
