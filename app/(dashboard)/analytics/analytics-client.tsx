@@ -243,15 +243,15 @@ export default function AnalyticsClient({
           </div>
         </Link>
         <Link
-          href="#"
+          href="/planner"
           className="p-6 bg-slate-900 text-white flex items-center justify-between group cursor-pointer overflow-hidden relative"
         >
           <div className="relative z-10">
             <p className="text-xs font-black uppercase tracking-tight">
-              Export Intelligence
+              Go to Planner
             </p>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
-              PDF Strategy Report
+              Take action on your insights
             </p>
           </div>
           <ArrowUpRight
