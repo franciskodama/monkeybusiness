@@ -20,6 +20,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { bulkAddTransactions, addTransactionRule } from '@/lib/actions';
 import { formatCurrency } from '@/lib/utils';
+import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 
 export function TransactionReviewModal({
   reviewData,
@@ -28,14 +29,23 @@ export function TransactionReviewModal({
   allAvailableSubcategories,
   setCurrentSubcategoriesAction // Ensure this is added here
 }: {
-  reviewData: any[];
-  setReviewData: (data: any[] | null) => void;
+  reviewData: (TransactionInput & { ignored?: boolean })[];
+  setReviewData: (
+    data: (TransactionInput & { ignored?: boolean })[] | null
+  ) => void;
   householdId: string;
-  allAvailableSubcategories: any[];
-  setCurrentSubcategoriesAction: (items: any[]) => void; // Add this line
+  allAvailableSubcategories: SubcategoryWithCategory[];
+  setCurrentSubcategoriesAction: (items: SubcategoryWithCategory[]) => void; // Add this line
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [rulesToSave, setRulesToSave] = useState<Record<number, boolean>>({});
+
+  const getAmount = (amount: number | string | null | undefined): number => {
+    if (amount === null || amount === undefined) return 0;
+    if (typeof amount === 'number') return amount;
+    const parsed = parseFloat(amount);
+    return isNaN(parsed) ? 0 : parsed;
+  };
 
   const handleSaveAll = async () => {
     setIsProcessing(true);
@@ -76,7 +86,7 @@ export function TransactionReviewModal({
         setReviewData(null);
         setRulesToSave({});
       }
-    } catch (error) {
+    } catch {
       toast.error('Error saving rules or transactions.');
     } finally {
       setIsProcessing(false);
@@ -85,14 +95,14 @@ export function TransactionReviewModal({
 
   const activeTransactions = reviewData.filter((tx) => !tx.ignored);
 
-  const totalSpent = activeTransactions.reduce(
-    (sum, tx) => sum + (tx.amount > 0 ? tx.amount : 0),
-    0
-  );
-  const totalPayments = activeTransactions.reduce(
-    (sum, tx) => sum + (tx.amount < 0 ? Math.abs(tx.amount) : 0),
-    0
-  );
+  const totalSpent = activeTransactions.reduce((sum, tx) => {
+    const amount = getAmount(tx.amount);
+    return sum + (amount > 0 ? amount : 0);
+  }, 0);
+  const totalPayments = activeTransactions.reduce((sum, tx) => {
+    const amount = getAmount(tx.amount);
+    return sum + (amount < 0 ? Math.abs(amount) : 0);
+  }, 0);
 
   return (
     <Dialog
@@ -109,11 +119,19 @@ export function TransactionReviewModal({
         <div className="space-y-4">
           <div className="max-h-[50vh] overflow-y-auto divide-y border border-slate-300 rounded-none px-4 no-scrollbar">
             {reviewData.map((tx, index) => {
-              const isCredit = tx.amount < 0;
+              const isCredit = getAmount(tx.amount) < 0;
 
               // --- DYNAMIC MONTH DETECTION ---
               // Parse manually to avoid timezone shifting (e.g. 2026-01-01 becoming 2025-12-31)
-              const dateParts = tx.date.split('-');
+              const dateStr =
+                typeof tx.date === 'string'
+                  ? tx.date
+                  : [
+                      tx.date.getFullYear(),
+                      String(tx.date.getMonth() + 1).padStart(2, '0'),
+                      String(tx.date.getDate()).padStart(2, '0')
+                    ].join('-');
+              const dateParts = dateStr.split('-');
               const txYear = parseInt(dateParts[0], 10);
               const txMonth = parseInt(dateParts[1], 10);
 
@@ -129,9 +147,11 @@ export function TransactionReviewModal({
               const isDuplicate =
                 tx.subcategoryId &&
                 selectedSub?.transactions?.some(
-                  (existing: any) =>
-                    Math.abs(existing.amount) === Math.abs(tx.amount) &&
-                    !existing.ignored // If existing system has ignoring, check it
+                  (existing) =>
+                    Math.abs(getAmount(existing.amount)) ===
+                      Math.abs(getAmount(tx.amount)) &&
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    !(existing as any).ignored // If existing system has ignoring, check it
                 );
 
               return (
@@ -167,7 +187,7 @@ export function TransactionReviewModal({
                       htmlFor={`skip-${index}`}
                       className="text-[10px] font-black uppercase tracking-widest text-slate-500 cursor-pointer hover:text-rose-600 transition-colors"
                     >
-                      Don't import this
+                      Don&apos;t import this
                     </label>
                   </div>
 
@@ -184,18 +204,18 @@ export function TransactionReviewModal({
                         )}
                       </div>
                       <p className="text-[10px] text-muted-foreground uppercase font-mono tracking-tight">
-                        {tx.date} •{' '}
+                        {dateStr} •{' '}
                         <span className="text-primary font-bold">
                           {tx.source}
                         </span>{' '}
-                        • ${formatCurrency(Math.abs(tx.amount))}
+                        • ${formatCurrency(Math.abs(getAmount(tx.amount)))}
                       </p>
                     </div>
                     <p
                       className={`font-mono font-bold text-sm ${isCredit ? 'text-emerald-600' : 'text-slate-900'}`}
                     >
                       {isCredit ? '+' : ''}$
-                      {formatCurrency(Math.abs(tx.amount))}
+                      {formatCurrency(Math.abs(getAmount(tx.amount)))}
                     </p>
                   </div>
 

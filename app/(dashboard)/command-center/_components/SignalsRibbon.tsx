@@ -1,15 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import {
-  AlarmClockCheck,
-  CheckCircle2,
-  CheckLine,
-  ListCheck,
-  Plus,
-  Ribbon,
-  X
-} from 'lucide-react';
+import { CheckCircle2, Plus, Ribbon, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,7 +20,7 @@ import {
 import { toast } from 'sonner';
 import { addReminder, deleteReminder } from '@/lib/actions';
 import { User, Reminder } from '@prisma/client';
-import { getSourceColor } from '@/lib/utils';
+import { getSourceColor, formatDate } from '@/lib/utils';
 
 export function SignalsRibbon({
   householdId,
@@ -37,7 +29,7 @@ export function SignalsRibbon({
   initialReminders
 }: {
   householdId: string;
-  currentUser: any;
+  currentUser: User;
   householdUsers: User[];
   initialReminders: Reminder[];
 }) {
@@ -144,11 +136,8 @@ export function SignalsRibbon({
                       >
                         {targetName}
                       </span>
-                      <span className="text-[7px] text-slate-400 font-bold italic">
-                        {new Date(r.createdAt).toLocaleDateString(undefined, {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                      <span className="text-[8px] text-slate-400 font-bold italic">
+                        {formatDate(r.createdAt)}
                       </span>
                     </div>
                   </div>

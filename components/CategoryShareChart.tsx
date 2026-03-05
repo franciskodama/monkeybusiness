@@ -3,18 +3,20 @@
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { formatCurrencyRounded, getColorCode } from '@/lib/utils';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 export function CategoryShareChart({
   subcategories,
   showList = false
 }: {
-  subcategories: any[];
+  subcategories: SubcategoryWithCategory[];
   showList?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   const currentMonth = new Date().getMonth() + 1;
@@ -34,7 +36,13 @@ export function CategoryShareChart({
       const categoryColor = s.category?.color || 'GRAY';
 
       const actualAmount = (s.transactions || []).reduce(
-        (sum: number, tx: any) => sum + (tx.amount || 0),
+        (sum: number, tx: { amount?: number | string }) => {
+          const amount =
+            typeof tx.amount === 'string'
+              ? parseFloat(tx.amount)
+              : tx.amount || 0;
+          return sum + amount;
+        },
         0
       );
 

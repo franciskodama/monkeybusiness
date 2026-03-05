@@ -20,12 +20,13 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { matchTransactionsWithRules } from '@/lib/actions';
+import { TransactionInput } from '@/lib/types';
 
 export function DirectCodeImporter({
   onDataLoaded,
   householdId
 }: {
-  onDataLoaded: (data: any[]) => void;
+  onDataLoaded: (data: (TransactionInput & { ignored?: boolean })[]) => void;
   householdId: string;
 }) {
   const [code, setCode] = useState('');
@@ -50,7 +51,9 @@ export function DirectCodeImporter({
         );
 
         // Map the source to each transaction
-        const finalData = autoMatchedData.map((tx: any) => ({
+        const finalData = (
+          autoMatchedData as (TransactionInput & { ignored?: boolean })[]
+        ).map((tx) => ({
           ...tx,
           source
         }));
@@ -59,7 +62,7 @@ export function DirectCodeImporter({
         setOpen(false);
         toast.success(`Processed for ${source}`);
       }
-    } catch (e) {
+    } catch {
       toast.error('Invalid JSON format.');
     }
   };

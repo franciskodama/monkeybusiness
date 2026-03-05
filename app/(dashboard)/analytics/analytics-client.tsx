@@ -20,22 +20,16 @@ import Help from '@/components/Help';
 import ExplanationStabilityIndex from './explanation-stability-index';
 
 import Link from 'next/link';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 interface AnalyticsClientProps {
-  user: any;
-  subcategories: any[];
-  reminders: any[];
-  householdUsers: any[];
-  householdId: string;
+  subcategories: SubcategoryWithCategory[];
 }
 
 export default function AnalyticsClient({
-  user,
-  subcategories,
-  householdId
+  subcategories
 }: AnalyticsClientProps) {
   const [openAction, setOpenAction] = React.useState(false);
-  const now = new Date();
 
   return (
     <div className="flex flex-col gap-10 p-8 mb-12 max-w-[1600px] mx-auto">
@@ -121,11 +115,11 @@ export default function AnalyticsClient({
                     Stability Diagnostic
                   </p>
                   <p className="text-sm font-medium leading-relaxed italic text-slate-300">
-                    "This index measures how consistent your spending habits
-                    are. Bubbles at the top represent higher
+                    &quot;This index measures how consistent your spending
+                    habits are. Bubbles at the top represent higher
                     volatility—behaviors that are unpredictable and harder to
                     budget for. Stable systems keep their largest bubbles at the
-                    bottom."
+                    bottom.&quot;
                   </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">

@@ -17,6 +17,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion';
 import { formatCurrency, months } from '@/lib/utils';
 import { barlow } from '@/lib/fonts';
+import { LucideIcon } from 'lucide-react';
 
 interface Transaction {
   id: string;
@@ -42,7 +43,7 @@ export function MonthSettlement({
 
   const metricExplanations: Record<
     string,
-    { label: string; desc: string; icon: any }
+    { label: string; desc: string; icon: LucideIcon }
   > = {
     savingsRate: {
       label: 'Savings Rate',
@@ -140,108 +141,6 @@ export function MonthSettlement({
       : 0;
 
   if (transactions.length === 0) return null;
-
-  const MetricTooltip = ({ metric }: { metric: string }) => (
-    <AnimatePresence>
-      {activeMetric === metric && metricExplanations[metric] && (
-        <motion.div
-          initial={{ opacity: 0, height: 0, marginTop: 0 }}
-          animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
-          exit={{ opacity: 0, height: 0, marginTop: 0 }}
-          className="bg-slate-900 border-2 border-slate-700 p-4 relative shadow-[4px_4px_0px_rgba(30,41,59,1)] mb-2"
-        >
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveMetric(null);
-            }}
-            className="absolute top-2 right-2 text-slate-500 hover:text-white"
-          >
-            <X size={12} />
-          </button>
-          <div className="flex items-center gap-2 mb-2">
-            {React.createElement(metricExplanations[metric].icon, {
-              size: 10,
-              className: 'text-slate-400'
-            })}
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
-              Definition / {metricExplanations[metric].label}
-            </span>
-          </div>
-          <p className="text-[13px] leading-relaxed text-slate-300 font-semibold">
-            {metricExplanations[metric].desc}
-          </p>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-
-  const EquationBox = ({
-    title,
-    value,
-    color = 'slate',
-    subtitle,
-    isCurrency = true,
-    onClick
-  }: {
-    title: string;
-    value: number;
-    color?: 'slate' | 'cyan' | 'orange' | 'red' | 'emerald' | 'yellow';
-    subtitle?: string;
-    isCurrency?: boolean;
-    onClick?: () => void;
-  }) => {
-    const colors = {
-      slate:
-        'bg-slate-50 border-slate-100 text-slate-900 shadow-[4px_4px_0px_rgba(241,245,249,1)]',
-      cyan: 'bg-cyan-50 border-cyan-100 text-cyan-900 shadow-[4px_4px_0px_rgba(165,243,252,0.4)]',
-      orange:
-        'bg-orange-50 border-orange-100 text-orange-900 shadow-[4px_4px_0px_rgba(254,215,170,0.4)]',
-      red: 'bg-red-50 border-red-100 text-red-900 shadow-[4px_4px_0px_rgba(255,241,242,1)]',
-      emerald:
-        'bg-emerald-50 border-emerald-100 text-emerald-900 shadow-[4px_4px_0px_rgba(209,250,229,1)]',
-      yellow:
-        'bg-yellow-50 border-yellow-100 text-yellow-900 shadow-[4px_4px_0px_rgba(254,240,138,0.4)]'
-    };
-
-    return (
-      <motion.div
-        whileHover={onClick ? { scale: 1.02, y: -2 } : {}}
-        onClick={onClick}
-        className={`p-4 border-2 rounded-none flex flex-col justify-center items-center text-center transition-all ${onClick ? 'cursor-pointer hover:shadow-md' : ''} ${colors[color]}`}
-      >
-        <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
-          {title}
-        </span>
-        <span
-          className={`font-mono font-black ${isCurrency ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}
-        >
-          {isCurrency ? `$${formatCurrency(value)}` : value}
-        </span>
-        {subtitle && (
-          <span className="text-[9px] uppercase font-bold mt-1 opacity-50">
-            {subtitle}
-          </span>
-        )}
-      </motion.div>
-    );
-  };
-
-  const Operator = ({
-    icon: Icon,
-    color = 'text-slate-800',
-    className = ''
-  }: {
-    icon: any;
-    color?: string;
-    className?: string;
-  }) => (
-    <div
-      className={`flex items-center justify-center p-1 ${color} ${className}`}
-    >
-      <Icon size={18} strokeWidth={3} />
-    </div>
-  );
 
   return (
     <div className="mt-16 pt-12 border-t border-slate-100">
@@ -551,7 +450,12 @@ export function MonthSettlement({
                       {savingsRate.toFixed(1)}%
                     </span>
                   </div>
-                  <MetricTooltip metric="savingsRate" />
+                  <MetricTooltip
+                    metric="savingsRate"
+                    activeMetric={activeMetric}
+                    metricExplanations={metricExplanations}
+                    setActiveMetric={setActiveMetric}
+                  />
 
                   <div
                     onClick={() =>
@@ -573,7 +477,12 @@ export function MonthSettlement({
                       {livingEfficiency.toFixed(1)}%
                     </span>
                   </div>
-                  <MetricTooltip metric="efficiency" />
+                  <MetricTooltip
+                    metric="efficiency"
+                    activeMetric={activeMetric}
+                    metricExplanations={metricExplanations}
+                    setActiveMetric={setActiveMetric}
+                  />
 
                   <div
                     onClick={() =>
@@ -593,7 +502,12 @@ export function MonthSettlement({
                       ${formatCurrency(dailyBurn)}/d
                     </span>
                   </div>
-                  <MetricTooltip metric="burn" />
+                  <MetricTooltip
+                    metric="burn"
+                    activeMetric={activeMetric}
+                    metricExplanations={metricExplanations}
+                    setActiveMetric={setActiveMetric}
+                  />
                 </div>
               </div>
 
@@ -665,7 +579,12 @@ export function MonthSettlement({
                   </p>
                 </div>
               </div>
-              <MetricTooltip metric="settlement" />
+              <MetricTooltip
+                metric="settlement"
+                activeMetric={activeMetric}
+                metricExplanations={metricExplanations}
+                setActiveMetric={setActiveMetric}
+              />
             </div>
 
             {/* Performance Badge / Conclusion */}
@@ -692,7 +611,12 @@ export function MonthSettlement({
                       : 'Cash Flow Active'}
                 </span>
               </div>
-              <MetricTooltip metric="status" />
+              <MetricTooltip
+                metric="status"
+                activeMetric={activeMetric}
+                metricExplanations={metricExplanations}
+                setActiveMetric={setActiveMetric}
+              />
             </div>
           </div>
         </div>
@@ -700,3 +624,116 @@ export function MonthSettlement({
     </div>
   );
 }
+
+const MetricTooltip = ({
+  metric,
+  activeMetric,
+  metricExplanations,
+  setActiveMetric
+}: {
+  metric: string;
+  activeMetric: string | null;
+  metricExplanations: Record<
+    string,
+    { label: string; desc: string; icon: LucideIcon }
+  >;
+  setActiveMetric: (val: string | null) => void;
+}) => (
+  <AnimatePresence>
+    {activeMetric === metric && metricExplanations[metric] && (
+      <motion.div
+        initial={{ opacity: 0, height: 0, marginTop: 0 }}
+        animate={{ opacity: 1, height: 'auto', marginTop: 12 }}
+        exit={{ opacity: 0, height: 0, marginTop: 0 }}
+        className="bg-slate-900 border-2 border-slate-700 p-4 relative shadow-[4px_4px_0px_rgba(30,41,59,1)] mb-2"
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setActiveMetric(null);
+          }}
+          className="absolute top-2 right-2 text-slate-500 hover:text-white"
+        >
+          <X size={12} />
+        </button>
+        <div className="flex items-center gap-2 mb-2">
+          {React.createElement(metricExplanations[metric].icon, {
+            size: 10,
+            className: 'text-slate-400'
+          })}
+          <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            Definition / {metricExplanations[metric].label}
+          </span>
+        </div>
+        <p className="text-[13px] leading-relaxed text-slate-300 font-semibold">
+          {metricExplanations[metric].desc}
+        </p>
+      </motion.div>
+    )}
+  </AnimatePresence>
+);
+
+const EquationBox = ({
+  title,
+  value,
+  color = 'slate',
+  subtitle,
+  isCurrency = true,
+  onClick
+}: {
+  title: string;
+  value: number;
+  color?: 'slate' | 'cyan' | 'orange' | 'red' | 'emerald' | 'yellow';
+  subtitle?: string;
+  isCurrency?: boolean;
+  onClick?: () => void;
+}) => {
+  const colors = {
+    slate:
+      'bg-slate-50 border-slate-100 text-slate-900 shadow-[4px_4px_0px_rgba(241,245,249,1)]',
+    cyan: 'bg-cyan-50 border-cyan-100 text-cyan-900 shadow-[4px_4px_0px_rgba(165,243,252,0.4)]',
+    orange:
+      'bg-orange-50 border-orange-100 text-orange-900 shadow-[4px_4px_0px_rgba(254,215,170,0.4)]',
+    red: 'bg-red-50 border-red-100 text-red-900 shadow-[4px_4px_0px_rgba(255,241,242,1)]',
+    emerald:
+      'bg-emerald-50 border-emerald-100 text-emerald-900 shadow-[4px_4px_0px_rgba(209,250,229,1)]',
+    yellow:
+      'bg-yellow-50 border-yellow-100 text-yellow-900 shadow-[4px_4px_0px_rgba(254,240,138,0.4)]'
+  };
+
+  return (
+    <motion.div
+      whileHover={onClick ? { scale: 1.02, y: -2 } : {}}
+      onClick={onClick}
+      className={`p-4 border-2 rounded-none flex flex-col justify-center items-center text-center transition-all ${onClick ? 'cursor-pointer hover:shadow-md' : ''} ${colors[color]}`}
+    >
+      <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
+        {title}
+      </span>
+      <span
+        className={`font-mono font-black ${isCurrency ? 'text-base sm:text-lg' : 'text-lg sm:text-xl'}`}
+      >
+        {isCurrency ? `$${formatCurrency(value)}` : value}
+      </span>
+      {subtitle && (
+        <span className="text-[9px] uppercase font-bold mt-1 opacity-50">
+          {subtitle}
+        </span>
+      )}
+    </motion.div>
+  );
+};
+
+const Operator = ({
+  icon: Icon,
+  color = 'text-slate-800',
+  className = ''
+}: {
+  icon: LucideIcon;
+  color?: string;
+  className?: string;
+}) => (
+  <div className={`flex items-center justify-center p-1 ${color} ${className}`}>
+    <Icon size={18} strokeWidth={3} />
+  </div>
+);

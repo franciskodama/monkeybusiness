@@ -1,24 +1,25 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Upload, RefreshCw, FileText } from 'lucide-react';
+import { Download, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { seedHouseholdBudget } from '@/lib/actions';
+import { SubcategoryWithCategory, BudgetTemplateCategory } from '@/lib/types';
 
 export function BackupRestore({
   householdId,
   currentSubcategories
 }: {
   householdId: string;
-  currentSubcategories: any[];
+  currentSubcategories: SubcategoryWithCategory[];
 }) {
   const [isRestoring, setIsRestoring] = useState(false);
 
   // 1. Logic to transform current state into a seedable JSON
   const handleExport = () => {
     try {
-      const categoriesMap: Record<string, any> = {};
+      const categoriesMap: Record<string, BudgetTemplateCategory> = {};
 
       currentSubcategories.forEach((sub) => {
         const category = sub.category;
@@ -37,12 +38,12 @@ export function BackupRestore({
 
         // Ensure we only grab one instance of each subcategory name for the template
         const exists = categoriesMap[catName].subcategories.find(
-          (s: any) => s.name === sub.name
+          (s) => s.name === sub.name
         );
         if (!exists) {
           categoriesMap[catName].subcategories.push({
             name: sub.name,
-            amount: sub.amount
+            amount: sub.amount || 0
           });
         }
       });
@@ -60,7 +61,7 @@ export function BackupRestore({
       URL.revokeObjectURL(url);
 
       toast.success('Backup file created and downloaded!');
-    } catch (err) {
+    } catch {
       toast.error('Failed to generate backup.');
     }
   };
@@ -87,7 +88,7 @@ export function BackupRestore({
         } else {
           toast.error('Database error during restoration.');
         }
-      } catch (err) {
+      } catch {
         toast.error(
           'Invalid file format. Please upload a valid budget backup.'
         );

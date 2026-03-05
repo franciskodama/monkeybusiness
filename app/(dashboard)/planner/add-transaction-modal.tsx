@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Plus,
   Calendar as CalendarIcon,
@@ -26,6 +26,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 export function AddTransactionModal({
   subcategoryId,
@@ -40,9 +41,9 @@ export function AddTransactionModal({
   householdId: string;
   itemName: string;
   selectedMonth: number;
-  allAvailableSubcategories: any[];
+  allAvailableSubcategories: SubcategoryWithCategory[];
   isIncome?: boolean;
-  onSuccess: (updatedItems: any[]) => void;
+  onSuccess: (updatedItems: SubcategoryWithCategory[]) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -58,35 +59,27 @@ export function AddTransactionModal({
       : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
 
   const [date, setDate] = useState(initialDate);
-  const [isMonthMismatch, setIsMonthMismatch] = useState(false);
-  const [targetMonthName, setTargetMonthName] = useState('');
 
-  // Sync date when selectedMonth changes or modal opens
-  useEffect(() => {
-    if (open) {
+  const handleOpenChange = (newOpen: boolean) => {
+    setOpen(newOpen);
+    if (newOpen) {
       const today = new Date();
-      if (selectedMonth === today.getMonth() + 1) {
-        setDate(today.toISOString().split('T')[0]);
-      } else {
-        setDate(`2026-${selectedMonth.toString().padStart(2, '0')}-01`);
-      }
+      const initialDate =
+        selectedMonth === today.getMonth() + 1
+          ? today.toISOString().split('T')[0]
+          : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
+      setDate(initialDate);
       setDescription(itemName);
     }
-  }, [open, selectedMonth, itemName]);
+  };
 
-  // Handle month mismatch detection
-  useEffect(() => {
-    const dateParts = date.split('-');
-    if (dateParts.length === 3) {
-      const monthFromDate = parseInt(dateParts[1], 10);
-      if (monthFromDate !== selectedMonth) {
-        setIsMonthMismatch(true);
-        setTargetMonthName(months[monthFromDate - 1]);
-      } else {
-        setIsMonthMismatch(false);
-      }
-    }
-  }, [date, selectedMonth]);
+  // Month mismatch detection during render
+  const dateParts = date.split('-');
+  const monthFromDate =
+    dateParts.length === 3 ? parseInt(dateParts[1], 10) : selectedMonth;
+  const isMonthMismatch =
+    dateParts.length === 3 && monthFromDate !== selectedMonth;
+  const targetMonthName = isMonthMismatch ? months[monthFromDate - 1] : '';
 
   const handleSubmit = async () => {
     if (!amount || isNaN(parseFloat(amount))) {
@@ -160,11 +153,11 @@ export function AddTransactionModal({
     amount &&
     !isNaN(parseFloat(amount)) &&
     subToCheck?.transactions?.some(
-      (tx: any) => Math.abs(tx.amount) === Math.abs(parseFloat(amount))
+      (tx) => Math.abs(Number(tx.amount)) === Math.abs(parseFloat(amount))
     );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button
           variant="ghost"
@@ -215,7 +208,8 @@ export function AddTransactionModal({
                     You are currently in{' '}
                     <strong>{months[selectedMonth - 1]}</strong>, but the date
                     is in <strong>{targetMonthName}</strong>. This expense will
-                    be automatically "teleported" to your{' '}
+                    is in <strong>{targetMonthName}</strong>. This expense will
+                    be automatically &quot;teleported&quot; to your{' '}
                     <strong>{targetMonthName}</strong> budget.
                   </p>
                 </div>

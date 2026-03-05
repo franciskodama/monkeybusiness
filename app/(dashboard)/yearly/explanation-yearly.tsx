@@ -9,13 +9,13 @@ export default function ExplanationYearly({
   const contentOne = (
     <div className="space-y-4 text-primary">
       <p>
-        This is your <b>Financial Bird's Eye View</b>. Here you can see the
+        This is your <b>Financial Bird&apos;s Eye View</b>. Here you can see the
         entire year consolidated into one single table, making it easy to spot
         trends, identifying seasonal spikes, and monitor your long-term
         progress.
       </p>
       <p>
-        Every category and subcategory you've created in the Planner is
+        Every category and subcategory you&apos;ve created in the Planner is
         automatically synced here, month by month.
       </p>
     </div>
@@ -35,8 +35,8 @@ export default function ExplanationYearly({
         2. Yearly Settlement:
         <span className="font-normal block normal-case tracking-normal mt-1">
           The <b>Final Balance</b> calculates your Forecast vs Reality. Watch
-          for the "Plan Deficit" warning if your annual target expenses exceed
-          your income.
+          for the &quot;Plan Deficit&quot; warning if your annual target
+          expenses exceed your income.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">

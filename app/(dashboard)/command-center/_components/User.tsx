@@ -11,8 +11,8 @@ import Link from 'next/link';
 import { UserIcon } from 'lucide-react';
 
 export async function User() {
-  let session = await auth();
-  let user = session?.user;
+  const session = await auth();
+  const user = session?.user;
 
   return (
     <DropdownMenu>

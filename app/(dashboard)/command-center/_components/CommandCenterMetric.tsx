@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { LucideIcon, HelpCircle, X } from 'lucide-react';
+import { LucideIcon, HelpCircle } from 'lucide-react';
 
 interface CommandCenterMetricProps {
   label: string;
   value: string | number;
   subValue?: string;
   explanation?: string;
-  details?: string[];
   icon: LucideIcon;
   color: 'emerald' | 'blue' | 'rose' | 'amber' | 'slate';
   trend?: {
@@ -22,7 +21,6 @@ export function CommandCenterMetric({
   value,
   subValue,
   explanation,
-  details,
   icon: Icon,
   color,
   trend,

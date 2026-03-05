@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { processStatementWithAI } from '@/lib/actions';
+import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 
 export function TransactionImporter({
   householdId,
@@ -26,10 +27,10 @@ export function TransactionImporter({
   setReviewDataAction
 }: {
   householdId: string;
-  categories: any[];
-  subcategoriesForCurrentMonth: any[];
-  setCurrentSubcategoriesAction: React.Dispatch<React.SetStateAction<any[]>>;
-  setReviewDataAction: React.Dispatch<React.SetStateAction<any[] | null>>;
+  subcategoriesForCurrentMonth: SubcategoryWithCategory[];
+  setReviewDataAction: React.Dispatch<
+    React.SetStateAction<(TransactionInput & { ignored?: boolean })[] | null>
+  >;
 }) {
   const [source, setSource] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -71,7 +72,7 @@ export function TransactionImporter({
             result.error || `Failed to process statement for ${source}`
           );
         }
-      } catch (error) {
+      } catch {
         toast.error('An error occurred during processing.');
       } finally {
         setIsProcessing(false);

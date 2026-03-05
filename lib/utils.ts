@@ -81,3 +81,12 @@ export const getSourceColor = (source: string) => {
   if (s.includes('FAMILY')) return '#EF4444';
   return '#64748B';
 };
+
+export const formatDate = (date: Date | string) => {
+  const d = typeof date === 'string' ? new Date(date) : date;
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};

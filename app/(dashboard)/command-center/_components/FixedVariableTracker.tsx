@@ -1,16 +1,14 @@
 'use client';
 
-import { Lock, Shuffle, Info } from 'lucide-react';
+import { Lock, Shuffle } from 'lucide-react';
 import { formatCurrencyRounded } from '@/lib/utils';
-import { tagClass } from '@/lib/classes';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 export function FixedVariableTracker({
   subcategories
 }: {
-  subcategories: any[];
+  subcategories: SubcategoryWithCategory[];
 }) {
-  const currentMonth = new Date().getMonth() + 1;
-
   // 1. Group items across the FULL YEAR
   const yearItems = subcategories.filter(
     (s) => !s.category?.isIncome && !s.category?.isSavings

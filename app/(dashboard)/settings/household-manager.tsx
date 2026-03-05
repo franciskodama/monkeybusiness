@@ -1,18 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Users, UserPlus, Clipboard, Check, Trash2 } from 'lucide-react';
+import { Users, UserPlus, Clipboard, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { joinHousehold } from '@/lib/actions';
 import Image from 'next/image';
+import { HouseholdWithUsers } from '@/lib/types';
 
 export function HouseholdManager({
   household,
   currentUserId
 }: {
-  household: any;
+  household: HouseholdWithUsers | null;
   currentUserId: string;
 }) {
   const [inviteCode, setInviteCode] = useState('');
@@ -20,7 +21,7 @@ export function HouseholdManager({
   const [hasCopied, setHasCopied] = useState(false);
 
   const copyToClipboard = () => {
-    if (!household.inviteCode) return;
+    if (!household?.inviteCode) return;
     navigator.clipboard.writeText(household.inviteCode);
     setHasCopied(true);
     toast.success('Invite code copied to clipboard');
@@ -40,7 +41,7 @@ export function HouseholdManager({
       } else {
         toast.error(res.error || 'Failed to join household');
       }
-    } catch (err) {
+    } catch {
       toast.error('An error occurred');
     } finally {
       setIsJoining(false);
@@ -59,7 +60,7 @@ export function HouseholdManager({
         </div>
 
         <div className="grid gap-4">
-          {household.users.map((user: any) => (
+          {household?.users.map((user) => (
             <div
               key={user.uid}
               className="flex items-center justify-between p-4 border border-slate-200 bg-white"
@@ -108,12 +109,12 @@ export function HouseholdManager({
           <div className="p-6 border border-emerald-100 bg-emerald-50/30 space-y-4">
             <p className="text-xs text-emerald-800 leading-relaxed font-medium italic">
               Share this unique code with your partner or family member. When
-              they join, they'll have full access to manage this budget together
-              with you.
+              they join, they&apos;ll have full access to manage this budget
+              together with you.
             </p>
             <div className="flex gap-2">
               <div className="flex-1 bg-white border border-emerald-200 px-4 py-2 font-mono text-lg font-black tracking-[0.2em] text-center text-emerald-600">
-                {household.inviteCode || 'GENERATING...'}
+                {household?.inviteCode || 'GENERATING...'}
               </div>
               <Button
                 onClick={copyToClipboard}

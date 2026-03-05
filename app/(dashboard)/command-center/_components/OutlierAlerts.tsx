@@ -1,9 +1,14 @@
 'use client';
 
-import { AlertCircle, ArrowUpRight, MinusCircle } from 'lucide-react';
+import { AlertCircle, ArrowUpRight } from 'lucide-react';
 import { formatCurrencyRounded } from '@/lib/utils';
+import { SubcategoryWithCategory } from '@/lib/types';
 
-export function OutlierAlerts({ subcategories }: { subcategories: any[] }) {
+export function OutlierAlerts({
+  subcategories
+}: {
+  subcategories: SubcategoryWithCategory[];
+}) {
   const currentMonth = new Date().getMonth() + 1;
 
   // 1. Calculate Average Spending per Subcategory (excluding current month and INCOME)
@@ -25,7 +30,7 @@ export function OutlierAlerts({ subcategories }: { subcategories: any[] }) {
   const historyMap: Record<string, { total: number; count: number }> = {};
   historicalSubcategories.forEach((s) => {
     const actual = (s.transactions || []).reduce(
-      (sum: number, tx: any) => sum + tx.amount,
+      (sum: number, tx) => sum + (Number(tx.amount) || 0),
       0
     );
     if (!historyMap[s.name]) historyMap[s.name] = { total: 0, count: 0 };
@@ -35,7 +40,7 @@ export function OutlierAlerts({ subcategories }: { subcategories: any[] }) {
 
   currentSubcategories.forEach((s) => {
     const actual = (s.transactions || []).reduce(
-      (sum: number, tx: any) => sum + tx.amount,
+      (sum: number, tx) => sum + (Number(tx.amount) || 0),
       0
     );
     const history = historyMap[s.name];

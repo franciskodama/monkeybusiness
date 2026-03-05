@@ -35,7 +35,6 @@ export default async function PlannerPage() {
     <>
       {user.householdId && categories && subcategories ? (
         <Planner
-          user={user}
           householdId={householdId}
           categories={categories}
           subcategories={subcategories}

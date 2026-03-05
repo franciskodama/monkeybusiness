@@ -23,13 +23,13 @@ import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { FixedVariableTracker } from './_components/FixedVariableTracker';
 import { OutlierAlerts } from './_components/OutlierAlerts';
 import { formatCurrencyRounded } from '@/lib/utils';
-import { User } from '@prisma/client';
+import { User, Reminder } from '@prisma/client';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 interface CommandCenterClientProps {
-  user: any;
-  subcategories: any[];
-  pendingCount: number;
-  reminders: any[];
+  user: User;
+  subcategories: SubcategoryWithCategory[];
+  reminders: Reminder[];
   householdUsers: User[];
   householdId: string;
 }
@@ -37,7 +37,6 @@ interface CommandCenterClientProps {
 export default function CommandCenterClient({
   user,
   subcategories,
-  pendingCount,
   reminders,
   householdUsers,
   householdId
@@ -56,20 +55,20 @@ export default function CommandCenterClient({
   const monthlyEfficiencies = ytdMonths.map((m) => {
     const monthSubs = subcategories.filter((s) => s.month === m);
     const contribution = monthSubs.reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
     const expenses = monthSubs
       .filter((s) => !s.category?.isIncome && !s.category?.isSavings)
       .reduce(
-        (sum: number, s: any) =>
+        (sum: number, s) =>
           sum +
           (s.transactions || []).reduce(
-            (ts: number, t: any) => ts + (t.amount || 0),
+            (ts: number, t) => ts + (Number(t.amount) || 0),
             0
           ),
         0
@@ -83,20 +82,20 @@ export default function CommandCenterClient({
   const totalYtdContribution = subcategories
     .filter((s) => s.month <= currentMonth)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
   const totalYtdSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -115,10 +114,10 @@ export default function CommandCenterClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -131,10 +130,10 @@ export default function CommandCenterClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -155,10 +154,10 @@ export default function CommandCenterClient({
   const currentMonthSubs = subcategories.filter(
     (s) => s.month === currentMonth
   );
-  currentMonthSubs.forEach((s: any) => {
+  currentMonthSubs.forEach((s) => {
     if (s.category?.isIncome || s.category?.isSavings) return;
     const actual = (s.transactions || []).reduce(
-      (sum: number, tx: any) => sum + (tx.amount || 0),
+      (sum: number, tx) => sum + (Number(tx.amount) || 0),
       0
     );
     const target = s.amount || 0;
@@ -179,10 +178,10 @@ export default function CommandCenterClient({
         !s.category?.isSavings
     )
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -191,11 +190,11 @@ export default function CommandCenterClient({
   const ytdActualContribution = subcategories
     .filter((s) => s.month <= currentMonth)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((ts: number, t: any) => ts + (t.amount || 0), 0),
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
 
@@ -209,11 +208,11 @@ export default function CommandCenterClient({
   // C. Annual Forecast Risk (Planned Full Year)
   const fullYearPlannedExpenses = subcategories
     .filter((s) => !s.category?.isIncome && !s.category?.isSavings)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .reduce((sum: number, s) => sum + (s.amount || 0), 0);
 
   const fullYearPlannedContribution = subcategories
     .filter((s) => s.category?.isIncome)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .reduce((sum: number, s) => sum + (s.amount || 0), 0);
 
   if (fullYearPlannedExpenses > fullYearPlannedContribution) {
     frictionPoints.push({
@@ -226,10 +225,10 @@ export default function CommandCenterClient({
   const ytdActualSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
     .reduce(
-      (sum: number, s: any) =>
+      (sum: number, s) =>
         sum +
         (s.transactions || []).reduce(
-          (ts: number, t: any) => ts + (t.amount || 0),
+          (ts: number, t) => ts + (Number(t.amount) || 0),
           0
         ),
       0
@@ -237,7 +236,7 @@ export default function CommandCenterClient({
 
   const ytdPlannedSavings = subcategories
     .filter((s) => s.month <= currentMonth && s.category?.isSavings)
-    .reduce((sum: number, s: any) => sum + (s.amount || 0), 0);
+    .reduce((sum: number, s) => sum + (s.amount || 0), 0);
 
   if (ytdPlannedSavings > 0 && ytdActualSavings < ytdPlannedSavings * 0.9) {
     frictionPoints.push({
@@ -452,8 +451,9 @@ export default function CommandCenterClient({
                         Strategic Note
                       </h4>
                       <p className="text-xs font-medium leading-relaxed italic opacity-80">
-                        "Clean system health ensures maximum Wealth Velocity.
-                        Address these points to minimize capital leakage."
+                        &quot;Clean system health ensures maximum Wealth
+                        Velocity. Address these points to minimize capital
+                        leakage.&quot;
                       </p>
                     </div>
                   )}

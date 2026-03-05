@@ -6,50 +6,17 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { revalidatePath } from 'next/cache';
 import { auth } from './auth';
 import { resend } from './resend';
-// --- TYPES ---
+import {
+  TransactionInput,
+  SubcategoryWithCategory,
+  BudgetTemplateCategory
+} from './types';
 
-export interface TransactionInput {
-  date: string;
-  description: string;
-  amount: number | string;
-  subcategoryId?: string | null;
-  ruleMatched?: boolean;
-  pattern?: string;
-  source?: string;
-}
-
-export interface SubcategoryWithCategory {
-  id: string;
-  name: string;
-  month: number;
-  year: number;
-  categoryId: string;
-  category: {
-    id: string;
-    name: string;
-    color: ColorEnum;
-    isIncome: boolean;
-    isSavings: boolean;
-    isFixed: boolean;
-    order: number;
-    householdId: string;
-  };
-  amount: number | null;
-  householdId: string;
-}
-
-export interface BudgetTemplateCategory {
-  name: string;
-  color?: ColorEnum;
-  isIncome?: boolean;
-  isSavings?: boolean;
-  isFixed?: boolean;
-  order?: number;
-  subcategories: {
-    name: string;
-    amount: number;
-  }[];
-}
+export {
+  type TransactionInput,
+  type SubcategoryWithCategory,
+  type BudgetTemplateCategory
+};
 
 // AI --------------------------------------------------------------------
 
@@ -72,7 +39,14 @@ export async function matchTransactionsWithRules(
   return txList.map((tx) => {
     // 1. Identify the target month safely (handle YYYY-MM-DD strings without TZ shifts)
     const currentId = tx.subcategoryId || null;
-    const dateParts = tx.date.split('-');
+    const dateParts =
+      typeof tx.date === 'string'
+        ? tx.date.split('-')
+        : [
+            tx.date.getFullYear().toString(),
+            (tx.date.getMonth() + 1).toString(),
+            tx.date.getDate().toString()
+          ];
     const txMonth = parseInt(dateParts[1], 10);
 
     // 2. Check for "Smart Rules" match (highest priority)
@@ -413,7 +387,7 @@ export const getCategories = async (householdId: string) => {
     return categories;
   } catch (error) {
     console.log(error);
-    return null;
+    return [];
   }
 };
 
@@ -756,7 +730,7 @@ export async function deleteSubcategory(
       });
     }
     return { success: true };
-  } catch (_error: unknown) {
+  } catch {
     return { success: false };
   }
 }

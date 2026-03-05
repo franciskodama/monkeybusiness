@@ -12,8 +12,10 @@ import {
 } from 'recharts';
 import { months } from '@/lib/utils';
 
+import { SubcategoryWithCategory } from '@/lib/types';
+
 interface AnnualStrategicChartProps {
-  subcategories: any[];
+  subcategories: SubcategoryWithCategory[];
 }
 
 export function AnnualStrategicChart({
@@ -22,7 +24,8 @@ export function AnnualStrategicChart({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   const now = new Date();
@@ -52,18 +55,27 @@ export function AnnualStrategicChart({
       // 2. ACTUAL totals (Reality - only for past/current)
       if (monthIndex <= currentMonth) {
         const txs = sub.transactions || [];
-        const actualAmount = txs.reduce(
-          (sum: number, tx: any) => sum + (tx.amount || 0),
-          0
-        );
+        const actualAmount = txs.reduce((sum: number, tx) => {
+          const amount =
+            typeof tx.amount === 'string'
+              ? parseFloat(tx.amount)
+              : tx.amount || 0;
+          return sum + amount;
+        }, 0);
 
         if (sub.category?.isSavings) actualSavings += actualAmount;
         else if (!sub.category?.isIncome) actualExpenses += actualAmount;
 
         // Contribution: sum of transactions from His and Her sources
         actualContribution += txs
-          .filter((tx: any) => tx.source === 'His' || tx.source === 'Her')
-          .reduce((sum: number, tx: any) => sum + (tx.amount || 0), 0);
+          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .reduce((sum: number, tx) => {
+            const amount =
+              typeof tx.amount === 'string'
+                ? parseFloat(tx.amount)
+                : tx.amount || 0;
+            return sum + amount;
+          }, 0);
       }
     });
 

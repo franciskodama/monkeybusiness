@@ -14,8 +14,8 @@ export default function ExplanationSettings({
         ensure your data is safely backed up.
       </p>
       <p>
-        Think of this as the "Admin Panel" for your budget—once configured, your
-        daily workflow in the Planner becomes much smoother.
+        Think of this as the &quot;Admin Panel&quot; for your budget—once
+        configured, your daily workflow in the Planner becomes much smoother.
       </p>
     </div>
   );
@@ -42,7 +42,7 @@ export default function ExplanationSettings({
         - Backup & Recovery:
         <span className="font-normal block normal-case tracking-normal mt-1">
           Export your entire budget as a JSON file for safe keeping, or restore
-          your data if you're starting fresh.
+          your data if you&apos;re starting fresh.
         </span>
       </p>
     </div>
@@ -54,8 +54,8 @@ export default function ExplanationSettings({
         - Smart Coverage %:
         <span className="font-normal block normal-case tracking-normal mt-1">
           The <b>System Health Status</b> shows how many of your subcategories
-          are covered by automation rules. Aim for 80%+ for a true "auto-pilot"
-          experience.
+          are covered by automation rules. Aim for 80%+ for a true
+          &quot;auto-pilot&quot; experience.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">

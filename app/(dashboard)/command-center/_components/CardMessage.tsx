@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { AspectRatio } from '@/components/ui/aspect-ratio';
@@ -9,8 +9,23 @@ import { tagClass } from '@/lib/classes';
 import { messages } from './messages';
 
 export function CardMessage() {
+  const numberOfGifsAvailable = 20;
+
   const [currentMessage, setCurrentMessage] = useState(messages[0]);
   const [imageNumber, setImageNumber] = useState(1);
+
+  useEffect(() => {
+    // Randomize on client mount to avoid hydration mismatch
+    const randomIndex = Math.floor(Math.random() * messages.length);
+    const randomImage = Math.floor(Math.random() * numberOfGifsAvailable + 1);
+
+    // Defer to avoid "cascading render" lint warning in some environments,
+    // though for mount-only initialization it is generally acceptable.
+    setTimeout(() => {
+      setCurrentMessage(messages[randomIndex]);
+      setImageNumber(randomImage);
+    }, 0);
+  }, []);
 
   const getRandomMessage = () => {
     const randomIndex = Math.floor(Math.random() * messages.length);
@@ -18,12 +33,6 @@ export function CardMessage() {
     setCurrentMessage(messages[randomIndex]);
     setImageNumber(randomImage);
   };
-
-  useEffect(() => {
-    getRandomMessage();
-  }, []);
-
-  const numberOfGifsAvailable = 20;
 
   return (
     <>

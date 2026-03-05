@@ -2,16 +2,14 @@ import { getSubcategories, getReminders } from '@/lib/actions';
 import { User } from '@prisma/client';
 import CommandCenterClient from './command-center-client';
 
-export default async function CommandCenterServer({ user }: { user: any }) {
-  const householdId = user?.householdId!;
+export default async function CommandCenterServer({
+  user
+}: {
+  user: User & { household?: { users: User[] } | null };
+}) {
+  const householdId = user.householdId;
+  if (!householdId) return null;
   const subcategories = await getSubcategories(householdId);
-  const currentMonth = new Date().getMonth() + 1;
-
-  // Flatten current month transactions and count those without a subcategory
-  const pendingCount = subcategories
-    .filter((s) => s.month === currentMonth)
-    .flatMap((s) => s.transactions || [])
-    .filter((t) => !t.subcategoryId).length;
 
   const reminders = await getReminders(householdId);
   const householdUsers = (user.household?.users || []) as User[];
@@ -20,7 +18,6 @@ export default async function CommandCenterServer({ user }: { user: any }) {
     <CommandCenterClient
       user={user}
       subcategories={subcategories}
-      pendingCount={pendingCount}
       reminders={reminders}
       householdUsers={householdUsers}
       householdId={householdId}

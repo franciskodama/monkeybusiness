@@ -1,10 +1,15 @@
 'use client';
 
-import { Rocket, AlertTriangle, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Rocket, CheckCircle2, TrendingUp } from 'lucide-react';
 import { formatCurrencyRounded } from '@/lib/utils';
 import { tagClass } from '@/lib/classes';
+import { SubcategoryWithCategory } from '@/lib/types';
 
-export function ProjectionCard({ subcategories }: { subcategories: any[] }) {
+export function ProjectionCard({
+  subcategories
+}: {
+  subcategories: SubcategoryWithCategory[];
+}) {
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
@@ -20,7 +25,7 @@ export function ProjectionCard({ subcategories }: { subcategories: any[] }) {
   const spentSoFar = subcategories
     .filter((s) => s.month === currentMonth && !s.category?.isIncome)
     .flatMap((s) => s.transactions || [])
-    .reduce((sum, tx) => sum + tx.amount, 0);
+    .reduce((sum, tx) => sum + (Number(tx.amount) || 0), 0);
 
   // 3. EOM Projection
   const projectedEOM = today > 0 ? (spentSoFar / today) * daysInMonth : 0;

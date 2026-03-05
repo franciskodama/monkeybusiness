@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation';
 
 import AnalyticsClient from './analytics-client';
 import { auth } from '@/lib/auth';
-import { getUser, getSubcategories, getReminders } from '@/lib/actions';
-import { Spinner } from '@/lib/icons';
+import { getUser, getSubcategories } from '@/lib/actions';
 
 export default async function AnalyticsPage() {
   const session = await auth();
@@ -21,16 +20,6 @@ export default async function AnalyticsPage() {
 
   const householdId = dbUser.householdId!;
   const subcategories = await getSubcategories(householdId);
-  const reminders = await getReminders(householdId);
-  const householdUsers = dbUser.household?.users || [];
 
-  return (
-    <AnalyticsClient
-      user={dbUser}
-      subcategories={subcategories}
-      reminders={reminders}
-      householdUsers={householdUsers}
-      householdId={householdId}
-    />
-  );
+  return <AnalyticsClient subcategories={subcategories} />;
 }

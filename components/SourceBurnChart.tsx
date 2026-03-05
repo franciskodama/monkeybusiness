@@ -12,12 +12,19 @@ import {
   LabelList
 } from 'recharts';
 import { formatCurrencyRounded } from '@/lib/utils';
+import { TransactionInput, SubcategoryWithCategory } from '@/lib/types';
 
-export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
+export function SourceBurnChart({
+  subcategories
+}: {
+  subcategories: SubcategoryWithCategory[];
+}) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Wrap In RAF to avoid "setState synchronously in effect" warning during build/hydration
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   const currentMonth = new Date().getMonth() + 1;
@@ -31,7 +38,7 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
         s.month <= currentMonth &&
         !s.category?.isIncome
     )
-    .flatMap((s) => s.transactions || []);
+    .flatMap((s) => s.transactions || []) as TransactionInput[];
 
   // 2. Calculate totals per source (Accumulated YTD)
   const sourceData: Record<string, number> = {
@@ -41,10 +48,14 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
   };
 
   transactions.forEach((tx) => {
-    if (tx.amount > 0) {
-      const source = tx.source?.toUpperCase();
-      if (source && sourceData.hasOwnProperty(source)) {
-        sourceData[source] += tx.amount;
+    if (tx.amount) {
+      const amount =
+        typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
+      if (amount > 0) {
+        const source = tx.source?.toUpperCase();
+        if (source && sourceData.hasOwnProperty(source)) {
+          sourceData[source] += amount;
+        }
       }
     }
   });
@@ -130,7 +141,9 @@ export function SourceBurnChart({ subcategories }: { subcategories: any[] }) {
             <LabelList
               dataKey="percentage"
               position="right"
-              formatter={(val: any) => `${Number(val).toFixed(0)}%`}
+              formatter={(val: string | number | undefined | null | boolean) =>
+                `${Number(val ?? 0).toFixed(0)}%`
+              }
               style={{
                 fontSize: '10px',
                 fontWeight: 'bold',

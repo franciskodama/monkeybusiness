@@ -4,28 +4,25 @@ import React, { useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Scissors,
-  TrendingUp,
   AlertTriangle,
   Target,
   Flame,
-  ArrowRight,
   ChevronRight,
-  HelpCircle,
-  X
+  HelpCircle
 } from 'lucide-react';
 import { formatCurrencyRounded } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { User } from '@prisma/client';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 interface WasteCutterClientProps {
-  user: any;
-  subcategories: any[];
+  user: User;
+  subcategories: SubcategoryWithCategory[];
   householdId: string;
 }
 
 export default function WasteCutterClient({
-  user,
-  subcategories,
-  householdId
+  subcategories
 }: WasteCutterClientProps) {
   const [showCreepInfo, setShowCreepInfo] = React.useState(false);
   const [showFatInfo, setShowFatInfo] = React.useState(false);
@@ -52,7 +49,7 @@ export default function WasteCutterClient({
       }
     > = {};
 
-    subcategories.forEach((sub: any) => {
+    subcategories.forEach((sub) => {
       if (!stats[sub.name]) {
         stats[sub.name] = {
           name: sub.name,
@@ -69,7 +66,7 @@ export default function WasteCutterClient({
       stats[sub.name].fullYearForecast += sub.amount || 0;
 
       const actualSum = (sub.transactions || []).reduce(
-        (sum: number, tx: any) => sum + (tx.amount || 0),
+        (sum: number, tx) => sum + (Number(tx.amount) || 0),
         0
       );
 
@@ -154,8 +151,8 @@ export default function WasteCutterClient({
         }
         return null;
       })
-      .filter(Boolean)
-      .sort((a: any, b: any) => b.percent - a.percent)
+      .filter((v): v is NonNullable<typeof v> => v !== null)
+      .sort((a, b) => b.percent - a.percent)
       .slice(0, 5);
   }, [subcategoryStats, currentMonth]);
 
@@ -209,9 +206,10 @@ export default function WasteCutterClient({
                       <p className="text-xs font-bold leading-relaxed">
                         This early warning system flags any expense that is{' '}
                         <span className="text-rose-600">15% higher</span> than
-                        your usual 3-month average. It helps you catch "leaks"
-                        early, such as price increases or unmonitored spending
-                        spikes before they become your new normal.
+                        your usual 3-month average. It helps you catch
+                        &quot;leaks&quot; early, such as price increases or
+                        unmonitored spending spikes before they become your new
+                        normal.
                       </p>
                     </div>
                   </motion.div>
@@ -219,7 +217,7 @@ export default function WasteCutterClient({
               </AnimatePresence>
               <div className="space-y-4">
                 {creepAlerts.length > 0 ? (
-                  creepAlerts.map((alert: any, idx) => (
+                  creepAlerts.map((alert, idx) => (
                     <div
                       key={idx}
                       className="flex flex-col gap-1 border-b border-rose-100 pb-3 last:border-0 last:pb-0"
@@ -252,7 +250,7 @@ export default function WasteCutterClient({
               <div className="flex justify-between items-center">
                 <CardTitle className="text-xs font-black uppercase tracking-widest flex items-center gap-2">
                   <Flame size={14} />
-                  Potential "Fat" to Cut
+                  Potential &quot;Fat&quot; to Cut
                 </CardTitle>
                 <button
                   onClick={() => setShowFatInfo(!showFatInfo)}
@@ -275,9 +273,9 @@ export default function WasteCutterClient({
                       <p className="text-xs font-bold leading-relaxed">
                         This identifies your top 3 biggest potential savings. It
                         compares your current spending rate against your full
-                        year budget. If you're spending less than planned, the
-                        remaining "fat" is highlighted here so you can redirect
-                        it to your actual goals.
+                        year budget. If you&apos;re spending less than planned,
+                        the remaining &quot;fat&quot; is highlighted here so you
+                        can redirect it to your actual goals.
                       </p>
                     </div>
                   </motion.div>
@@ -332,17 +330,17 @@ export default function WasteCutterClient({
                   >
                     <div className="p-4 bg-slate-800 border-2 border-slate-700 text-slate-200">
                       <p className="text-xs font-bold leading-relaxed">
-                        Technical "rules of thumb" that ensure your financial
-                        system is running efficiently. They are designed to keep
-                        your wealth moving forward by spotting common mistakes
-                        before they become expensive problems.
+                        Technical &quot;rules of thumb&quot; that ensure your
+                        financial system is running efficiently. They are
+                        designed to keep your wealth moving forward by spotting
+                        common mistakes before they become expensive problems.
                       </p>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
               <p className="text-xl font-black uppercase tracking-tighter italic">
-                "Small leaks sink great ships."
+                &quot;Small leaks sink great ships.&quot;
               </p>
               <p className="text-xs text-slate-400 leading-relaxed font-medium">
                 Analyze the YTD Actuals vs Forecast. If reality is lower than
@@ -422,10 +420,10 @@ export default function WasteCutterClient({
                     </p>
                     <p className="text-sm font-semibold mt-2">
                       Actionable Insight: This is a list of the top 10
-                      subcategories where you have a "Saving Gap"—meaning you've
-                      budgeted significantly more than you are actually
-                      spending. These are prime candidates for permanent budget
-                      cuts in the Planner!
+                      subcategories where you have a &quot;Saving
+                      Gap&quot;—meaning you&apos;ve budgeted significantly more
+                      than you are actually spending. These are prime candidates
+                      for permanent budget cuts in the Planner!
                     </p>
                   </div>
                 </motion.div>
@@ -521,7 +519,7 @@ function RankingsList({
 }: {
   title: string;
   subtitle: string;
-  items: any[];
+  items: { name: string; [key: string]: unknown }[];
   valueKey: string;
   color: 'rose' | 'slate' | 'emerald';
 }) {
@@ -580,7 +578,7 @@ function RankingsList({
               className={`p-4 border-2 ${colorMap.border} ${colorMap.num} bg-slate-50 text-[11px] font-bold leading-relaxed`}
             >
               These are the categories taking the biggest bite out of your
-              budget. We show them for three perspectives: what's happening
+              budget. We show them for three perspectives: what&apos;s happening
               right now (Current), total damage so far (Reality), and what you
               planned (Forecast) so you can see if your targets are realistic.
             </div>
@@ -601,14 +599,14 @@ function RankingsList({
                 </span>
               </div>
               <span className="text-xs font-mono font-black text-slate-900">
-                ${formatCurrencyRounded(item[valueKey])}
+                ${formatCurrencyRounded(Number(item[valueKey]) || 0)}
               </span>
             </div>
             <div className="w-full h-1 bg-slate-50 rounded-full overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{
-                  width: `${(item[valueKey] / (items[0][valueKey] || 1)) * 100}%`
+                  width: `${((Number(item[valueKey]) || 0) / (Number(items[0][valueKey]) || 1)) * 100}%`
                 }}
                 className={`h-full ${colorMap.bg}`}
               />

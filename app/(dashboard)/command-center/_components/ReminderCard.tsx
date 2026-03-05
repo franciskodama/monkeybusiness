@@ -1,15 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  Bell,
-  Send,
-  CheckCircle2,
-  Trash2,
-  User as UserIcon,
-  Plus
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Bell, CheckCircle2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -23,7 +15,7 @@ import { toast } from 'sonner';
 import { addReminder, deleteReminder } from '@/lib/actions';
 import { tagClass } from '@/lib/classes';
 import { User, Reminder } from '@prisma/client';
-import { getSourceColor } from '@/lib/utils';
+import { getSourceColor, formatDate } from '@/lib/utils';
 
 export function ReminderCard({
   householdId,
@@ -167,10 +159,7 @@ export function ReminderCard({
                         {targetName}
                       </span>
                       <span className="text-[8px] text-slate-400 font-bold italic">
-                        {new Date(r.createdAt).toLocaleDateString(undefined, {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
+                        {formatDate(r.createdAt)}
                       </span>
                     </div>
                   </div>

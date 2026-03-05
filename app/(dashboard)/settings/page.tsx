@@ -5,7 +5,7 @@ import SettingsClient from './settings-client';
 
 export default async function SettingsPage() {
   const session = await auth();
-  const user = await getUser(session?.user?.email!);
+  const user = await getUser(session?.user?.email || '');
 
   if (!user) {
     redirect('/');

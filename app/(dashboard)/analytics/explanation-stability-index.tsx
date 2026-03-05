@@ -1,4 +1,4 @@
-import { Activity, Target, Zap, X, HelpCircle } from 'lucide-react';
+import { Activity, Target, Zap, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function ExplanationStabilityIndex({
@@ -34,8 +34,8 @@ export default function ExplanationStabilityIndex({
               <p className="text-xs text-slate-300 leading-relaxed font-medium">
                 The <b className="text-white">Stability Index</b> measures the
                 consistency of your financial behavior. It identifies which
-                subcategories are predictable and which are "chaotic" earners of
-                your attention.
+                subcategories are predictable and which are &quot;chaotic&quot;
+                earners of your attention.
               </p>
               <p className="text-xs text-slate-400 leading-relaxed italic">
                 Stability is the foundation of a successful strategy. The more
@@ -87,9 +87,9 @@ export default function ExplanationStabilityIndex({
                 <b className="text-white uppercase text-[10px] font-black tracking-widest mr-1">
                   mission
                 </b>{' '}
-                is to "pull" your largest bubbles toward the bottom of the map.
-                Stabilizing your biggest costs makes your entire financial plan
-                more resilient and accurate.
+                is to &quot;pull&quot; your largest bubbles toward the bottom of
+                the map. Stabilizing your biggest costs makes your entire
+                financial plan more resilient and accurate.
               </p>
               <p className="text-xs text-slate-300 leading-relaxed font-medium">
                 Target the{' '}
@@ -103,7 +103,7 @@ export default function ExplanationStabilityIndex({
                 </b>
                 To keep the data honest, we only look at{' '}
                 <b className="text-white">completed months</b>. This avoids
-                skews from the current month's partial data.
+                skews from the current month&apos;s partial data.
               </p>
             </div>
           </div>

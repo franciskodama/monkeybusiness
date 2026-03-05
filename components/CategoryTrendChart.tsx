@@ -11,17 +11,19 @@ import {
   ResponsiveContainer,
   Legend
 } from 'recharts';
-import { months, getColorCode, formatCurrencyRounded } from '@/lib/utils';
+import { months, getColorCode } from '@/lib/utils';
+import { SubcategoryWithCategory } from '@/lib/types';
 
 interface CategoryTrendChartProps {
-  subcategories: any[];
+  subcategories: SubcategoryWithCategory[];
 }
 
 export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const frameId = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frameId);
   }, []);
 
   const currentYear = 2026;
@@ -41,7 +43,9 @@ export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
   // 2. Process data for each month
   const chartData = months.map((monthName, index) => {
     const monthIndex = index + 1;
-    const dataPoint: any = { month: monthName.substring(0, 3) };
+    const dataPoint: Record<string, string | number> = {
+      month: monthName.substring(0, 3)
+    };
 
     categoryNames.forEach((catName) => {
       // Calculate total actual for this category in this month
@@ -54,7 +58,13 @@ export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
         )
         .reduce((sum, s) => {
           const txSum = (s.transactions || []).reduce(
-            (tSum: number, tx: any) => tSum + (tx.amount || 0),
+            (tSum: number, tx: { amount?: number | string }) => {
+              const amount =
+                typeof tx.amount === 'string'
+                  ? parseFloat(tx.amount)
+                  : tx.amount || 0;
+              return tSum + amount;
+            },
             0
           );
           return sum + txSum;
@@ -120,7 +130,7 @@ export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
               paddingBottom: '20px'
             }}
           />
-          {categoryNames.map((catName, index) => (
+          {categoryNames.map((catName) => (
             <Line
               key={catName}
               type="monotone"

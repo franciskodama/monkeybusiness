@@ -37,22 +37,23 @@ export default function ExplanationPlanner({
         2. Sync & Review:
         <span className="font-normal block normal-case tracking-normal mt-1">
           Import transactions via PDF or Direct Code. Review matches—if a
-          "Deficit Warning" appears, you're planning for more than you've
-          funded.
+          &quot;Deficit Warning&quot; appears, you&apos;re planning for more
+          than you&apos;ve funded.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
         3. 4-Step Settlement:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Follow the <b>"clinical" 4-step logic</b> in the sidebar: tracking
-          Payments, Deposits, Effort, and your Final Surplus.
+          Follow the <b>&quot;clinical&quot; 4-step logic</b> in the sidebar:
+          tracking Payments, Deposits, Effort, and your Final Surplus.
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">
         4. Interactive Knowledge:
         <span className="font-normal block normal-case tracking-normal mt-1">
-          Can't remember what "Savings Rate" means? <b>Click on any label</b> in
-          the sidebar to reveal a deep definition and its goal.
+          Can&apos;t remember what &quot;Savings Rate&quot; means?{' '}
+          <b>Click on any label</b> in the sidebar to reveal a deep definition
+          and its goal.
         </span>
       </p>
     </div>
@@ -71,7 +72,8 @@ export default function ExplanationPlanner({
         - Wealth Velocity:
         <span className="font-normal block normal-case tracking-normal mt-1">
           Hitting 30%+ in your Savings Rate unlocks the{' '}
-          <b>"High Wealth Velocity"</b> status. Aim for the rocket icon!
+          <b>&quot;High Wealth Velocity&quot;</b> status. Aim for the rocket
+          icon!
         </span>
       </p>
       <p className="font-bold uppercase tracking-wider">

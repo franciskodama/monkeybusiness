@@ -13,9 +13,10 @@ import {
   Cell
 } from 'recharts';
 import { getColorCode, formatCurrencyRounded } from '@/lib/utils';
+import { TransactionInput, SubcategoryWithCategory } from '@/lib/types';
 
 interface VolatilityAnalysisChartProps {
-  subcategories: any[];
+  subcategories: SubcategoryWithCategory[];
 }
 
 export function VolatilityAnalysisChart({
@@ -24,7 +25,9 @@ export function VolatilityAnalysisChart({
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Wrap In RAF to avoid "setState synchronously in effect" warning during build/hydration
+    const frame = requestAnimationFrame(() => setMounted(true));
+    return () => cancelAnimationFrame(frame);
   }, []);
 
   // 1. Identify years and the latest year with data
@@ -51,7 +54,13 @@ export function VolatilityAnalysisChart({
       }
 
       const txSum = (s.transactions || []).reduce(
-        (sum: number, tx: any) => sum + (tx.amount || 0),
+        (sum: number, tx: TransactionInput) => {
+          const amount =
+            typeof tx.amount === 'string'
+              ? parseFloat(tx.amount)
+              : tx.amount || 0;
+          return sum + amount;
+        },
         0
       );
       subcategoryDataMap[subName].totals[s.month - 1] += txSum;
