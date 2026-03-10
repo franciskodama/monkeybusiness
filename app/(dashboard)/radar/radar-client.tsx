@@ -10,9 +10,13 @@ import {
   AlertCircle,
   Calendar,
   Clock,
-  ArrowRight
+  ArrowRight,
+  Pen,
+  BellOff,
+  Binoculars,
+  ScrollText
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import {
   addFinancialCommitment,
   deleteFinancialCommitment,
@@ -30,16 +34,20 @@ import {
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/utils';
-import { FinancialCommitment } from '@prisma/client';
+import { FinancialCommitment, Responsibility, User } from '@prisma/client';
 
 interface BillRadarClientProps {
   householdId: string;
   initialCommitments: FinancialCommitment[];
+  currentUser: User;
+  householdUsers: User[];
 }
 
-export default function BillRadarClient({
+export default function RadarClient({
   householdId,
-  initialCommitments
+  initialCommitments,
+  currentUser,
+  householdUsers
 }: BillRadarClientProps) {
   const [commitments, setCommitments] =
     useState<FinancialCommitment[]>(initialCommitments);
@@ -50,6 +58,13 @@ export default function BillRadarClient({
 
   // Form State
   const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [responsibility, setResponsibility] = useState<Responsibility>(() => {
+    const name = currentUser.name.toUpperCase();
+    if (name.includes('FRANCIS')) return Responsibility.HIS;
+    if (name.includes('MARIANA')) return Responsibility.HER;
+    return Responsibility.FAMILY;
+  });
   const [amount, setAmount] = useState('');
   const [dayOfMonth, setDayOfMonth] = useState('1');
   const [sendEmailAlert, setSendEmailAlert] = useState(true);
@@ -66,6 +81,16 @@ export default function BillRadarClient({
 
   const resetForm = () => {
     setTitle('');
+    setDescription('');
+    // Reset to default responsibility
+    const name = currentUser.name.toUpperCase();
+    if (name.includes('FRANCIS')) {
+      setResponsibility(Responsibility.HIS);
+    } else if (name.includes('MARIANA')) {
+      setResponsibility(Responsibility.HER);
+    } else {
+      setResponsibility(Responsibility.FAMILY);
+    }
     setAmount('');
     setDayOfMonth('1');
     setSendEmailAlert(true);
@@ -81,11 +106,14 @@ export default function BillRadarClient({
 
     const data = {
       title,
+      description: description || undefined,
+      responsibility,
       amount: amount ? parseFloat(amount) : undefined,
       dayOfMonth: parseInt(dayOfMonth),
       sendEmailAlert,
       daysBeforeAlert: parseInt(daysBeforeAlert),
-      householdId
+      householdId,
+      creatorId: currentUser.uid
     };
 
     if (editingCommitment) {
@@ -125,6 +153,8 @@ export default function BillRadarClient({
   const openEditModal = (commitment: FinancialCommitment) => {
     setEditingCommitment(commitment);
     setTitle(commitment.title);
+    setDescription(commitment.description || '');
+    setResponsibility(commitment.responsibility);
     setAmount(commitment.amount?.toString() || '');
     setDayOfMonth(commitment.dayOfMonth.toString());
     setSendEmailAlert(commitment.sendEmailAlert);
@@ -142,6 +172,12 @@ export default function BillRadarClient({
     return map;
   }, [commitments]);
 
+  const getTargetUsers = (resp: Responsibility) => {
+    if (resp === Responsibility.FAMILY) return householdUsers;
+    const search = resp === Responsibility.HIS ? 'FRANCIS' : 'MARIANA';
+    return householdUsers.filter((u) => u.name.toUpperCase().includes(search));
+  };
+
   if (!mounted) return null;
 
   return (
@@ -154,11 +190,10 @@ export default function BillRadarClient({
           </div>
           <div className="flex flex-col">
             <h1 className="text-3xl font-black tracking-tighter uppercase leading-none text-slate-900">
-              Bill Radar
+              Radar
             </h1>
             <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">
-              Financial Commitment Pulse • {currentMonthName}{' '}
-              {today.getFullYear()}
+              Commitment Pulse • {currentMonthName} {today.getFullYear()}
             </p>
           </div>
         </div>
@@ -167,6 +202,7 @@ export default function BillRadarClient({
             resetForm();
             setIsAddModalOpen(true);
           }}
+          className="bg-slate-900 text-white rounded-none font-black uppercase tracking-widest text-xs h-12 px-6 hover:translate-x-1 hover:-translate-y-1 transition-transform shadow-[6px_6px_0px_rgba(0,0,0,0.1)] active:shadow-none active:translate-x-0 active:translate-y-0"
         >
           <Plus size={16} className="mr-2" /> New Commitment
         </Button>
@@ -249,6 +285,16 @@ export default function BillRadarClient({
                               }
                             />
                           )}
+                          <div className="flex -space-x-1">
+                            {getTargetUsers(c.responsibility).map((u) => (
+                              <img
+                                key={u.uid}
+                                src={u.image}
+                                alt={u.name}
+                                className="w-4 h-4 rounded-full border border-white object-cover"
+                              />
+                            ))}
+                          </div>
                         </motion.div>
                       ))}
                     </div>
@@ -265,15 +311,13 @@ export default function BillRadarClient({
           <div className="bg-slate-900 p-8 text-white shadow-[10px_10px_0px_rgba(15,23,42,0.1)]">
             <div className="flex justify-between items-center mb-10">
               <div className="flex items-center gap-4">
-                <div className="p-2 bg-rose-500/20">
-                  <AlertCircle size={20} className="text-rose-400" />
-                </div>
+                <AlertCircle size={20} className="text-amber-400" />
                 <h2 className="text-xl font-black uppercase tracking-tighter text-white">
                   Next Up
                 </h2>
               </div>
-              <span className="text-xs font-black uppercase tracking-widest text-slate-500 bg-slate-800 px-3 py-1">
-                Priority Sync
+              <span className="text-xs font-black uppercase tracking-widest bg-amber-500/20 text-amber-400 px-3 py-1">
+                Priority
               </span>
             </div>
 
@@ -310,14 +354,29 @@ export default function BillRadarClient({
                     >
                       <div className="flex items-center gap-6">
                         <div
-                          className={`p-4 font-black text-2xl tracking-tighter ${daysLeft === 0 ? 'text-rose-400' : 'text-white'}`}
+                          className={`border py-4 px-6 font-black text-2xl tracking-tighter ${daysLeft === 0 ? 'text-rose-400' : 'text-white'}`}
                         >
                           {c.dayOfMonth.toString().padStart(2, '0')}
+                        </div>
+                        <div className="flex -space-x-1.5">
+                          {getTargetUsers(c.responsibility).map((u) => (
+                            <img
+                              key={u.uid}
+                              src={u.image}
+                              alt={u.name}
+                              className="w-16 h-16 rounded-full border-2 border-slate-900 object-cover"
+                            />
+                          ))}
                         </div>
                         <div className="flex flex-col">
                           <p className="text-xs font-black uppercase text-white tracking-widest mb-1">
                             {c.title}
                           </p>
+                          {c.description && (
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight mb-2 italic">
+                              {c.description}
+                            </p>
+                          )}
                           <div className="flex items-center gap-4 text-xs font-bold text-slate-500 uppercase">
                             <span className="flex items-center gap-1">
                               <Calendar size={10} />{' '}
@@ -327,6 +386,9 @@ export default function BillRadarClient({
                                   ? 'TOMORROW'
                                   : `${daysLeft} DAYS AWAY`}
                             </span>
+                            <div className="text-[10px] font-black text-rose-400/80 tracking-tighter">
+                              {c.responsibility}
+                            </div>
                             {c.amount && (
                               <span className="text-emerald-400">
                                 ${formatCurrency(c.amount)}
@@ -349,7 +411,7 @@ export default function BillRadarClient({
                           variant="ghost"
                           className="text-slate-500 hover:text-white hover:bg-slate-700 rounded-none h-12 w-12"
                         >
-                          <Settings2 size={18} />
+                          <Pen size={18} />
                         </Button>
                       </div>
                     </div>
@@ -372,7 +434,7 @@ export default function BillRadarClient({
             <div className="flex justify-between items-center mb-8">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-slate-100">
-                  <Settings2 size={20} className="text-slate-900" />
+                  <ScrollText size={20} className="text-slate-900" />
                 </div>
                 <h2 className="text-lg font-black uppercase tracking-tight text-slate-900">
                   Full Registry
@@ -391,13 +453,33 @@ export default function BillRadarClient({
                       {c.dayOfMonth}
                     </div>
                     <div>
-                      <p className="text-xs font-black uppercase text-slate-900">
-                        {c.title}
-                      </p>
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-black uppercase text-slate-900">
+                          {c.title}
+                        </p>
+                        <div className="flex -space-x-1">
+                          {getTargetUsers(c.responsibility).map((u) => (
+                            <img
+                              key={u.uid}
+                              src={u.image}
+                              alt={u.name}
+                              className="w-4 h-4 rounded-full border border-white object-cover shadow-sm"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {c.description && (
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-[150px]">
+                          {c.description}
+                        </p>
+                      )}
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1 flex items-center gap-2">
                         {c.sendEmailAlert
                           ? `Alert -${c.daysBeforeAlert}d`
                           : 'No Alert'}
+                        <span className="text-[9px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">
+                          {c.responsibility}
+                        </span>
                       </p>
                     </div>
                   </div>
@@ -447,6 +529,35 @@ export default function BillRadarClient({
                 placeholder="e.g. CREDIT CARD BILL"
                 className="rounded-none border-2 border-slate-900 font-bold uppercase text-xs h-12 focus-visible:ring-0 focus-visible:translate-x-1 focus-visible:-translate-y-1 transition-transform"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-500">
+                Description (Optional)
+              </label>
+              <Input
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="e.g. Monthly cloud storage payment"
+                className="rounded-none border-2 border-slate-900 font-bold uppercase text-xs h-12 focus-visible:ring-0 focus-visible:translate-x-1 focus-visible:-translate-y-1 transition-transform"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-slate-500">
+                Responsibility
+              </label>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.values(Responsibility).map((resp) => (
+                  <button
+                    key={resp}
+                    onClick={() => setResponsibility(resp)}
+                    className={`h-12 border-2 font-black text-[10px] uppercase transition-all ${responsibility === resp ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
+                  >
+                    {resp}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="grid grid-cols-2 gap-6">

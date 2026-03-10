@@ -24,8 +24,8 @@ export const menuItems = [
     icon: <CalendarDays className="h-5 w-5" />
   },
   {
-    label: 'Bill Radar',
-    href: '/bill-radar',
+    label: 'Radar',
+    href: '/radar',
     icon: <Radar className="h-5 w-5" />
   },
   {

@@ -81,16 +81,25 @@ model Reminder {
 }
 
 model FinancialCommitment {
-  id              String    @id @default(uuid())
+  id              String         @id @default(uuid())
   title           String
+  description     String?
+  responsibility  Responsibility @default(FAMILY)
   amount          Float?
-  dayOfMonth      Int       // 1-31
-  sendEmailAlert  Boolean   @default(true)
-  daysBeforeAlert Int       @default(2)
+  dayOfMonth      Int            // 1-31
+  sendEmailAlert  Boolean        @default(true)
+  daysBeforeAlert Int            @default(2)
   lastAlertSent   DateTime?
   householdId     String
-  household       Household @relation(fields: [householdId], references: [id])
-  createdAt       DateTime  @default(now())
+  household       Household      @relation(fields: [householdId], references: [id])
+  creatorId       String?
+  createdAt       DateTime       @default(now())
+}
+
+enum Responsibility {
+  HIS
+  HER
+  FAMILY
 }
 
 model TransactionRule {

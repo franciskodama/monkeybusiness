@@ -1,6 +1,6 @@
 'use server';
 
-import { ColorEnum, Prisma } from '@prisma/client';
+import { ColorEnum, Prisma, Responsibility } from '@prisma/client';
 import prisma from './prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { revalidatePath } from 'next/cache';
@@ -1155,27 +1155,44 @@ export async function getFinancialCommitments(householdId: string) {
   }
 }
 
+export async function getHouseholdUsers(householdId: string) {
+  try {
+    return await prisma.user.findMany({
+      where: { householdId }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching household users:', error);
+    return [];
+  }
+}
+
 export async function addFinancialCommitment(data: {
   title: string;
+  description?: string;
+  responsibility: Responsibility;
   amount?: number;
   dayOfMonth: number;
   sendEmailAlert: boolean;
   daysBeforeAlert: number;
   householdId: string;
+  creatorId: string;
 }) {
   try {
     const newCommitment = await prisma.financialCommitment.create({
       data: {
         title: data.title,
+        description: data.description,
+        responsibility: data.responsibility,
         amount: data.amount,
         dayOfMonth: data.dayOfMonth,
         sendEmailAlert: data.sendEmailAlert,
         daysBeforeAlert: data.daysBeforeAlert,
-        householdId: data.householdId
+        householdId: data.householdId,
+        creatorId: data.creatorId
       }
     });
 
-    revalidatePath('/bill-radar');
+    revalidatePath('/radar');
     return { success: true, commitment: newCommitment };
   } catch (error) {
     console.error('❌ Error adding commitment:', error);
@@ -1188,7 +1205,7 @@ export async function deleteFinancialCommitment(id: string) {
     await prisma.financialCommitment.delete({
       where: { id }
     });
-    revalidatePath('/bill-radar');
+    revalidatePath('/radar');
     return { success: true };
   } catch (error) {
     console.error('❌ Error deleting commitment:', error);
@@ -1199,6 +1216,8 @@ export async function deleteFinancialCommitment(id: string) {
 export async function updateFinancialCommitment(data: {
   id: string;
   title: string;
+  description?: string;
+  responsibility: Responsibility;
   amount?: number;
   dayOfMonth: number;
   sendEmailAlert: boolean;
@@ -1209,16 +1228,121 @@ export async function updateFinancialCommitment(data: {
       where: { id: data.id },
       data: {
         title: data.title,
+        description: data.description,
+        responsibility: data.responsibility,
         amount: data.amount,
         dayOfMonth: data.dayOfMonth,
         sendEmailAlert: data.sendEmailAlert,
         daysBeforeAlert: data.daysBeforeAlert
       }
     });
-    revalidatePath('/bill-radar');
+    revalidatePath('/radar');
     return { success: true, commitment: updated };
   } catch (error) {
     console.error('❌ Error updating commitment:', error);
+    return { success: false };
+  }
+}
+export async function sendRadarAlertEmail(commitmentId: string) {
+  try {
+    const commitment = await prisma.financialCommitment.findUnique({
+      where: { id: commitmentId },
+      include: { household: { include: { users: true } } }
+    });
+
+    if (!commitment || !commitment.sendEmailAlert) return { success: false };
+
+    const users = commitment.household.users;
+    let targetUsers: typeof users = [];
+
+    if (commitment.responsibility === 'FAMILY') {
+      targetUsers = users;
+    } else {
+      const search =
+        commitment.responsibility === 'HIS'
+          ? 'FRANCIS'
+          : 'MARIANA';
+      targetUsers = users.filter((u) => u.name.toUpperCase().includes(search));
+    }
+
+    if (targetUsers.length === 0) targetUsers = users; // Fallback
+
+    for (const user of targetUsers) {
+      const logoUrl =
+        'https://monkeybusiness-olive.vercel.app/logo/logo-monkeybusiness-150x124-shaved.png';
+
+      const isFamily = commitment.responsibility === 'FAMILY';
+      const avatarSection = isFamily
+        ? users
+            .map(
+              (u) =>
+                `<img src="${u.image}" alt="${u.name}" width="40" height="40" style="border-radius: 50%; border: 2px solid #0f172a; margin: 0 5px;" />`
+            )
+            .join('')
+        : `<img src="${user.image}" alt="${user.name}" width="60" height="60" style="border-radius: 50%; border: 2px solid #0f172a;" />`;
+
+      await resend.emails.send({
+        from: 'Monkey Business <onboarding@resend.dev>',
+        to: process.env.RESEND_EMAIL_SERVER!,
+        subject: `[RADAR] Incoming Commitment: ${commitment.title.toUpperCase()} 📡`,
+        html: `
+          <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 40px; color: #0f172a;">
+            <div style="text-align: center; margin-bottom: 30px;">
+              <img src="${logoUrl}" alt="Monkey Business" width="80" />
+            </div>
+            
+            <h1 style="font-size: 14px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 30px; text-align: center;">
+              Radar Intelligence 📡
+            </h1>
+
+            <div style="text-align: center; margin-bottom: 30px;">
+              ${avatarSection}
+              <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-top: 10px;">
+                Responsibility: ${commitment.responsibility}
+              </p>
+            </div>
+            
+            <div style="background-color: #f8fafc; border-left: 4px solid #0f172a; padding: 30px; margin-bottom: 30px;">
+              <p style="font-size: 12px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-bottom: 5px; margin-top: 0;">
+                Scheduled Commitment
+              </p>
+              <h2 style="font-size: 24px; font-weight: 900; line-height: 1.2; margin: 0 0 10px 0; color: #0f172a; text-transform: uppercase;">
+                ${commitment.title}
+              </h2>
+              ${commitment.description ? `<p style="font-size: 14px; font-style: italic; color: #475569; margin: 0;">"${commitment.description}"</p>` : ''}
+              
+              ${commitment.amount ? `
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e2e8f0;">
+                  <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin: 0;">Amount Due</p>
+                  <p style="font-size: 20px; font-weight: 900; color: #10b981; margin: 5px 0 0 0;">$${commitment.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                </div>
+              ` : ''}
+            </div>
+            
+            <p style="font-size: 14px; line-height: 1.6; color: #475569; text-align: center;">
+              This commitment is due on day <strong>${commitment.dayOfMonth}</strong>. <br/>
+              The Radar keeps you ahead of the curve.
+            </p>
+            
+            <div style="text-align: center; margin-top: 40px;">
+              <a href="https://monkeybusiness-olive.vercel.app/radar" style="background-color: #0f172a; color: white; padding: 12px 24px; text-decoration: none; font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em;">
+                View Radar
+              </a>
+            </div>
+            
+            <div style="margin-top: 60px; padding-top: 20px; border-top: 1px dashed #cbd5e1; text-align: center;">
+              <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8;">
+                Monkey Business • Synergy Intelligence
+              </p>
+            </div>
+          </div>
+        `
+      });
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error sending Radar email:', error);
     return { success: false };
   }
 }
