@@ -123,7 +123,7 @@ export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
             align="right"
             iconType="rect"
             wrapperStyle={{
-              fontSize: '9px',
+              fontSize: '12px',
               fontWeight: 'black',
               textTransform: 'uppercase',
               letterSpacing: '0.1em',
