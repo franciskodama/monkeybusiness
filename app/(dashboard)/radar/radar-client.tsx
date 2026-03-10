@@ -36,6 +36,12 @@ import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/utils';
 import { FinancialCommitment, Responsibility, User } from '@prisma/client';
 
+const RESPONSIBILITY_CONFIG = {
+  [Responsibility.HIS]: { bg: '#00FFFF', text: '#000000' },
+  [Responsibility.HER]: { bg: '#F97316', text: '#FFFFFF' },
+  [Responsibility.FAMILY]: { bg: '#EF4444', text: '#FFFFFF' }
+};
+
 interface BillRadarClientProps {
   householdId: string;
   initialCommitments: FinancialCommitment[];
@@ -354,8 +360,11 @@ export default function RadarClient({
                     >
                       <div className="flex items-center gap-6">
                         <div
-                          className={`border py-4 px-6 font-black text-2xl tracking-tighter ${daysLeft === 0 ? 'text-rose-400' : 'text-white'}`}
+                          className={`flex flex-col items-center border py-2 px-5 font-black text-2xl tracking-tighter ${daysLeft === 0 ? 'text-rose-400' : 'text-white'}`}
                         >
+                          <span className="text-xs uppercase tracking-widest text-slate-500">
+                            day
+                          </span>
                           {c.dayOfMonth.toString().padStart(2, '0')}
                         </div>
                         <div className="flex -space-x-1.5">
@@ -386,7 +395,15 @@ export default function RadarClient({
                                   ? 'TOMORROW'
                                   : `${daysLeft} DAYS AWAY`}
                             </span>
-                            <div className="text-[10px] font-black text-rose-400/80 tracking-tighter">
+                            <div
+                              className="text-[10px] font-black tracking-tighter px-1.5 py-0.5 rounded-sm"
+                              style={{
+                                backgroundColor:
+                                  RESPONSIBILITY_CONFIG[c.responsibility].bg,
+                                color:
+                                  RESPONSIBILITY_CONFIG[c.responsibility].text
+                              }}
+                            >
                               {c.responsibility}
                             </div>
                             {c.amount && (
@@ -449,24 +466,33 @@ export default function RadarClient({
                   className="p-4 border border-slate-200 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="w-8 h-8 bg-slate-900 text-white flex items-center justify-center font-black text-xs">
+                    <div className="flex w-12 h-12 items-center justify-center bg-slate-900 text-white font-black text-md">
                       {c.dayOfMonth}
+                      <span className="text-xs tracking-widest ml-[2px]">
+                        {c.dayOfMonth === 1
+                          ? 'st'
+                          : c.dayOfMonth === 2
+                            ? 'nd'
+                            : c.dayOfMonth === 3
+                              ? 'rd'
+                              : 'th'}
+                      </span>
+                    </div>
+                    <div className="flex -space-x-1">
+                      {getTargetUsers(c.responsibility).map((u) => (
+                        <img
+                          key={u.uid}
+                          src={u.image}
+                          alt={u.name}
+                          className="w-12 h-12 rounded-full border border-white object-cover shadow-sm"
+                        />
+                      ))}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="text-xs font-black uppercase text-slate-900">
                           {c.title}
                         </p>
-                        <div className="flex -space-x-1">
-                          {getTargetUsers(c.responsibility).map((u) => (
-                            <img
-                              key={u.uid}
-                              src={u.image}
-                              alt={u.name}
-                              className="w-4 h-4 rounded-full border border-white object-cover shadow-sm"
-                            />
-                          ))}
-                        </div>
                       </div>
                       {c.description && (
                         <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight truncate max-w-[150px]">
@@ -477,7 +503,14 @@ export default function RadarClient({
                         {c.sendEmailAlert
                           ? `Alert -${c.daysBeforeAlert}d`
                           : 'No Alert'}
-                        <span className="text-[9px] font-black bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-sm uppercase tracking-tighter">
+                        <span
+                          className="text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-tighter"
+                          style={{
+                            backgroundColor:
+                              RESPONSIBILITY_CONFIG[c.responsibility].bg,
+                            color: RESPONSIBILITY_CONFIG[c.responsibility].text
+                          }}
+                        >
                           {c.responsibility}
                         </span>
                       </p>
@@ -490,7 +523,7 @@ export default function RadarClient({
                       className="h-8 w-8 text-slate-400 hover:text-slate-900"
                       onClick={() => openEditModal(c)}
                     >
-                      <Settings2 size={14} />
+                      <Pen size={14} />
                     </Button>
                     <Button
                       size="xs"
@@ -548,15 +581,24 @@ export default function RadarClient({
                 Responsibility
               </label>
               <div className="grid grid-cols-3 gap-2">
-                {Object.values(Responsibility).map((resp) => (
-                  <button
-                    key={resp}
-                    onClick={() => setResponsibility(resp)}
-                    className={`h-12 border-2 font-black text-[10px] uppercase transition-all ${responsibility === resp ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-400'}`}
-                  >
-                    {resp}
-                  </button>
-                ))}
+                {Object.values(Responsibility).map((resp) => {
+                  const isActive = responsibility === resp;
+                  const config = RESPONSIBILITY_CONFIG[resp];
+                  return (
+                    <button
+                      key={resp}
+                      onClick={() => setResponsibility(resp)}
+                      className="h-12 border-2 font-black text-[10px] uppercase transition-all"
+                      style={{
+                        backgroundColor: isActive ? config.bg : '#FFFFFF',
+                        color: isActive ? config.text : '#64748B',
+                        borderColor: isActive ? config.bg : '#E2E8F0'
+                      }}
+                    >
+                      {resp}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
