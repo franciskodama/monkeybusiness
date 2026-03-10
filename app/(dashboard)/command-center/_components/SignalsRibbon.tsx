@@ -18,7 +18,7 @@ import {
   PopoverTrigger
 } from '@/components/ui/popover';
 import { toast } from 'sonner';
-import { addReminder, deleteReminder } from '@/lib/actions';
+import { addReminder, deleteReminder } from '@/lib/actions/radar';
 import { User, Reminder } from '@prisma/client';
 import { getSourceColor, formatDate } from '@/lib/utils';
 

@@ -1,4 +1,4 @@
-import { addUser } from '@/lib/actions';
+import { addUser } from '@/lib/actions/auth';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 

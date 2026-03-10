@@ -18,7 +18,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { processStatementWithAI } from '@/lib/actions';
+import { processStatementWithAI } from '@/lib/actions/ai';
 import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 
 export function TransactionImporter({

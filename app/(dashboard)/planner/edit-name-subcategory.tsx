@@ -5,7 +5,7 @@ import { Check, Pencil, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { renameSubcategory } from '@/lib/actions';
+import { renameSubcategory } from '@/lib/actions/budget';
 
 interface EditableNameProps {
   initialName: string;

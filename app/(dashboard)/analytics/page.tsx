@@ -3,7 +3,8 @@ import { redirect } from 'next/navigation';
 
 import AnalyticsClient from './analytics-client';
 import { auth } from '@/lib/auth';
-import { getUser, getSubcategories } from '@/lib/actions';
+import { getUser } from '@/lib/actions/auth';
+import { getSubcategories } from '@/lib/actions/budget';
 
 export default async function AnalyticsPage() {
   const session = await auth();

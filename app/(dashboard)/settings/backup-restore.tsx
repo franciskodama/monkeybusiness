@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Download, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { seedHouseholdBudget } from '@/lib/actions';
+import { seedHouseholdBudget } from '@/lib/actions/budget';
 import { SubcategoryWithCategory, BudgetTemplateCategory } from '@/lib/types';
 
 export function BackupRestore({

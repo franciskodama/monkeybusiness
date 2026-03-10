@@ -3,7 +3,8 @@ import {
   Scissors,
   NotebookPen,
   ChartScatter,
-  Flag
+  Flag,
+  Radar
 } from 'lucide-react';
 
 export const menuItems = [
@@ -12,7 +13,6 @@ export const menuItems = [
     href: '/command-center',
     icon: <Flag className="h-5 w-5" />
   },
-
   {
     label: 'Planner',
     href: '/planner',
@@ -22,6 +22,11 @@ export const menuItems = [
     label: 'Yearly Table',
     href: '/yearly',
     icon: <CalendarDays className="h-5 w-5" />
+  },
+  {
+    label: 'Radar',
+    href: '/radar',
+    icon: <Radar className="h-5 w-5" />
   },
   {
     label: 'Waste Cutter',

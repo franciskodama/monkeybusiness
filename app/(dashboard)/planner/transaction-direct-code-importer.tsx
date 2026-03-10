@@ -19,7 +19,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { matchTransactionsWithRules } from '@/lib/actions';
+import { matchTransactionsWithRules } from '@/lib/actions/ai';
 import { TransactionInput } from '@/lib/types';
 
 export function DirectCodeImporter({

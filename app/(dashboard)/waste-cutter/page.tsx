@@ -2,7 +2,7 @@ export const dynamic = 'force-dynamic';
 import { redirect } from 'next/navigation';
 
 import { auth } from '@/lib/auth';
-import { getUser } from '@/lib/actions';
+import { getUser } from '@/lib/actions/auth';
 import { Spinner } from '@/lib/icons';
 import WasteCutter from './waste-cutter';
 

@@ -1,4 +1,5 @@
-import { getCategories, getSubcategories, getUser } from '@/lib/actions';
+import { getUser } from '@/lib/actions/auth';
+import { getCategories, getSubcategories } from '@/lib/actions/budget';
 import { auth } from '@/lib/auth';
 import { YearlyTable } from './yearly-table';
 

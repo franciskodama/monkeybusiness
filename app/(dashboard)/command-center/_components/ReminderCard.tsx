@@ -12,7 +12,7 @@ import {
   SelectValue
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { addReminder, deleteReminder } from '@/lib/actions';
+import { addReminder, deleteReminder } from '@/lib/actions/radar';
 import { tagClass } from '@/lib/classes';
 import { User, Reminder } from '@prisma/client';
 import { getSourceColor, formatDate } from '@/lib/utils';

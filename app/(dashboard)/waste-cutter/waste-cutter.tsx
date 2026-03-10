@@ -1,5 +1,5 @@
 import { User } from '@prisma/client';
-import { getSubcategories } from '@/lib/actions';
+import { getSubcategories } from '@/lib/actions/budget';
 import WasteCutterClient from './waste-cutter-client';
 
 export default async function WasteCutter({ user }: { user: User }) {

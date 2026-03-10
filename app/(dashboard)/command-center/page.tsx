@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 
 import CommandCenterServer from './command-center-server';
 import { auth } from '@/lib/auth';
-import { getUser } from '@/lib/actions';
+import { getUser } from '@/lib/actions/auth';
 import { Spinner } from '@/lib/icons';
 
 export default async function CommandCenterPage() {
