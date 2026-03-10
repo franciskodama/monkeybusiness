@@ -1,5 +1,7 @@
 import { auth } from '@/lib/auth';
-import { getUser, getFinancialCommitments, getHouseholdUsers } from '@/lib/actions';
+import { getUser } from '@/lib/actions/auth';
+import { getFinancialCommitments } from '@/lib/actions/radar';
+import { getHouseholdUsers } from '@/lib/actions/household';
 import RadarClient from './radar-client';
 
 export default async function RadarPage() {

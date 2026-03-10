@@ -5,7 +5,7 @@ import { Users, UserPlus, Clipboard, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { joinHousehold } from '@/lib/actions';
+import { joinHousehold } from '@/lib/actions/household';
 import Image from 'next/image';
 import { HouseholdWithUsers } from '@/lib/types';
 

@@ -1,4 +1,5 @@
-import { getSubcategories, getReminders } from '@/lib/actions';
+import { getSubcategories } from '@/lib/actions/budget';
+import { getReminders } from '@/lib/actions/radar';
 import { User } from '@prisma/client';
 import CommandCenterClient from './command-center-client';
 

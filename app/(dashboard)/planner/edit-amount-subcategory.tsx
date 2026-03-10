@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
-import { updateSubcategoryAmount } from '@/lib/actions';
+import { updateSubcategoryAmount } from '@/lib/actions/budget';
 import { toast } from 'sonner';
 
 export function EditableAmount({

@@ -2,7 +2,7 @@
 
 import { ArrowRight, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { deleteTransactionRule } from '@/lib/actions';
+import { deleteTransactionRule } from '@/lib/actions/transactions';
 import { toast } from 'sonner';
 
 import { TransactionRuleWithSubcategory } from '@/lib/types';

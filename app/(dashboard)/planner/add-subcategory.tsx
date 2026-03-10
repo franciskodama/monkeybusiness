@@ -21,7 +21,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { Category } from '@prisma/client';
-import { addSubcategory } from '@/lib/actions';
+import { addSubcategory } from '@/lib/actions/budget';
 import { getColorCode, months } from '@/lib/utils';
 import { SubcategoryWithCategory } from '@/lib/types';
 

@@ -375,3 +375,18 @@ export async function seedHouseholdBudget(
     return { success: false };
   }
 }
+
+export async function getCurrenciesFromApi() {
+  try {
+    const apiKey = process.env.FREECURRENCYAPI_KEY;
+    if (!apiKey) return null;
+
+    const response = await fetch(
+      `https://api.freecurrencyapi.com/v1/latest?apikey=${apiKey}&currencies=BRL,CAD`
+    );
+    return await response.json();
+  } catch (error) {
+    console.error('❌ Failed to fetch currencies:', error);
+    return null;
+  }
+}

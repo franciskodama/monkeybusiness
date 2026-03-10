@@ -21,7 +21,7 @@ import {
   addFinancialCommitment,
   deleteFinancialCommitment,
   updateFinancialCommitment
-} from '@/lib/actions';
+} from '@/lib/actions/radar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';

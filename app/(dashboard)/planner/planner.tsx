@@ -43,7 +43,8 @@ import { AddTransactionModal } from './add-transaction-modal';
 import { TransactionImporter } from './transaction-importer';
 import { DirectCodeImporter } from './transaction-direct-code-importer';
 import { TransactionReviewModal } from './transaction-review-modal';
-import { deleteSubcategory, deleteTransaction } from '@/lib/actions';
+import { deleteSubcategory } from '@/lib/actions/budget';
+import { deleteTransaction } from '@/lib/actions/transactions';
 import { AddSubcategory } from './add-subcategory';
 import { MonthSettlement } from '@/components/MonthSettlement';
 

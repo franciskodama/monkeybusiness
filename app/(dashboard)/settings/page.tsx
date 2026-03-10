@@ -1,4 +1,6 @@
-import { getUser, getTransactionRules, getSubcategories } from '@/lib/actions';
+import { getUser } from '@/lib/actions/auth';
+import { getTransactionRules } from '@/lib/actions/transactions';
+import { getSubcategories } from '@/lib/actions/budget';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import SettingsClient from './settings-client';

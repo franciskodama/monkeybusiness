@@ -49,7 +49,7 @@ import {
   getCategories,
   updateCategory,
   reorderCategories
-} from '@/lib/actions';
+} from '@/lib/actions/budget';
 import { colors, getColorCode } from '@/lib/utils';
 import { Category, ColorEnum } from '@prisma/client';
 

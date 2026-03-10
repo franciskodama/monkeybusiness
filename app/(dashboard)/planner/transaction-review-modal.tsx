@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { bulkAddTransactions, addTransactionRule } from '@/lib/actions';
+import { bulkAddTransactions, addTransactionRule } from '@/lib/actions/transactions';
 import { formatCurrency } from '@/lib/utils';
 import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 

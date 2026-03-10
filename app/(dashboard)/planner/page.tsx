@@ -3,9 +3,9 @@ import { auth } from '@/lib/auth';
 import {
   getCategories,
   getSubcategories,
-  getUser,
   getCurrenciesFromApi
-} from '@/lib/actions';
+} from '@/lib/actions/budget';
+import { getUser } from '@/lib/actions/auth';
 import Planner from './planner';
 import { Spinner } from '@/lib/icons';
 
