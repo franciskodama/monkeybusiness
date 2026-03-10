@@ -24,6 +24,7 @@ model Household {
   subcategories Subcategory[]
   transactions  Transaction[]
   reminders     Reminder[]
+  commitments   FinancialCommitment[]
 }
 
 model Category {
@@ -77,6 +78,19 @@ model Reminder {
   householdId  String
   household    Household @relation(fields: [householdId], references: [id])
   createdAt    DateTime  @default(now())
+}
+
+model FinancialCommitment {
+  id              String    @id @default(uuid())
+  title           String
+  amount          Float?
+  dayOfMonth      Int       // 1-31
+  sendEmailAlert  Boolean   @default(true)
+  daysBeforeAlert Int       @default(2)
+  lastAlertSent   DateTime?
+  householdId     String
+  household       Household @relation(fields: [householdId], references: [id])
+  createdAt       DateTime  @default(now())
 }
 
 model TransactionRule {

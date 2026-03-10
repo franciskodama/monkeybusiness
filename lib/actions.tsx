@@ -1140,3 +1140,85 @@ export const getCurrenciesFromApi = async (): Promise<{
     return null;
   }
 };
+
+// FINANCIAL COMMITMENTS ---------------------------------------------------------
+
+export async function getFinancialCommitments(householdId: string) {
+  try {
+    return await prisma.financialCommitment.findMany({
+      where: { householdId },
+      orderBy: { dayOfMonth: 'asc' }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching commitments:', error);
+    return [];
+  }
+}
+
+export async function addFinancialCommitment(data: {
+  title: string;
+  amount?: number;
+  dayOfMonth: number;
+  sendEmailAlert: boolean;
+  daysBeforeAlert: number;
+  householdId: string;
+}) {
+  try {
+    const newCommitment = await prisma.financialCommitment.create({
+      data: {
+        title: data.title,
+        amount: data.amount,
+        dayOfMonth: data.dayOfMonth,
+        sendEmailAlert: data.sendEmailAlert,
+        daysBeforeAlert: data.daysBeforeAlert,
+        householdId: data.householdId
+      }
+    });
+
+    revalidatePath('/bill-radar');
+    return { success: true, commitment: newCommitment };
+  } catch (error) {
+    console.error('❌ Error adding commitment:', error);
+    return { success: false };
+  }
+}
+
+export async function deleteFinancialCommitment(id: string) {
+  try {
+    await prisma.financialCommitment.delete({
+      where: { id }
+    });
+    revalidatePath('/bill-radar');
+    return { success: true };
+  } catch (error) {
+    console.error('❌ Error deleting commitment:', error);
+    return { success: false };
+  }
+}
+
+export async function updateFinancialCommitment(data: {
+  id: string;
+  title: string;
+  amount?: number;
+  dayOfMonth: number;
+  sendEmailAlert: boolean;
+  daysBeforeAlert: number;
+}) {
+  try {
+    const updated = await prisma.financialCommitment.update({
+      where: { id: data.id },
+      data: {
+        title: data.title,
+        amount: data.amount,
+        dayOfMonth: data.dayOfMonth,
+        sendEmailAlert: data.sendEmailAlert,
+        daysBeforeAlert: data.daysBeforeAlert
+      }
+    });
+    revalidatePath('/bill-radar');
+    return { success: true, commitment: updated };
+  } catch (error) {
+    console.error('❌ Error updating commitment:', error);
+    return { success: false };
+  }
+}
