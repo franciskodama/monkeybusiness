@@ -68,7 +68,10 @@ export function AnnualStrategicChart({
 
         // Contribution: sum of transactions from His and Her sources
         actualContribution += txs
-          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .filter((tx) => {
+            const s = tx.source?.toUpperCase();
+            return s === 'PERSON1' || s === 'HIS' || s === 'PERSON2' || s === 'HER';
+          })
           .reduce((sum: number, tx) => {
             const amount =
               typeof tx.amount === 'string'

@@ -32,11 +32,15 @@ export function MonthSettlement({
   transactions,
   brlRate,
   month,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2',
   onSourceClick
 }: {
   transactions: Transaction[];
   brlRate: number;
   month: number;
+  person1Name?: string;
+  person2Name?: string;
   onSourceClick?: (source: string, transactions: Transaction[]) => void;
 }) {
   const [activeMetric, setActiveMetric] = useState<string | null>(null);
@@ -82,14 +86,17 @@ export function MonthSettlement({
       txs: Transaction[];
     }
   > = {
-    His: { livingExpenses: 0, investments: 0, deposits: 0, txs: [] },
-    Her: { livingExpenses: 0, investments: 0, deposits: 0, txs: [] },
-    Family: { livingExpenses: 0, investments: 0, deposits: 0, txs: [] }
+    PERSON1: { livingExpenses: 0, investments: 0, deposits: 0, txs: [] },
+    PERSON2: { livingExpenses: 0, investments: 0, deposits: 0, txs: [] },
+    FAMILY: { livingExpenses: 0, investments: 0, deposits: 0, txs: [] }
   };
 
   transactions.forEach((tx) => {
-    const s = tx.source;
-    if (data[s]) {
+    let s = tx.source?.toUpperCase();
+    if (s === 'HIS') s = 'PERSON1';
+    if (s === 'HER') s = 'PERSON2';
+
+    if (s && data[s]) {
       if (tx.isIncome) {
         data[s].deposits += tx.amount;
       } else if (tx.isSavings) {
@@ -102,19 +109,19 @@ export function MonthSettlement({
   });
 
   const hisTotalContribution =
-    data.His.livingExpenses + data.His.investments + data.His.deposits;
+    data.PERSON1.livingExpenses + data.PERSON1.investments + data.PERSON1.deposits;
   const herTotalContribution =
-    data.Her.livingExpenses + data.Her.investments + data.Her.deposits;
+    data.PERSON2.livingExpenses + data.PERSON2.investments + data.PERSON2.deposits;
   const grandTotalContribution = hisTotalContribution + herTotalContribution;
 
   const totalLivingExpenses =
-    data.His.livingExpenses +
-    data.Her.livingExpenses +
-    data.Family.livingExpenses;
+    data.PERSON1.livingExpenses +
+    data.PERSON2.livingExpenses +
+    data.FAMILY.livingExpenses;
 
   const balanceBeforeInvestments = grandTotalContribution - totalLivingExpenses;
   const totalInvested =
-    data.His.investments + data.Her.investments + data.Family.investments;
+    data.PERSON1.investments + data.PERSON2.investments + data.FAMILY.investments;
   const finalBalance = balanceBeforeInvestments - totalInvested;
 
   // Performance Metrics
@@ -176,13 +183,13 @@ export function MonthSettlement({
               <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-1 bg-white p-2 rounded-none">
                 <div className="w-full md:col-span-2">
                   <EquationBox
-                    title="His Payments"
-                    value={data.His.livingExpenses}
+                    title={`${person1Name} Payments`}
+                    value={data.PERSON1.livingExpenses}
                     color="cyan"
                     onClick={() =>
                       onSourceClick?.(
-                        'His',
-                        data.His.txs.filter((t) => !t.isIncome && !t.isSavings)
+                        'PERSON1',
+                        data.PERSON1.txs.filter((t) => !t.isIncome && !t.isSavings)
                       )
                     }
                   />
@@ -193,13 +200,13 @@ export function MonthSettlement({
                 />
                 <div className="w-full md:col-span-2">
                   <EquationBox
-                    title="Her Payments"
-                    value={data.Her.livingExpenses}
+                    title={`${person2Name} Payments`}
+                    value={data.PERSON2.livingExpenses}
                     color="orange"
                     onClick={() =>
                       onSourceClick?.(
-                        'Her',
-                        data.Her.txs.filter((t) => !t.isIncome && !t.isSavings)
+                        'PERSON2',
+                        data.PERSON2.txs.filter((t) => !t.isIncome && !t.isSavings)
                       )
                     }
                   />
@@ -211,12 +218,12 @@ export function MonthSettlement({
                 <div className="w-full md:col-span-1">
                   <EquationBox
                     title="Family Payments"
-                    value={data.Family.livingExpenses}
+                    value={data.FAMILY.livingExpenses}
                     color="red"
                     onClick={() =>
                       onSourceClick?.(
-                        'Family',
-                        data.Family.txs.filter(
+                        'FAMILY',
+                        data.FAMILY.txs.filter(
                           (t) => !t.isIncome && !t.isSavings
                         )
                       )
@@ -239,13 +246,13 @@ export function MonthSettlement({
               <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
                 <div className="w-full md:col-span-3">
                   <EquationBox
-                    title="His Deposits"
-                    value={data.His.deposits}
+                    title={`${person1Name} Deposits`}
+                    value={data.PERSON1.deposits}
                     color="cyan"
                     onClick={() =>
                       onSourceClick?.(
-                        'His',
-                        data.His.txs.filter((t) => t.isIncome)
+                        'PERSON1',
+                        data.PERSON1.txs.filter((t) => t.isIncome)
                       )
                     }
                   />
@@ -256,13 +263,13 @@ export function MonthSettlement({
                 />
                 <div className="w-full md:col-span-3">
                   <EquationBox
-                    title="Her Deposits"
-                    value={data.Her.deposits}
+                    title={`${person2Name} Deposits`}
+                    value={data.PERSON2.deposits}
                     color="orange"
                     onClick={() =>
                       onSourceClick?.(
-                        'Her',
-                        data.Her.txs.filter((t) => t.isIncome)
+                        'PERSON2',
+                        data.PERSON2.txs.filter((t) => t.isIncome)
                       )
                     }
                   />
@@ -283,10 +290,10 @@ export function MonthSettlement({
               <div className="flex flex-col md:grid md:grid-cols-7 items-center gap-0.5 bg-white p-2 rounded-none">
                 <div className="w-full md:col-span-3">
                   <EquationBox
-                    title="His Contribution"
+                    title={`${person1Name} Contribution`}
                     value={hisTotalContribution}
                     color="cyan"
-                    onClick={() => onSourceClick?.('His', data.His.txs)}
+                    onClick={() => onSourceClick?.('PERSON1', data.PERSON1.txs)}
                   />
                 </div>
                 <Operator
@@ -295,10 +302,10 @@ export function MonthSettlement({
                 />
                 <div className="w-full md:col-span-3">
                   <EquationBox
-                    title="Her Contribution"
+                    title={`${person2Name} Contribution`}
                     value={herTotalContribution}
                     color="orange"
-                    onClick={() => onSourceClick?.('Her', data.Her.txs)}
+                    onClick={() => onSourceClick?.('PERSON2', data.PERSON2.txs)}
                   />
                 </div>
               </div>
@@ -409,8 +416,12 @@ export function MonthSettlement({
               {/* 2. Funding Split Bar */}
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
-                  <span>His {Math.round(hisSplit)}%</span>
-                  <span>Her {Math.round(herSplit)}%</span>
+                  <span>
+                    {person1Name} {Math.round(hisSplit)}%
+                  </span>
+                  <span>
+                    {person2Name} {Math.round(herSplit)}%
+                  </span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 flex rounded-none overflow-hidden">
                   <div

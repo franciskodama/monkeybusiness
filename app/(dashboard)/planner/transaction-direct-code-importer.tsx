@@ -24,10 +24,14 @@ import { TransactionInput } from '@/lib/types';
 
 export function DirectCodeImporter({
   onDataLoaded,
-  householdId
+  householdId,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: {
   onDataLoaded: (data: (TransactionInput & { ignored?: boolean })[]) => void;
   householdId: string;
+  person1Name?: string;
+  person2Name?: string;
 }) {
   const [code, setCode] = useState('');
   const [source, setSource] = useState('');
@@ -88,9 +92,9 @@ export function DirectCodeImporter({
                 <SelectValue placeholder="Who paid this statement?" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="Family">Family</SelectItem>
-                <SelectItem value="His">His</SelectItem>
-                <SelectItem value="Her">Her</SelectItem>
+                <SelectItem value="FAMILY">Family</SelectItem>
+                <SelectItem value="PERSON1">{person1Name}</SelectItem>
+                <SelectItem value="PERSON2">{person2Name}</SelectItem>
               </SelectContent>
             </Select>
           </div>

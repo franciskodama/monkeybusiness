@@ -15,6 +15,8 @@ export default async function YearlyPage() {
     <YearlyTable
       categories={categories || []}
       initialSubcategories={allSubcategories || []}
+      person1Name={user?.household?.person1Name}
+      person2Name={user?.household?.person2Name}
     />
   );
 }

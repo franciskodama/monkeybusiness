@@ -5,7 +5,7 @@ import { Users, UserPlus, Clipboard, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { joinHousehold } from '@/lib/actions/household';
+import { joinHousehold, updateHouseholdNames } from '@/lib/actions/household';
 import Image from 'next/image';
 import { HouseholdWithUsers } from '@/lib/types';
 
@@ -19,6 +19,9 @@ export function HouseholdManager({
   const [inviteCode, setInviteCode] = useState('');
   const [isJoining, setIsJoining] = useState(false);
   const [hasCopied, setHasCopied] = useState(false);
+  const [person1Name, setPerson1Name] = useState(household?.person1Name || '');
+  const [person2Name, setPerson2Name] = useState(household?.person2Name || '');
+  const [isUpdatingNames, setIsUpdatingNames] = useState(false);
 
   const copyToClipboard = () => {
     if (!household?.inviteCode) return;
@@ -26,6 +29,29 @@ export function HouseholdManager({
     setHasCopied(true);
     toast.success('Invite code copied to clipboard');
     setTimeout(() => setHasCopied(false), 2000);
+  };
+
+  const handleUpdateNames = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!household?.id) return;
+
+    setIsUpdatingNames(true);
+    try {
+      const res = await updateHouseholdNames(
+        household.id,
+        person1Name,
+        person2Name
+      );
+      if (res.success) {
+        toast.success('Partner names updated!');
+      } else {
+        toast.error(res.error || 'Failed to update names');
+      }
+    } catch {
+      toast.error('An error occurred');
+    } finally {
+      setIsUpdatingNames(false);
+    }
   };
 
   const handleJoin = async (e: React.FormEvent) => {
@@ -50,6 +76,53 @@ export function HouseholdManager({
 
   return (
     <div className="grid gap-12 max-w-4xl mx-auto">
+      {/* 0. Partner Identity (The new names) */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-2">
+          <Users className="w-5 h-5 text-primary" />
+          <h3 className="text-sm font-black uppercase tracking-widest text-slate-900">
+            Partner Identifiers
+          </h3>
+        </div>
+
+        <form
+          onSubmit={handleUpdateNames}
+          className="p-6 border border-slate-200 bg-slate-50/50 space-y-6 shadow-[8px_8px_0px_rgba(0,0,0,0.02)]"
+        >
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-600 block">
+                Partner 1 (formerly &quot;His&quot;)
+              </label>
+              <Input
+                placeholder="Francis"
+                value={person1Name}
+                onChange={(e) => setPerson1Name(e.target.value)}
+                className="rounded-none border-slate-200 bg-white font-bold h-11 focus:ring-1 focus:ring-cyan-500"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-600 block">
+                Partner 2 (formerly &quot;Her&quot;)
+              </label>
+              <Input
+                placeholder="Mariana"
+                value={person2Name}
+                onChange={(e) => setPerson2Name(e.target.value)}
+                className="rounded-none border-slate-200 bg-white font-bold h-11 focus:ring-1 focus:ring-orange-500"
+              />
+            </div>
+          </div>
+          <Button
+            type="submit"
+            disabled={isUpdatingNames}
+            className="rounded-none bg-slate-900 hover:bg-slate-800 text-white font-black uppercase tracking-widest px-8"
+          >
+            {isUpdatingNames ? 'Updating...' : 'Update Identifiers'}
+          </Button>
+        </form>
+      </div>
+
       {/* 1. Current Household Members */}
       <div className="space-y-6">
         <div className="flex items-center gap-2 border-b border-slate-100 pb-2">

@@ -25,6 +25,8 @@ model Household {
   transactions  Transaction[]
   reminders     Reminder[]
   commitments   FinancialCommitment[]
+  person1Name   String        @default("Partner 1")
+  person2Name   String        @default("Partner 2")
 }
 
 model Category {
@@ -97,8 +99,8 @@ model FinancialCommitment {
 }
 
 enum Responsibility {
-  HIS
-  HER
+  PERSON1
+  PERSON2
   FAMILY
 }
 

@@ -6,20 +6,29 @@ import { TransactionInput } from '@/lib/types';
 
 export function SourceBreakdown({
   transactions,
-  onSourceClick
+  onSourceClick,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: {
   transactions: TransactionInput[];
   onSourceClick?: (source: string, transactions: TransactionInput[]) => void;
+  person1Name?: string;
+  person2Name?: string;
 }) {
-  const sources = ['His', 'Her', 'Family'];
+  const sources = ['PERSON1', 'PERSON2', 'Family'];
+  const sourceLabels: Record<string, string> = {
+    PERSON1: person1Name,
+    PERSON2: person2Name,
+    Family: 'Family'
+  };
 
   // Initialize data for the three sources
   const data: Record<
     string,
     { spending: number; funding: number; txs: TransactionInput[] }
   > = {
-    His: { spending: 0, funding: 0, txs: [] },
-    Her: { spending: 0, funding: 0, txs: [] },
+    PERSON1: { spending: 0, funding: 0, txs: [] },
+    PERSON2: { spending: 0, funding: 0, txs: [] },
     Family: { spending: 0, funding: 0, txs: [] }
   };
 
@@ -65,17 +74,17 @@ export function SourceBreakdown({
               </th>
               {sources.map((source) => {
                 const sourceColor = getSourceColor(source);
-                const isHis = source === 'His';
+                const isPerson1 = source === 'PERSON1';
                 return (
                   <th
                     key={source}
                     className={`p-4 text-center text-xs font-black uppercase tracking-widest cursor-pointer transition-all border-l ${
-                      isHis ? 'text-slate-900' : 'text-white'
+                      isPerson1 ? 'text-slate-900' : 'text-white'
                     } hover:opacity-90`}
                     style={{ backgroundColor: sourceColor }}
                     onClick={() => onSourceClick?.(source, data[source].txs)}
                   >
-                    {source}
+                    {sourceLabels[source]}
                   </th>
                 );
               })}

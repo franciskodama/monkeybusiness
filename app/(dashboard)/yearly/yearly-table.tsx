@@ -38,11 +38,15 @@ import { Button } from '@/components/ui/button';
 interface YearlyTableProps {
   categories: Category[];
   initialSubcategories: SubcategoryWithCategory[];
+  person1Name?: string;
+  person2Name?: string;
 }
 
 export function YearlyTable({
   categories,
-  initialSubcategories
+  initialSubcategories,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: YearlyTableProps) {
   const [openAction, setOpenAction] = useState(false);
   const [subcategories] =
@@ -247,16 +251,16 @@ export function YearlyTable({
           else if (isSavings) reality.investments += actualAmount;
           else reality.expenses += actualAmount;
 
-          // Individual actuals (His vs Her)
-          const his = (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+          // Individual actuals (Person 1 vs Person 2)
+          const person1 = (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
-          const her = (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+          const person2 = (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
 
-          reality.hisActual += his;
-          reality.herActual += her;
+          reality.hisActual += person1;
+          reality.herActual += person2;
         }
       });
     }
@@ -313,10 +317,10 @@ export function YearlyTable({
         credits += amount;
         if (status !== 'FUTURE') {
           hisEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           herEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else if (isSavings) {
@@ -333,10 +337,10 @@ export function YearlyTable({
         livingExpenses += amount;
         if (status !== 'FUTURE') {
           hisEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           herEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       }
@@ -651,14 +655,14 @@ export function YearlyTable({
               {/* NEW SETTLEMENT GRID ROWS */}
               {[
                 {
-                  label: 'His Contribution',
+                  label: `${person1Name} Contribution`,
                   key: 'hisEffort',
-                  color: getSourceColor('His')
+                  color: getSourceColor('PERSON1')
                 },
                 {
-                  label: 'Her Contribution',
+                  label: `${person2Name} Contribution`,
                   key: 'herEffort',
-                  color: getSourceColor('Her')
+                  color: getSourceColor('PERSON2')
                 },
                 { label: 'Total Effort', key: 'totalEffort', color: '#10B981' },
                 {
@@ -930,7 +934,7 @@ export function YearlyTable({
                     <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
                       <div>
                         <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
-                          His Contribution
+                          {person1Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-cyan-900">
                           ${formatCurrency(settlement.reality.hisActual)}
@@ -950,7 +954,7 @@ export function YearlyTable({
                     <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
                       <div>
                         <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
-                          Her Contribution
+                          {person2Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-orange-900">
                           ${formatCurrency(settlement.reality.herActual)}
@@ -1076,7 +1080,7 @@ export function YearlyTable({
                   <div className="space-y-2">
                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
                       <span>
-                        His{' '}
+                        {person1Name}{' '}
                         {Math.round(
                           (settlement.reality.hisActual /
                             (settlement.reality.effort || 1)) *
@@ -1085,7 +1089,7 @@ export function YearlyTable({
                         %
                       </span>
                       <span>
-                        Her{' '}
+                        {person2Name}{' '}
                         {Math.round(
                           (settlement.reality.herActual /
                             (settlement.reality.effort || 1)) *
@@ -1302,7 +1306,11 @@ export function YearlyTable({
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
-                        {tx.source}
+                        {tx.source === 'PERSON1' || tx.source === 'His'
+                          ? person1Name
+                          : tx.source === 'PERSON2' || tx.source === 'Her'
+                            ? person2Name
+                            : tx.source}
                       </span>
                       <span className="text-[9px] text-muted-foreground font-mono">
                         {tx.date ? formatDate(tx.date) : ''}

@@ -39,6 +39,8 @@ export default async function PlannerPage() {
           categories={categories}
           subcategories={subcategories}
           brlRate={brlRate}
+          person1Name={user.household?.person1Name}
+          person2Name={user.household?.person2Name}
         />
       ) : (
         <Spinner />

@@ -23,11 +23,11 @@ import { SourceBurnChart } from '@/components/SourceBurnChart';
 import { FixedVariableTracker } from './_components/FixedVariableTracker';
 import { OutlierAlerts } from './_components/OutlierAlerts';
 import { formatCurrencyRounded } from '@/lib/utils';
-import { User, Reminder } from '@prisma/client';
+import { User, Reminder, Household } from '@prisma/client';
 import { SubcategoryWithCategory } from '@/lib/types';
 
 interface CommandCenterClientProps {
-  user: User;
+  user: User & { household?: Household | null };
   subcategories: SubcategoryWithCategory[];
   reminders: Reminder[];
   householdUsers: User[];
@@ -58,7 +58,7 @@ export default function CommandCenterClient({
       (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .filter((tx) => tx.source === 'PERSON1' || tx.source === 'PERSON2')
           .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
@@ -85,7 +85,7 @@ export default function CommandCenterClient({
       (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .filter((tx) => tx.source === 'PERSON1' || tx.source === 'PERSON2')
           .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
@@ -193,7 +193,7 @@ export default function CommandCenterClient({
       (sum: number, s) =>
         sum +
         (s.transactions || [])
-          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .filter((tx) => tx.source === 'PERSON1' || tx.source === 'PERSON2')
           .reduce((ts: number, t) => ts + (Number(t.amount) || 0), 0),
       0
     );
@@ -589,22 +589,22 @@ export default function CommandCenterClient({
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-6 text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-emerald-500" />
-                  <span className="text-[9px] font-black uppercase text-slate-500">
+                  <span className="font-black uppercase text-slate-500">
                     Contribution
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-rose-500" />
-                  <span className="text-[9px] font-black uppercase text-slate-500">
+                  <span className="font-black uppercase text-slate-500">
                     Expenses
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-blue-500" />
-                  <span className="text-[9px] font-black uppercase text-slate-500">
+                  <span className="font-black uppercase text-slate-500">
                     Savings
                   </span>
                 </div>
@@ -639,7 +639,11 @@ export default function CommandCenterClient({
                   Source Analytics
                 </h4>
                 <div className="h-[250px] -mx-4">
-                  <SourceBurnChart subcategories={subcategories} />
+                  <SourceBurnChart
+                    subcategories={subcategories}
+                    person1Name={user.household?.person1Name}
+                    person2Name={user.household?.person2Name}
+                  />
                 </div>
               </div>
 

@@ -35,6 +35,8 @@ export function AddTransactionModal({
   selectedMonth,
   allAvailableSubcategories,
   isIncome = false,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2',
   onSuccess
 }: {
   subcategoryId: string;
@@ -43,12 +45,14 @@ export function AddTransactionModal({
   selectedMonth: number;
   allAvailableSubcategories: SubcategoryWithCategory[];
   isIncome?: boolean;
+  person1Name?: string;
+  person2Name?: string;
   onSuccess: (updatedItems: SubcategoryWithCategory[]) => void;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState(itemName);
-  const [source, setSource] = useState('Family');
+  const [source, setSource] = useState('FAMILY');
 
   // Initialize date based on selected month
   const today = new Date();
@@ -296,32 +300,32 @@ export function AddTransactionModal({
                 className="h-12 border-slate-200 focus:ring-0 rounded-none text-sm font-black uppercase tracking-widest transition-all"
                 style={{
                   backgroundColor: getSourceColor(source),
-                  color: source === 'His' ? 'black' : 'white'
+                  color: source === 'PERSON1' ? 'black' : 'white'
                 }}
               >
                 <SelectValue placeholder="Select the Source" />
               </SelectTrigger>
               <SelectContent className="rounded-none border-slate-300 p-1 bg-slate-900">
                 <SelectItem
-                  value="Family"
+                  value="FAMILY"
                   className="rounded-none mb-1 py-3 font-black uppercase tracking-widest text-white focus:bg-red-600 focus:text-white data-[state=checked]:bg-[#EF4444] data-[state=checked]:text-white transition-colors"
                   style={{ backgroundColor: '#EF4444' }}
                 >
                   Family
                 </SelectItem>
                 <SelectItem
-                  value="His"
+                  value="PERSON1"
                   className="rounded-none mb-1 py-3 font-black uppercase tracking-widest text-black focus:bg-cyan-300 focus:text-black data-[state=checked]:bg-[#00FFFF] data-[state=checked]:text-black transition-colors"
                   style={{ backgroundColor: '#00FFFF' }}
                 >
-                  His
+                  {person1Name}
                 </SelectItem>
                 <SelectItem
-                  value="Her"
+                  value="PERSON2"
                   className="rounded-none py-3 font-black uppercase tracking-widest text-white focus:bg-orange-600 focus:text-white data-[state=checked]:bg-[#F97316] data-[state=checked]:text-white transition-colors"
                   style={{ backgroundColor: '#F97316' }}
                 >
-                  Her
+                  {person2Name}
                 </SelectItem>
               </SelectContent>
             </Select>
