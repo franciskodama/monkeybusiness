@@ -5,6 +5,7 @@ import { Download, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { seedHouseholdBudget } from '@/lib/actions/budget';
+import { exportHouseholdData } from '@/lib/actions/backup';
 import { SubcategoryWithCategory, BudgetTemplateCategory } from '@/lib/types';
 
 export function BackupRestore({
@@ -15,6 +16,7 @@ export function BackupRestore({
   currentSubcategories: SubcategoryWithCategory[];
 }) {
   const [isRestoring, setIsRestoring] = useState(false);
+  const [isExportingFull, setIsExportingFull] = useState(false);
 
   // 1. Logic to transform current state into a seedable JSON
   const handleExport = () => {
@@ -63,6 +65,31 @@ export function BackupRestore({
       toast.success('Backup file created and downloaded!');
     } catch {
       toast.error('Failed to generate backup.');
+    }
+  };
+
+  const handleFullExport = async () => {
+    setIsExportingFull(true);
+    try {
+      const data = await exportHouseholdData();
+      const dataStr = JSON.stringify(data, null, 2);
+      const blob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `monkeybusiness-full-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('Full historical backup downloaded!');
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to export historical data.');
+    } finally {
+      setIsExportingFull(false);
     }
   };
 
@@ -136,11 +163,11 @@ export function BackupRestore({
           </div>
           <div>
             <h4 className="text-base font-bold uppercase tracking-tight text-emerald-900">
-              Restore System
+              Restore Structure
             </h4>
             <p className="text-sm text-emerald-700/70 lowercase">
-              <span className="uppercase">U</span>pload your backup to rebuild
-              all 12 months for 2026.
+              <span className="uppercase">U</span>pload your config backup to
+              rebuild all 12 months for 2026.
             </p>
           </div>
         </div>
@@ -158,9 +185,34 @@ export function BackupRestore({
             disabled={isRestoring}
             className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
           >
-            {isRestoring ? 'Processing...' : 'Upload & Sync'}
+            {isRestoring ? 'Processing...' : 'Upload Structure'}
           </Button>
         </div>
+      </div>
+
+      {/* Full Historical Backup Section */}
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 border bg-blue-50/50 border-blue-100 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-background border shadow-sm text-blue-600">
+            <Download size={20} />
+          </div>
+          <div>
+            <h4 className="text-base font-bold uppercase tracking-tight text-blue-900">
+              Full Historical Data
+            </h4>
+            <p className="text-sm text-blue-700/70">
+              Download everything: Transactions, categories, subcategories,
+              rules, and commitments.
+            </p>
+          </div>
+        </div>
+        <Button
+          onClick={handleFullExport}
+          disabled={isExportingFull}
+          variant="outline"
+        >
+          {isExportingFull ? 'Preparing...' : <>Download .json</>}
+        </Button>
       </div>
     </div>
   );
