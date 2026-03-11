@@ -35,17 +35,24 @@ async function main() {
       households
     };
 
-    const fileName = `backup_${new Date().toISOString().replace(/[:.]/g, '-')}.json`;
+    const timestamp = new Date().toISOString();
+    const fileName = `backup_${timestamp.replace(/[:.]/g, '-')}.json`;
     const backupsDir = path.join(process.cwd(), 'backups');
 
     if (!fs.existsSync(backupsDir)) {
       fs.mkdirSync(backupsDir);
     }
 
+    // Save timestamped version
     const filePath = path.join(backupsDir, fileName);
     fs.writeFileSync(filePath, JSON.stringify(backupData, null, 2));
 
+    // Save 'latest' version for GitHub tracking
+    const latestPath = path.join(backupsDir, 'automated_latest.json');
+    fs.writeFileSync(latestPath, JSON.stringify(backupData, null, 2));
+
     console.log(`✅ Backup successfully saved to: ${filePath}`);
+    console.log(`✅ Latest version updated: ${latestPath}`);
     console.log(`📊 Exported ${households.length} households.`);
   } catch (error) {
     console.error('❌ Backup failed:', error);
