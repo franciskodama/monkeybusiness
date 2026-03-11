@@ -258,10 +258,12 @@ export async function sendRadarAlertEmail(commitmentId: string) {
     if (commitment.responsibility === 'FAMILY') {
       targetUsers = users;
     } else {
+      const p1Name = commitment.household.person1Name || 'Francis';
+      const p2Name = commitment.household.person2Name || 'Mariana';
       const search =
-        commitment.responsibility === 'HIS'
-          ? 'FRANCIS'
-          : 'MARIANA';
+        commitment.responsibility === Responsibility.PERSON1
+          ? p1Name.toUpperCase()
+          : p2Name.toUpperCase();
       targetUsers = users.filter((u) => u.name.toUpperCase().includes(search));
     }
 

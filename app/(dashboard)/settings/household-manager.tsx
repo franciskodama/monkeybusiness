@@ -92,7 +92,7 @@ export function HouseholdManager({
           <div className="grid md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-cyan-600 block">
-                Partner 1 (formerly &quot;His&quot;)
+                Partner 1
               </label>
               <Input
                 placeholder="Francis"
@@ -103,7 +103,7 @@ export function HouseholdManager({
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-orange-600 block">
-                Partner 2 (formerly &quot;Her&quot;)
+                Partner 2
               </label>
               <Input
                 placeholder="Mariana"

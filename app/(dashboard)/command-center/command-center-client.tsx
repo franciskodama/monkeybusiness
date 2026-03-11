@@ -48,6 +48,15 @@ export default function CommandCenterClient({
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
 
+  const p1Name =
+    user?.household?.person1Name ||
+    householdUsers[0]?.name?.split(' ')[0] ||
+    'Partner 1';
+  const p2Name =
+    user?.household?.person2Name ||
+    householdUsers[1]?.name?.split(' ')[0] ||
+    'Partner 2';
+
   // --- COMPUTE STRATEGIC METRICS ---
 
   // 1. Monthly Efficiency for YTD
@@ -641,8 +650,8 @@ export default function CommandCenterClient({
                 <div className="h-[250px] -mx-4">
                   <SourceBurnChart
                     subcategories={subcategories}
-                    person1Name={user.household?.person1Name}
-                    person2Name={user.household?.person2Name}
+                    person1Name={p1Name}
+                    person2Name={p2Name}
                   />
                 </div>
               </div>
