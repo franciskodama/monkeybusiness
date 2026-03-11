@@ -2,7 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { TransactionInput, SubcategoryWithCategory } from '@/lib/types';
+import { TransactionInput } from '@/lib/types';
 import { getTransactionRules } from './transactions';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
