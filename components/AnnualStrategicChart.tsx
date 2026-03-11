@@ -66,9 +66,12 @@ export function AnnualStrategicChart({
         if (sub.category?.isSavings) actualSavings += actualAmount;
         else if (!sub.category?.isIncome) actualExpenses += actualAmount;
 
-        // Contribution: sum of transactions from His and Her sources
+        // Contribution: sum of transactions from PERSON1 and PERSON2 sources
         actualContribution += txs
-          .filter((tx) => tx.source === 'His' || tx.source === 'Her')
+          .filter((tx) => {
+            const s = tx.source?.toUpperCase();
+            return s === 'PERSON1' || s === 'PERSON2';
+          })
           .reduce((sum: number, tx) => {
             const amount =
               typeof tx.amount === 'string'

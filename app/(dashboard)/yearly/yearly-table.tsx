@@ -38,11 +38,15 @@ import { Button } from '@/components/ui/button';
 interface YearlyTableProps {
   categories: Category[];
   initialSubcategories: SubcategoryWithCategory[];
+  person1Name?: string;
+  person2Name?: string;
 }
 
 export function YearlyTable({
   categories,
-  initialSubcategories
+  initialSubcategories,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: YearlyTableProps) {
   const [openAction, setOpenAction] = useState(false);
   const [subcategories] =
@@ -213,8 +217,8 @@ export function YearlyTable({
   const calculateYearlySettlement = () => {
     const forecast = { effort: 0, expenses: 0, investments: 0 };
     const reality = {
-      hisActual: 0,
-      herActual: 0,
+      p1Actual: 0,
+      p2Actual: 0,
       effort: 0,
       expenses: 0,
       investments: 0
@@ -247,22 +251,22 @@ export function YearlyTable({
           else if (isSavings) reality.investments += actualAmount;
           else reality.expenses += actualAmount;
 
-          // Individual actuals (His vs Her)
-          const his = (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+          // Individual actuals (Person 1 vs Person 2)
+          const person1 = (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
-          const her = (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+          const person2 = (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
 
-          reality.hisActual += his;
-          reality.herActual += her;
+          reality.p1Actual += person1;
+          reality.p2Actual += person2;
         }
       });
     }
 
     // Force reality effort to be the sum of individual contributions (Nominal Truth)
-    reality.effort = reality.hisActual + reality.herActual;
+    reality.effort = reality.p1Actual + reality.p2Actual;
 
     const balanceBeforeInvestments = reality.effort - reality.expenses;
     const finalBalance = balanceBeforeInvestments - reality.investments;
@@ -272,8 +276,8 @@ export function YearlyTable({
       reality,
       yearlyLivingExpenses: reality.expenses,
       yearlyInvestments: reality.investments,
-      hisYearlyEffort: reality.hisActual,
-      herYearlyEffort: reality.herActual,
+      p1YearlyEffort: reality.p1Actual,
+      p2YearlyEffort: reality.p2Actual,
       totalEffort: reality.effort,
       finalBalance
     };
@@ -285,8 +289,8 @@ export function YearlyTable({
   const calculateMonthlySettlement = (month: number) => {
     let livingExpenses = 0;
     let investments = 0;
-    let hisEffort = 0;
-    let herEffort = 0;
+    let p1Effort = 0;
+    let p2Effort = 0;
     let credits = 0;
 
     const status = getMonthStatus(month);
@@ -312,44 +316,44 @@ export function YearlyTable({
       if (isIncome) {
         credits += amount;
         if (status !== 'FUTURE') {
-          hisEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+          p1Effort += (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
-          herEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+          p2Effort += (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else if (isSavings) {
         investments += amount;
         if (status !== 'FUTURE') {
-          hisEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+          p1Effort += (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
-          herEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+          p2Effort += (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else {
         livingExpenses += amount;
         if (status !== 'FUTURE') {
-          hisEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'His')
+          p1Effort += (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
-          herEffort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'Her')
+          p2Effort += (sub.transactions || [])
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       }
     });
 
-    const balanceBeforeInvestments = hisEffort + herEffort - livingExpenses;
+    const balanceBeforeInvestments = p1Effort + p2Effort - livingExpenses;
     const finalBalance = balanceBeforeInvestments - investments;
 
     return {
-      hisEffort,
-      herEffort,
+      p1Effort,
+      p2Effort,
       credits,
-      totalEffort: hisEffort + herEffort,
+      totalEffort: p1Effort + p2Effort,
       livingExpenses,
       balanceBeforeInvestments,
       investments,
@@ -651,14 +655,14 @@ export function YearlyTable({
               {/* NEW SETTLEMENT GRID ROWS */}
               {[
                 {
-                  label: 'His Contribution',
-                  key: 'hisEffort',
-                  color: getSourceColor('His')
+                  label: `${person1Name} Contribution`,
+                  key: 'p1Effort',
+                  color: getSourceColor('PERSON1')
                 },
                 {
-                  label: 'Her Contribution',
-                  key: 'herEffort',
-                  color: getSourceColor('Her')
+                  label: `${person2Name} Contribution`,
+                  key: 'p2Effort',
+                  color: getSourceColor('PERSON2')
                 },
                 { label: 'Total Effort', key: 'totalEffort', color: '#10B981' },
                 {
@@ -930,16 +934,16 @@ export function YearlyTable({
                     <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
                       <div>
                         <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
-                          His Contribution
+                          {person1Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-cyan-900">
-                          ${formatCurrency(settlement.reality.hisActual)}
+                          ${formatCurrency(settlement.reality.p1Actual)}
                         </span>
                       </div>
                       <div className="text-right">
                         <span className="text-sm text-cyan-600 font-black">
                           {Math.round(
-                            (settlement.reality.hisActual /
+                            (settlement.reality.p1Actual /
                               (settlement.reality.effort || 1)) *
                               100
                           )}
@@ -950,16 +954,16 @@ export function YearlyTable({
                     <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
                       <div>
                         <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
-                          Her Contribution
+                          {person2Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-orange-900">
-                          ${formatCurrency(settlement.reality.herActual)}
+                          ${formatCurrency(settlement.reality.p2Actual)}
                         </span>
                       </div>
                       <div className="text-right">
                         <span className="text-sm text-orange-600 font-semibold">
                           {Math.round(
-                            (settlement.reality.herActual /
+                            (settlement.reality.p2Actual /
                               (settlement.reality.effort || 1)) *
                               100
                           )}
@@ -1076,18 +1080,18 @@ export function YearlyTable({
                   <div className="space-y-2">
                     <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
                       <span>
-                        His{' '}
+                        {person1Name}{' '}
                         {Math.round(
-                          (settlement.reality.hisActual /
+                          (settlement.reality.p1Actual /
                             (settlement.reality.effort || 1)) *
                             100
                         )}
                         %
                       </span>
                       <span>
-                        Her{' '}
+                        {person2Name}{' '}
                         {Math.round(
-                          (settlement.reality.herActual /
+                          (settlement.reality.p2Actual /
                             (settlement.reality.effort || 1)) *
                             100
                         )}
@@ -1098,13 +1102,13 @@ export function YearlyTable({
                       <div
                         className="h-full bg-cyan-500 transition-all duration-1000"
                         style={{
-                          width: `${(settlement.reality.hisActual / (settlement.reality.effort || 1)) * 100}%`
+                          width: `${(settlement.reality.p1Actual / (settlement.reality.effort || 1)) * 100}%`
                         }}
                       />
                       <div
                         className="h-full bg-orange-500 transition-all duration-1000"
                         style={{
-                          width: `${(settlement.reality.herActual / (settlement.reality.effort || 1)) * 100}%`
+                          width: `${(settlement.reality.p2Actual / (settlement.reality.effort || 1)) * 100}%`
                         }}
                       />
                     </div>
@@ -1302,7 +1306,11 @@ export function YearlyTable({
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
-                        {tx.source}
+                        {tx.source === 'PERSON1'
+                          ? person1Name
+                          : tx.source === 'PERSON2'
+                            ? person2Name
+                            : tx.source}
                       </span>
                       <span className="text-[9px] text-muted-foreground font-mono">
                         {tx.date ? formatDate(tx.date) : ''}

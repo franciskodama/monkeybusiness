@@ -1,7 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
-import { ColorEnum, Prisma } from '@prisma/client';
+import { ColorEnum } from '@prisma/client';
 import { revalidatePath } from 'next/cache';
 import { BudgetTemplateCategory } from '@/lib/types';
 
@@ -210,7 +210,10 @@ export async function addSubcategory(data: {
     return { success: true, _currentSubcategories };
   } catch (error: unknown) {
     console.error('--- ❌ Database Error:', error);
-    return { success: false, error: 'Database error. Check for duplicate names.' };
+    return {
+      success: false,
+      error: 'Database error. Check for duplicate names.'
+    };
   }
 }
 

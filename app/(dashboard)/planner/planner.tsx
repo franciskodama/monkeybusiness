@@ -52,13 +52,20 @@ export default function Planner({
   householdId,
   categories,
   subcategories,
-  brlRate
+  brlRate,
+  person1Name,
+  person2Name
 }: {
   householdId: string;
   categories: Category[];
   subcategories: SubcategoryWithCategory[];
   brlRate: number;
+  person1Name?: string | null;
+  person2Name?: string | null;
 }) {
+  const p1Name = person1Name || 'Partner 1';
+  const p2Name = person2Name || 'Partner 2';
+
   const [openAction, setOpenAction] = useState(false);
   const [currentSubcategories, setCurrentSubcategoriesAction] =
     useState<SubcategoryWithCategory[]>(subcategories);
@@ -165,13 +172,14 @@ export default function Planner({
   const stats = allTransactions.reduce(
     (acc, tx) => {
       const amount = getAmount(tx.amount);
-      // Current Effort = All transactions from His & Her (Contribution Model)
-      if (tx.source === 'His') {
-        acc.hisActual += amount;
+      // Current Effort = All transactions from PERSON1 & PERSON2 (Contribution Model)
+      const s = tx.source?.toUpperCase();
+      if (s === 'PERSON1') {
+        acc.p1Actual += amount;
         acc.actualContribution += amount;
       }
-      if (tx.source === 'Her') {
-        acc.herActual += amount;
+      if (s === 'PERSON2') {
+        acc.p2Actual += amount;
         acc.actualContribution += amount;
       }
 
@@ -183,26 +191,38 @@ export default function Planner({
       return acc;
     },
     {
-      hisActual: 0,
-      herActual: 0,
+      p1Actual: 0,
+      p2Actual: 0,
       actualContribution: 0,
       actualLivingExpenses: 0
     }
   );
 
   // Targets (Planned Values) - Categorizing by both Subcategory and Parent Category name
-  const isHisIdentifier = (sub: SubcategoryWithCategory) => {
+  const isP1Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
-    if (nameStr.includes('HIS') || nameStr.includes('FRANCIS')) return true;
-    // Fallback: check if the actual transactions already arrived are from 'His'
-    return sub.transactions?.some((tx) => tx.source === 'His');
+    if (
+      nameStr.includes('PERSON1') ||
+      nameStr.includes(p1Name.toUpperCase())
+    )
+      return true;
+    // Fallback: check if the actual transactions already arrived are from 'PERSON1'
+    return sub.transactions?.some(
+      (tx) => tx.source === 'PERSON1'
+    );
   };
 
-  const isHerIdentifier = (sub: SubcategoryWithCategory) => {
+  const isP2Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
-    if (nameStr.includes('HER') || nameStr.includes('MARIANA')) return true;
-    // Fallback: check if the actual transactions already arrived are from 'Her'
-    return sub.transactions?.some((tx) => tx.source === 'Her');
+    if (
+      nameStr.includes('PERSON2') ||
+      nameStr.includes(p2Name.toUpperCase())
+    )
+      return true;
+    // Fallback: check if the actual transactions already arrived are from 'PERSON2'
+    return sub.transactions?.some(
+      (tx) => tx.source === 'PERSON2'
+    );
   };
 
   // Total Forecast Pool = ALL income items
@@ -210,12 +230,12 @@ export default function Planner({
     .filter((sub) => sub.category.isIncome)
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
-  const hisPlannedIncome = currentMonthSubs
-    .filter((sub) => sub.category.isIncome && isHisIdentifier(sub))
+  const p1PlannedIncome = currentMonthSubs
+    .filter((sub) => sub.category.isIncome && isP1Identifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
-  const herPlannedIncome = currentMonthSubs
-    .filter((sub) => sub.category.isIncome && isHerIdentifier(sub))
+  const p2PlannedIncome = currentMonthSubs
+    .filter((sub) => sub.category.isIncome && isP2Identifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const totalPlannedExpenses = currentMonthSubs
@@ -333,10 +353,14 @@ export default function Planner({
                   (i) => i.month === selectedMonth
                 )}
                 setReviewDataAction={setReviewData}
+                person1Name={p1Name}
+                person2Name={p2Name}
               />
               <DirectCodeImporter
                 householdId={householdId}
                 onDataLoaded={(data) => setReviewData(data)}
+                person1Name={p1Name}
+                person2Name={p2Name}
               />
               <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
                 <AddCategory
@@ -432,39 +456,39 @@ export default function Planner({
                     <div className="flex justify-between items-center group">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                          HIS Target
+                          {p1Name.toUpperCase()} Target
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-cyan-50 group-hover:text-cyan-600 group-hover:border-cyan-100 transition-all">
                           {Math.round(
-                            (hisPlannedIncome / (totalPlannedFunding || 1)) *
+                            (p1PlannedIncome / (totalPlannedFunding || 1)) *
                               100
                           )}
                           %
                         </span>
                       </div>
                       <span className="font-mono font-black text-slate-900">
-                        ${formatCurrency(hisPlannedIncome)}
+                        ${formatCurrency(p1PlannedIncome)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center group">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                          HER Target
+                          {p2Name.toUpperCase()} Target
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-all">
                           {Math.round(
-                            (herPlannedIncome / (totalPlannedFunding || 1)) *
+                            (p2PlannedIncome / (totalPlannedFunding || 1)) *
                               100
                           )}
                           %
                         </span>
                       </div>
                       <span className="font-mono font-black text-slate-900">
-                        ${formatCurrency(herPlannedIncome)}
+                        ${formatCurrency(p2PlannedIncome)}
                       </span>
                     </div>
                     {totalPlannedFunding >
-                      hisPlannedIncome + herPlannedIncome && (
+                      p1PlannedIncome + p2PlannedIncome && (
                       <div className="flex justify-between items-center group">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors italic">
@@ -473,7 +497,7 @@ export default function Planner({
                           <span className="text-[9px] font-mono font-black text-slate-300 bg-slate-50/50 border border-slate-100/50 px-1.5 py-0.5 rounded-sm">
                             {Math.round(
                               ((totalPlannedFunding -
-                                (hisPlannedIncome + herPlannedIncome)) /
+                                (p1PlannedIncome + p2PlannedIncome)) /
                                 (totalPlannedFunding || 1)) *
                                 100
                             )}
@@ -484,7 +508,7 @@ export default function Planner({
                           $
                           {formatCurrency(
                             totalPlannedFunding -
-                              (hisPlannedIncome + herPlannedIncome)
+                              (p1PlannedIncome + p2PlannedIncome)
                           )}
                         </span>
                       </div>
@@ -515,34 +539,34 @@ export default function Planner({
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                           <span className="text-[10px] font-bold text-emerald-900/60 uppercase tracking-widest">
-                            HIS Contribution
+                            {p1Name.toUpperCase()} Contribution
                           </span>
                           <span className="text-[8px] font-mono font-black text-white bg-cyan-500 px-1 py-0.5 rounded-sm">
                             {Math.round(
-                              (stats.hisActual / (displayFunding || 1)) * 100
+                              (stats.p1Actual / (displayFunding || 1)) * 100
                             )}
                             %
                           </span>
                         </div>
                         <span className="font-mono font-black text-emerald-900 text-xs">
-                          ${formatCurrency(stats.hisActual)}
+                          ${formatCurrency(stats.p1Actual)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
                           <span className="text-[10px] font-bold text-emerald-900/60 uppercase tracking-widest">
-                            HER Contribution
+                            {p2Name.toUpperCase()} Contribution
                           </span>
                           <span className="text-[8px] font-mono font-black text-white bg-orange-500 px-1 py-0.5 rounded-sm">
                             {Math.round(
-                              (stats.herActual / (displayFunding || 1)) * 100
+                              (stats.p2Actual / (displayFunding || 1)) * 100
                             )}
                             %
                           </span>
                         </div>
                         <span className="font-mono font-black text-emerald-900 text-xs">
-                          ${formatCurrency(stats.herActual)}
+                          ${formatCurrency(stats.p2Actual)}
                         </span>
                       </div>
                     </div>
@@ -554,8 +578,9 @@ export default function Planner({
                       Total Arrived to the pool
                     </p>
                     <p className="text-[10px] font-bold text-emerald-600/70 mt-2 italic leading-relaxed">
-                      Combined effort from HIS and HER already registered in
-                      current transactions.
+                      Combined effort from &quot;{p1Name}&quot; and &quot;
+                      {p2Name}&quot; already registered in current
+                      transactions.
                     </p>
                   </div>
                 </div>
@@ -810,6 +835,8 @@ export default function Planner({
                                 selectedMonth={selectedMonth}
                                 allAvailableSubcategories={currentSubcategories}
                                 isIncome={item.category.isIncome}
+                                person1Name={p1Name}
+                                person2Name={p2Name}
                                 onSuccess={(updatedItems) =>
                                   setCurrentSubcategoriesAction(updatedItems)
                                 }
@@ -912,9 +939,11 @@ export default function Planner({
             }))}
             brlRate={brlRate}
             month={selectedMonth}
+            person1Name={p1Name}
+            person2Name={p2Name}
             onSourceClick={(source, txs) =>
               setSelectedDetails({
-                name: `${source} Activity`,
+                name: `${source === 'PERSON1' ? p1Name : source === 'PERSON2' ? p2Name : source} Activity`,
                 month: selectedMonth,
                 transactions: txs
               })

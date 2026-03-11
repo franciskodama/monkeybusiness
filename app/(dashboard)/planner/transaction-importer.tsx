@@ -24,13 +24,17 @@ import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 export function TransactionImporter({
   householdId,
   subcategoriesForCurrentMonth,
-  setReviewDataAction
+  setReviewDataAction,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: {
   householdId: string;
   subcategoriesForCurrentMonth: SubcategoryWithCategory[];
   setReviewDataAction: React.Dispatch<
     React.SetStateAction<(TransactionInput & { ignored?: boolean })[] | null>
   >;
+  person1Name?: string;
+  person2Name?: string;
 }) {
   const [source, setSource] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -57,8 +61,7 @@ export function TransactionImporter({
         // Send to AI
         const result = await processStatementWithAI(
           base64,
-          householdId,
-          subcategoriesForCurrentMonth
+          householdId
         );
 
         if (result.success && result.transactions) {
@@ -99,9 +102,9 @@ export function TransactionImporter({
               <SelectValue placeholder="Select the Source" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Family">Family</SelectItem>
-              <SelectItem value="His">His</SelectItem>
-              <SelectItem value="Her">Her</SelectItem>
+              <SelectItem value="FAMILY">Family</SelectItem>
+              <SelectItem value="PERSON1">{person1Name}</SelectItem>
+              <SelectItem value="PERSON2">{person2Name}</SelectItem>
             </SelectContent>
           </Select>
 

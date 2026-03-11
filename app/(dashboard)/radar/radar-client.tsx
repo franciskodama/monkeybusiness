@@ -5,18 +5,16 @@ import {
   Bell,
   Plus,
   Trash2,
-  Settings2,
   Mail,
   AlertCircle,
   Calendar,
   Clock,
   ArrowRight,
   Pen,
-  BellOff,
-  Binoculars,
   ScrollText
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   addFinancialCommitment,
   deleteFinancialCommitment,
@@ -37,8 +35,8 @@ import { formatCurrency } from '@/lib/utils';
 import { FinancialCommitment, Responsibility, User } from '@prisma/client';
 
 const RESPONSIBILITY_CONFIG = {
-  [Responsibility.HIS]: { bg: '#00FFFF', text: '#000000' },
-  [Responsibility.HER]: { bg: '#F97316', text: '#FFFFFF' },
+  [Responsibility.PERSON1]: { bg: '#00FFFF', text: '#000000' },
+  [Responsibility.PERSON2]: { bg: '#F97316', text: '#FFFFFF' },
   [Responsibility.FAMILY]: { bg: '#EF4444', text: '#FFFFFF' }
 };
 
@@ -47,13 +45,17 @@ interface BillRadarClientProps {
   initialCommitments: FinancialCommitment[];
   currentUser: User;
   householdUsers: User[];
+  person1Name?: string;
+  person2Name?: string;
 }
 
 export default function RadarClient({
   householdId,
   initialCommitments,
   currentUser,
-  householdUsers
+  householdUsers,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: BillRadarClientProps) {
   const [commitments, setCommitments] =
     useState<FinancialCommitment[]>(initialCommitments);
@@ -67,8 +69,8 @@ export default function RadarClient({
   const [description, setDescription] = useState('');
   const [responsibility, setResponsibility] = useState<Responsibility>(() => {
     const name = currentUser.name.toUpperCase();
-    if (name.includes('FRANCIS')) return Responsibility.HIS;
-    if (name.includes('MARIANA')) return Responsibility.HER;
+    if (name.includes(person1Name.toUpperCase())) return Responsibility.PERSON1;
+    if (name.includes(person2Name.toUpperCase())) return Responsibility.PERSON2;
     return Responsibility.FAMILY;
   });
   const [amount, setAmount] = useState('');
@@ -90,10 +92,10 @@ export default function RadarClient({
     setDescription('');
     // Reset to default responsibility
     const name = currentUser.name.toUpperCase();
-    if (name.includes('FRANCIS')) {
-      setResponsibility(Responsibility.HIS);
-    } else if (name.includes('MARIANA')) {
-      setResponsibility(Responsibility.HER);
+    if (name.includes(person1Name.toUpperCase())) {
+      setResponsibility(Responsibility.PERSON1);
+    } else if (name.includes(person2Name.toUpperCase())) {
+      setResponsibility(Responsibility.PERSON2);
     } else {
       setResponsibility(Responsibility.FAMILY);
     }
@@ -180,8 +182,17 @@ export default function RadarClient({
 
   const getTargetUsers = (resp: Responsibility) => {
     if (resp === Responsibility.FAMILY) return householdUsers;
-    const search = resp === Responsibility.HIS ? 'FRANCIS' : 'MARIANA';
+    const search =
+      resp === Responsibility.PERSON1
+        ? person1Name.toUpperCase()
+        : person2Name.toUpperCase();
     return householdUsers.filter((u) => u.name.toUpperCase().includes(search));
+  };
+
+  const getResponsibilityLabel = (resp: Responsibility) => {
+    if (resp === Responsibility.PERSON1) return person1Name;
+    if (resp === Responsibility.PERSON2) return person2Name;
+    return resp;
   };
 
   if (!mounted) return null;
@@ -263,11 +274,11 @@ export default function RadarClient({
 
                     {/* Interaction Dot */}
                     <div
-                      className={`w-3 h-3 rounded-full border-2 absolute left-[3.85rem] z-20 transition-transform group-hover:scale-150 ${isToday ? 'bg-rose-500 border-rose-200' : dayCommitments.length > 0 ? 'bg-slate-900 border-slate-300' : 'bg-white border-slate-100'}`}
+                      className={`w-3 h-3 rounded-full border-2 absolute left-[2.5rem] z-20 transition-transform group-hover:scale-150 ${isToday ? 'bg-rose-500 border-rose-200' : dayCommitments.length > 0 ? 'bg-slate-900 border-slate-300' : 'bg-white border-slate-100'}`}
                     />
 
                     {/* Commitments on this day */}
-                    <div className="ml-12 flex-1 flex gap-2 overflow-x-auto no-scrollbar py-2">
+                    <div className="ml-16 flex-1 flex gap-2 overflow-x-auto no-scrollbar py-2">
                       {dayCommitments.map((c) => (
                         <motion.div
                           key={c.id}
@@ -293,10 +304,12 @@ export default function RadarClient({
                           )}
                           <div className="flex -space-x-1">
                             {getTargetUsers(c.responsibility).map((u) => (
-                              <img
+                              <Image
                                 key={u.uid}
-                                src={u.image}
+                                src={u.image || '/avatar-placeholder.png'}
                                 alt={u.name}
+                                width={16}
+                                height={16}
                                 className="w-4 h-4 rounded-full border border-white object-cover"
                               />
                             ))}
@@ -369,10 +382,12 @@ export default function RadarClient({
                         </div>
                         <div className="flex -space-x-1.5">
                           {getTargetUsers(c.responsibility).map((u) => (
-                            <img
+                            <Image
                               key={u.uid}
-                              src={u.image}
+                              src={u.image || '/avatar-placeholder.png'}
                               alt={u.name}
+                              width={64}
+                              height={64}
                               className="w-16 h-16 rounded-full border-2 border-slate-900 object-cover"
                             />
                           ))}
@@ -404,7 +419,7 @@ export default function RadarClient({
                                   RESPONSIBILITY_CONFIG[c.responsibility].text
                               }}
                             >
-                              {c.responsibility}
+                              {getResponsibilityLabel(c.responsibility)}
                             </div>
                             {c.amount && (
                               <span className="text-emerald-400">
@@ -466,9 +481,9 @@ export default function RadarClient({
                   className="p-4 border border-slate-200 flex items-center justify-between group"
                 >
                   <div className="flex items-center gap-4">
-                    <div className="flex w-12 h-12 items-center justify-center bg-slate-900 text-white font-black text-md">
+                    <div className="flex shrink-0 w-12 h-12 items-center justify-center bg-slate-900 text-white font-black text-md shadow-[4px_4px_0px_rgba(15,23,42,0.1)]">
                       {c.dayOfMonth}
-                      <span className="text-xs tracking-widest ml-[2px]">
+                      <span className="text-[10px] tracking-widest ml-[2px]">
                         {c.dayOfMonth === 1
                           ? 'st'
                           : c.dayOfMonth === 2
@@ -478,12 +493,14 @@ export default function RadarClient({
                               : 'th'}
                       </span>
                     </div>
-                    <div className="flex -space-x-1">
+                    <div className="flex shrink-0 -space-x-1">
                       {getTargetUsers(c.responsibility).map((u) => (
-                        <img
+                        <Image
                           key={u.uid}
-                          src={u.image}
+                          src={u.image || '/avatar-placeholder.png'}
                           alt={u.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full border border-white object-cover shadow-sm"
                         />
                       ))}
@@ -511,7 +528,7 @@ export default function RadarClient({
                             color: RESPONSIBILITY_CONFIG[c.responsibility].text
                           }}
                         >
-                          {c.responsibility}
+                          {getResponsibilityLabel(c.responsibility)}
                         </span>
                       </p>
                     </div>
@@ -595,7 +612,7 @@ export default function RadarClient({
                         borderColor: isActive ? config.bg : '#E2E8F0'
                       }}
                     >
-                      {resp}
+                      {getResponsibilityLabel(resp)}
                     </button>
                   );
                 })}

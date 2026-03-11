@@ -15,9 +15,13 @@ import { formatCurrencyRounded } from '@/lib/utils';
 import { TransactionInput, SubcategoryWithCategory } from '@/lib/types';
 
 export function SourceBurnChart({
-  subcategories
+  subcategories,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: {
   subcategories: SubcategoryWithCategory[];
+  person1Name?: string;
+  person2Name?: string;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -43,8 +47,14 @@ export function SourceBurnChart({
   // 2. Calculate totals per source (Accumulated YTD)
   const sourceData: Record<string, number> = {
     FAMILY: 0,
-    HIS: 0,
-    HER: 0
+    PERSON1: 0,
+    PERSON2: 0
+  };
+
+  const sourceLabels: Record<string, string> = {
+    FAMILY: 'FAMILY',
+    PERSON1: person1Name.toUpperCase(),
+    PERSON2: person2Name.toUpperCase()
   };
 
   transactions.forEach((tx) => {
@@ -53,6 +63,7 @@ export function SourceBurnChart({
         typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
       if (amount > 0) {
         const source = tx.source?.toUpperCase();
+
         if (source && sourceData.hasOwnProperty(source)) {
           sourceData[source] += amount;
         }
@@ -65,16 +76,17 @@ export function SourceBurnChart({
   // 3. Transform to chart data with percentages
   const data = Object.entries(sourceData)
     .map(([name, value]) => ({
-      name: name,
+      name: sourceLabels[name] || name,
       value: value,
+      rawName: name,
       percentage: total > 0 ? (value / total) * 100 : 0
     }))
     .sort((a, b) => b.value - a.value);
 
   const COLOR_MAP: Record<string, string> = {
     FAMILY: '#EF4444',
-    HIS: '#22D3EE',
-    HER: '#F97316'
+    PERSON1: '#22D3EE',
+    PERSON2: '#F97316'
   };
 
   if (!mounted) return <div className="w-full h-[250px]" />;
@@ -135,7 +147,7 @@ export function SourceBurnChart({
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLOR_MAP[entry.name] || '#64748B'}
+                fill={COLOR_MAP[entry.rawName] || '#64748B'}
               />
             ))}
             <LabelList

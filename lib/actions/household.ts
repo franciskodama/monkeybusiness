@@ -28,6 +28,33 @@ export async function joinHousehold(inviteCode: string) {
   }
 }
 
+export async function updateHouseholdNames(
+  householdId: string,
+  person1Name: string,
+  person2Name: string
+) {
+  const session = await auth();
+  if (!session?.user?.email) return { success: false, error: 'Unauthorized' };
+
+  try {
+    await prisma.household.update({
+      where: { id: householdId },
+      data: {
+        person1Name,
+        person2Name
+      }
+    });
+
+    revalidatePath('/settings');
+    revalidatePath('/command-center');
+    revalidatePath('/yearly');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating household names:', error);
+    return { success: false, error: 'Server error' };
+  }
+}
+
 export async function getHouseholdUsers(householdId: string) {
   try {
     return await prisma.user.findMany({
@@ -38,3 +65,4 @@ export async function getHouseholdUsers(householdId: string) {
     return [];
   }
 }
+

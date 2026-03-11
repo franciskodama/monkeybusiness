@@ -24,12 +24,23 @@ export default async function RadarPage() {
     getHouseholdUsers(householdId)
   ]);
 
+  const p1Name =
+    currentUser.household?.person1Name ||
+    householdUsers[0]?.name?.split(' ')[0] ||
+    'Partner 1';
+  const p2Name =
+    currentUser.household?.person2Name ||
+    householdUsers[1]?.name?.split(' ')[0] ||
+    'Partner 2';
+
   return (
-    <RadarClient 
-      householdId={householdId} 
-      initialCommitments={commitments} 
+    <RadarClient
+      householdId={householdId}
+      initialCommitments={commitments}
       currentUser={currentUser}
       householdUsers={householdUsers}
+      person1Name={p1Name}
+      person2Name={p2Name}
     />
   );
 }

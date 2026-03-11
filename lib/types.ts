@@ -4,6 +4,10 @@ export interface HouseholdWithUsers extends Household {
   users: User[];
 }
 
+export type UserWithHousehold = User & {
+  household?: Household | null;
+};
+
 export interface TransactionInput {
   id?: string;
   date: Date | string;
