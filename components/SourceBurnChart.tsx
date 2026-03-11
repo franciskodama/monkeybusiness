@@ -62,7 +62,7 @@ export function SourceBurnChart({
       const amount =
         typeof tx.amount === 'string' ? parseFloat(tx.amount) : tx.amount;
       if (amount > 0) {
-        let source = tx.source?.toUpperCase();
+        const source = tx.source?.toUpperCase();
 
         if (source && sourceData.hasOwnProperty(source)) {
           sourceData[source] += amount;

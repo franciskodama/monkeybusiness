@@ -92,7 +92,7 @@ export function MonthSettlement({
   };
 
   transactions.forEach((tx) => {
-    let s = tx.source?.toUpperCase();
+    const s = tx.source?.toUpperCase();
 
     if (s && data[s]) {
       if (tx.isIncome) {
@@ -107,9 +107,13 @@ export function MonthSettlement({
   });
 
   const p1TotalContribution =
-    data.PERSON1.livingExpenses + data.PERSON1.investments + data.PERSON1.deposits;
+    data.PERSON1.livingExpenses +
+    data.PERSON1.investments +
+    data.PERSON1.deposits;
   const p2TotalContribution =
-    data.PERSON2.livingExpenses + data.PERSON2.investments + data.PERSON2.deposits;
+    data.PERSON2.livingExpenses +
+    data.PERSON2.investments +
+    data.PERSON2.deposits;
   const grandTotalContribution = p1TotalContribution + p2TotalContribution;
 
   const totalLivingExpenses =
@@ -119,7 +123,9 @@ export function MonthSettlement({
 
   const balanceBeforeInvestments = grandTotalContribution - totalLivingExpenses;
   const totalInvested =
-    data.PERSON1.investments + data.PERSON2.investments + data.FAMILY.investments;
+    data.PERSON1.investments +
+    data.PERSON2.investments +
+    data.FAMILY.investments;
   const finalBalance = balanceBeforeInvestments - totalInvested;
 
   // Performance Metrics
@@ -187,7 +193,9 @@ export function MonthSettlement({
                     onClick={() =>
                       onSourceClick?.(
                         'PERSON1',
-                        data.PERSON1.txs.filter((t) => !t.isIncome && !t.isSavings)
+                        data.PERSON1.txs.filter(
+                          (t) => !t.isIncome && !t.isSavings
+                        )
                       )
                     }
                   />
@@ -204,7 +212,9 @@ export function MonthSettlement({
                     onClick={() =>
                       onSourceClick?.(
                         'PERSON2',
-                        data.PERSON2.txs.filter((t) => !t.isIncome && !t.isSavings)
+                        data.PERSON2.txs.filter(
+                          (t) => !t.isIncome && !t.isSavings
+                        )
                       )
                     }
                   />

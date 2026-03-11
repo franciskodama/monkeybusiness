@@ -5,18 +5,16 @@ import {
   Bell,
   Plus,
   Trash2,
-  Settings2,
   Mail,
   AlertCircle,
   Calendar,
   Clock,
   ArrowRight,
   Pen,
-  BellOff,
-  Binoculars,
   ScrollText
 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 import {
   addFinancialCommitment,
   deleteFinancialCommitment,
@@ -306,10 +304,12 @@ export default function RadarClient({
                           )}
                           <div className="flex -space-x-1">
                             {getTargetUsers(c.responsibility).map((u) => (
-                              <img
+                              <Image
                                 key={u.uid}
-                                src={u.image}
+                                src={u.image || '/avatar-placeholder.png'}
                                 alt={u.name}
+                                width={16}
+                                height={16}
                                 className="w-4 h-4 rounded-full border border-white object-cover"
                               />
                             ))}
@@ -382,10 +382,12 @@ export default function RadarClient({
                         </div>
                         <div className="flex -space-x-1.5">
                           {getTargetUsers(c.responsibility).map((u) => (
-                            <img
+                            <Image
                               key={u.uid}
-                              src={u.image}
+                              src={u.image || '/avatar-placeholder.png'}
                               alt={u.name}
+                              width={64}
+                              height={64}
                               className="w-16 h-16 rounded-full border-2 border-slate-900 object-cover"
                             />
                           ))}
@@ -493,10 +495,12 @@ export default function RadarClient({
                     </div>
                     <div className="flex shrink-0 -space-x-1">
                       {getTargetUsers(c.responsibility).map((u) => (
-                        <img
+                        <Image
                           key={u.uid}
-                          src={u.image}
+                          src={u.image || '/avatar-placeholder.png'}
                           alt={u.name}
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-full border border-white object-cover shadow-sm"
                         />
                       ))}

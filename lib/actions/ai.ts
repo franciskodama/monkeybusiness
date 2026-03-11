@@ -70,8 +70,7 @@ export async function matchTransactionsWithRules(
 
 export async function processStatementWithAI(
   base64File: string,
-  householdId: string,
-  subcategoriesForCurrentMonth: SubcategoryWithCategory[]
+  householdId: string
 ) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
