@@ -243,7 +243,7 @@ export function YearlyTable({
         if (status !== 'FUTURE') {
           const actualAmount =
             sub.transactions?.reduce(
-              (sum: number, t) => sum + getAmount(t.amount),
+              (tsum: number, t) => tsum + getAmount(t.amount),
               0
             ) || 0;
 
@@ -251,13 +251,13 @@ export function YearlyTable({
           else if (isSavings) reality.investments += actualAmount;
           else reality.expenses += actualAmount;
 
-          // Individual actuals (Person 1 vs Person 2)
+          // Individual actuals (Person 1 vs Person 2) - ALL transactions count as "Contribution"
           const person1 = (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON1')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
           const person2 = (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON2')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
 
           reality.p1Actual += person1;
           reality.p2Actual += person2;
@@ -268,8 +268,11 @@ export function YearlyTable({
     // Force reality effort to be the sum of individual contributions (Nominal Truth)
     reality.effort = reality.p1Actual + reality.p2Actual;
 
-    const balanceBeforeInvestments = reality.effort - reality.expenses;
-    const finalBalance = balanceBeforeInvestments - reality.investments;
+    // Mathematical Surplus: (Total Funding) - (Expenses already in that funding) - (Expenses to pool) = Surplus
+    // Since Effort = Income + Payments + InvestmentMoves, we must subtract the non-income parts twice:
+    // Once to offset their inclusion in Effort, and once to account for the real cost.
+    const balanceBeforeInvestments = reality.effort - (reality.expenses * 2);
+    const finalBalance = balanceBeforeInvestments - (reality.investments * 2);
 
     return {
       forecast,
@@ -318,36 +321,39 @@ export function YearlyTable({
         if (status !== 'FUTURE') {
           p1Effort += (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON1')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
           p2Effort += (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON2')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
         }
       } else if (isSavings) {
         investments += amount;
         if (status !== 'FUTURE') {
           p1Effort += (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON1')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
           p2Effort += (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON2')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
         }
       } else {
         livingExpenses += amount;
         if (status !== 'FUTURE') {
           p1Effort += (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON1')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
           p2Effort += (sub.transactions || [])
             .filter((tx) => tx.source === 'PERSON2')
-            .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
+            .reduce((tsum: number, tx) => tsum + getAmount(tx.amount), 0);
         }
       }
     });
 
-    const balanceBeforeInvestments = p1Effort + p2Effort - livingExpenses;
-    const finalBalance = balanceBeforeInvestments - investments;
+    // The contribution includes money already paid out for expenses AND investments.
+    // To find the net cash surplus, we must subtract the living expenses and investments twice:
+    // Once to offset the "transaction contribution" and once to account for the "pool cost".
+    const balanceBeforeInvestments = (p1Effort + p2Effort) - (livingExpenses * 2);
+    const finalBalance = balanceBeforeInvestments - (investments * 2);
 
     return {
       p1Effort,
@@ -445,8 +451,11 @@ export function YearlyTable({
                     </th>
                   );
                 })}
-                <th className="p-4 text-center text-xs font-bold uppercase bg-primary/5">
-                  Total YTD
+                <th className="p-4 text-center text-[10px] font-black uppercase bg-slate-50 border-r w-[110px]">
+                  Actual YTD
+                </th>
+                <th className="p-4 text-center text-[10px] font-black uppercase bg-primary/5 w-[110px]">
+                  Annual Total
                 </th>
               </tr>
             </thead>
@@ -504,6 +513,7 @@ export function YearlyTable({
                         );
                       })}
 
+                      <td className="bg-slate-50 border-r border-secondary/20" />
                       <td className="bg-primary/5 border-l border-secondary/20" />
                     </tr>
 
@@ -567,6 +577,14 @@ export function YearlyTable({
                               </td>
                             );
                           })}
+                          <td className="p-3 text-center font-bold bg-slate-50 border-r font-mono">
+                            ${formatCurrency(
+                              months.reduce((acc, _, i) => {
+                                if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                                return acc + getDisplayValue(name, i + 1);
+                              }, 0)
+                            )}
+                          </td>
                           <td className="p-3 text-center font-bold bg-primary/5 font-mono">
                             ${formatCurrency(subYtd)}
                           </td>
@@ -590,7 +608,7 @@ export function YearlyTable({
                               return (
                                 sum +
                                 (s.transactions?.reduce(
-                                  (ts: number, t) => sum + getAmount(t.amount),
+                                  (tsum: number, t) => tsum + getAmount(t.amount),
                                   0
                                 ) || 0)
                               );
@@ -612,35 +630,40 @@ export function YearlyTable({
                           </td>
                         );
                       })}
-                      <td className="p-3 text-center bg-primary/10 font-mono text-primary">
-                        $
-                        {formatCurrency(
-                          months.reduce((sum, _, i) => {
-                            const status = getMonthStatus(i + 1);
-                            const monthSum = subcategories
-                              .filter(
-                                (s) =>
-                                  s.categoryId === category.id &&
-                                  s.month === i + 1
-                              )
-                              .reduce((msum, s) => {
-                                if (status !== 'FUTURE') {
-                                  return (
-                                    msum +
-                                    (s.transactions?.reduce(
-                                      (ts: number, t) =>
-                                        sum + getAmount(t.amount),
-                                      0
-                                    ) || 0)
-                                  );
-                                }
-                                return msum + (s.amount || 0);
-                              }, 0);
-                            return sum + monthSum;
-                          }, 0)
-                        )}
-                      </td>
-                    </tr>
+                          <td className="p-3 text-center bg-slate-100/60 border-r font-mono font-black">
+                            $
+                            {formatCurrency(
+                              months.reduce((msum, _, i) => {
+                                if (getMonthStatus(i + 1) === 'FUTURE') return msum;
+                                return msum + subcategories
+                                  .filter(
+                                    (s) =>
+                                      s.categoryId === category.id && s.month === i + 1
+                                  )
+                                  .reduce((tsum, s) => {
+                                    return tsum + (s.transactions?.reduce((innerSum, t) => innerSum + getAmount(t.amount), 0) || 0);
+                                  }, 0);
+                              }, 0)
+                            )}
+                          </td>
+                          <td className="p-3 text-center bg-primary/10 font-mono text-primary font-black">
+                            $
+                            {formatCurrency(
+                              months.reduce((msum, _, i) => {
+                                const status = getMonthStatus(i + 1);
+                                const monthSum = subcategories
+                                  .filter((s) => s.categoryId === category.id && s.month === i + 1)
+                                  .reduce((tsum, s) => {
+                                    if (status !== 'FUTURE') {
+                                      return tsum + (s.transactions?.reduce((innerSum, t) => innerSum + getAmount(t.amount), 0) || 0);
+                                    }
+                                    return tsum + (s.amount || 0);
+                                  }, 0);
+                                return msum + monthSum;
+                              }, 0)
+                            )}
+                          </td>
+                        </tr>
                   </React.Fragment>
                 );
               })}
@@ -649,7 +672,7 @@ export function YearlyTable({
             <tfoot>
               {/* SPACER GAP */}
               <tr className="h-2 bg-gray-200">
-                <td colSpan={14} className="border-y border-secondary/20" />
+                <td colSpan={15} className="border-y border-secondary/20" />
               </tr>
 
               {/* NEW SETTLEMENT GRID ROWS */}
@@ -718,7 +741,26 @@ export function YearlyTable({
                     );
                   })}
                   <td
-                    className="p-3 text-center font-mono font-black border-l"
+                    className="p-3 text-center font-mono font-black border-l bg-slate-50 border-r"
+                    style={{
+                      color: row.color
+                    }}
+                  >
+                    $
+                    {formatCurrency(
+                      months.reduce(
+                        (acc, _, i) => {
+                          if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                          return acc + calculateMonthlySettlement(i + 1)[
+                            row.key as keyof ReturnType<typeof calculateMonthlySettlement>
+                          ];
+                        },
+                        0
+                      )
+                    )}
+                  </td>
+                  <td
+                    className="p-3 text-center font-mono font-black"
                     style={{
                       backgroundColor: `${row.color}15`,
                       color: row.color
@@ -741,7 +783,7 @@ export function YearlyTable({
                 </tr>
               ))}
               <tr className="h-2 bg-gray-200">
-                <td colSpan={14} className="border-y border-secondary/20" />
+                <td colSpan={15} className="border-y border-secondary/20" />
               </tr>
 
               {/* NET CASH FLOW ROW */}
@@ -769,6 +811,18 @@ export function YearlyTable({
                     </td>
                   );
                 })}
+                <td className="p-4 text-center bg-slate-800 font-mono text-sm border-r">
+                   $
+                   {formatCurrency(
+                     months.reduce(
+                       (acc, _, i) => {
+                         if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                         return acc + calculateMonthlySettlement(i + 1).finalBalance;
+                       },
+                       0
+                     )
+                   )}
+                </td>
                 <td className="p-4 text-center bg-slate-800 font-mono text-sm">
                   $
                   {formatCurrency(
@@ -810,17 +864,35 @@ export function YearlyTable({
                     </td>
                   );
                 })}
+                <td className="p-3 text-center bg-emerald-800 font-mono text-xs border-r">
+                  {(() => {
+                    const monthsData = months.filter((_, i) => getMonthStatus(i + 1) !== 'FUTURE').map((_, i) =>
+                      calculateMonthlySettlement(i + 1)
+                    );
+                    const totalIncome = monthsData.reduce(
+                      (msum, d) => msum + d.totalEffort,
+                      0
+                    );
+                    const totalSaved = monthsData.reduce(
+                      (msum, d) => msum + d.finalBalance + d.investments,
+                      0
+                    );
+                    const avgPercentage =
+                      totalIncome > 0 ? (totalSaved / totalIncome) * 100 : 0;
+                    return `${avgPercentage.toFixed(1)}%`;
+                  })()}
+                </td>
                 <td className="p-3 text-center bg-emerald-700 font-mono text-xs">
                   {(() => {
                     const monthsData = months.map((_, i) =>
                       calculateMonthlySettlement(i + 1)
                     );
                     const totalIncome = monthsData.reduce(
-                      (sum, d) => sum + d.totalEffort,
+                      (msum, d) => msum + d.totalEffort,
                       0
                     );
                     const totalSaved = monthsData.reduce(
-                      (sum, d) => sum + d.finalBalance + d.investments,
+                      (msum, d) => msum + d.finalBalance + d.investments,
                       0
                     );
                     const avgPercentage =
