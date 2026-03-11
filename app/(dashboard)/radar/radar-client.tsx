@@ -411,7 +411,7 @@ export default function RadarClient({
                                   : `${daysLeft} DAYS AWAY`}
                             </span>
                             <div
-                              className="text-[10px] font-black tracking-tighter px-1.5 py-0.5 rounded-sm"
+                              className="text-[10px] font-black tracking-tighter px-1.5 py-0.5"
                               style={{
                                 backgroundColor:
                                   RESPONSIBILITY_CONFIG[c.responsibility].bg,
@@ -521,7 +521,7 @@ export default function RadarClient({
                           ? `Alert -${c.daysBeforeAlert}d`
                           : 'No Alert'}
                         <span
-                          className="text-[9px] font-black px-1.5 py-0.5 rounded-sm uppercase tracking-tighter"
+                          className="text-[9px] font-black px-1.5 py-0.5 uppercase tracking-tighter"
                           style={{
                             backgroundColor:
                               RESPONSIBILITY_CONFIG[c.responsibility].bg,
