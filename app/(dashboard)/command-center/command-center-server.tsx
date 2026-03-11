@@ -4,13 +4,15 @@ import { User, Household } from '@prisma/client';
 import CommandCenterClient from './command-center-client';
 
 export default async function CommandCenterServer({
-  user
+  user,
+  year
 }: {
   user: User & { household?: (Household & { users: User[] }) | null };
+  year: number;
 }) {
   const householdId = user.householdId;
   if (!householdId) return null;
-  const subcategories = await getSubcategories(householdId);
+  const subcategories = await getSubcategories(householdId, year);
 
   const reminders = await getReminders(householdId);
   const householdUsers = (user.household?.users || []) as User[];
@@ -22,6 +24,7 @@ export default async function CommandCenterServer({
       reminders={reminders}
       householdUsers={householdUsers}
       householdId={householdId}
+      year={year}
     />
   );
 }

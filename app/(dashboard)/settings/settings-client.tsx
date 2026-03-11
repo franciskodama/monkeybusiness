@@ -32,6 +32,7 @@ interface SettingsClientProps {
   subcategories: SubcategoryWithCategory[];
   automationCoverage: number;
   householdId: string;
+  year: number;
 }
 
 export default function SettingsClient({
@@ -39,7 +40,8 @@ export default function SettingsClient({
   rules,
   subcategories,
   automationCoverage,
-  householdId
+  householdId,
+  year
 }: SettingsClientProps) {
   const [openAction, setOpenAction] = useState(false);
 
@@ -178,6 +180,7 @@ export default function SettingsClient({
                   <BackupRestore
                     householdId={householdId}
                     currentSubcategories={subcategories}
+                    year={year}
                   />
                 </div>
               </div>

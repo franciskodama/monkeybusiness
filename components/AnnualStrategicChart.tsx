@@ -16,10 +16,12 @@ import { SubcategoryWithCategory } from '@/lib/types';
 
 interface AnnualStrategicChartProps {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }
 
 export function AnnualStrategicChart({
-  subcategories
+  subcategories,
+  year
 }: AnnualStrategicChartProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -28,8 +30,12 @@ export function AnnualStrategicChart({
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
 
   // Process data for 12 months
   const chartData = months.map((monthName, index) => {

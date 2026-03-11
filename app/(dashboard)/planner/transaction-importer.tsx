@@ -26,7 +26,8 @@ export function TransactionImporter({
   subcategoriesForCurrentMonth,
   setReviewDataAction,
   person1Name = 'Partner 1',
-  person2Name = 'Partner 2'
+  person2Name = 'Partner 2',
+  year
 }: {
   householdId: string;
   subcategoriesForCurrentMonth: SubcategoryWithCategory[];
@@ -35,6 +36,7 @@ export function TransactionImporter({
   >;
   person1Name?: string;
   person2Name?: string;
+  year: number;
 }) {
   const [source, setSource] = useState('');
   const [file, setFile] = useState<File | null>(null);
@@ -61,7 +63,8 @@ export function TransactionImporter({
         // Send to AI
         const result = await processStatementWithAI(
           base64,
-          householdId
+          householdId,
+          year
         );
 
         if (result.success && result.transactions) {

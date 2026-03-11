@@ -25,10 +25,12 @@ import { ColorEnum } from '@prisma/client';
 
 interface SubcategoryTrendChartProps {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }
 
 export function SubcategoryTrendChart({
-  subcategories
+  subcategories,
+  year
 }: SubcategoryTrendChartProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -54,9 +56,13 @@ export function SubcategoryTrendChart({
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  const currentYear = 2026;
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
+  const currentYear = year;
 
   // 2. Filter subcategories for the selected category
   const filteredSubcategories = subcategories.filter(

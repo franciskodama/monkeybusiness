@@ -397,7 +397,7 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col gap-1">
-          <p>Monkey Business - 2026</p>
+          <p>Monkey Business - {new Date().getFullYear()}</p>
           <p>© All rights reserved.</p>
         </div>
       </div>

@@ -6,7 +6,12 @@ import { auth } from '@/lib/auth';
 import { getUser } from '@/lib/actions/auth';
 import { getSubcategories } from '@/lib/actions/budget';
 
-export default async function AnalyticsPage() {
+export default async function AnalyticsPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+  const currentYear = new Date().getFullYear();
+  const year = parseInt(searchParams.year?.toString() || currentYear.toString(), 10);
   const session = await auth();
 
   if (!session || !session.user) {
@@ -20,7 +25,7 @@ export default async function AnalyticsPage() {
   }
 
   const householdId = dbUser.householdId!;
-  const subcategories = await getSubcategories(householdId);
+  const subcategories = await getSubcategories(householdId, year);
 
-  return <AnalyticsClient subcategories={subcategories} />;
+  return <AnalyticsClient subcategories={subcategories} year={year} />;
 }

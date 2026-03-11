@@ -35,7 +35,8 @@ export function AddSubcategory({
   currentCategories,
   setCurrentSubcategoriesAction,
   defaultCategoryId,
-  selectedMonth
+  selectedMonth,
+  year
 }: {
   householdId: string;
   currentCategories: Category[];
@@ -44,6 +45,7 @@ export function AddSubcategory({
   >;
   defaultCategoryId?: string;
   selectedMonth: number;
+  year: number;
 }) {
   const [open, setOpen] = useState(false);
   const [formErrors, setFormErrors] = useState<FormErrors>({});
@@ -93,7 +95,7 @@ export function AddSubcategory({
       categoryId,
       amount,
       month: selectedMonth,
-      year: 2026,
+      year: year,
       applyToFuture: applyToFuture
     });
 
@@ -104,8 +106,8 @@ export function AddSubcategory({
 
       toast.success(`${name} added to ${categoryName}! 🎉`, {
         description: applyToFuture
-          ? `Created from ${startMonthName} to December 2026.`
-          : `Created for ${startMonthName} 2026.`
+          ? `Created from ${startMonthName} to December ${year}.`
+          : `Created for ${startMonthName} ${year}.`
       });
     }
 
@@ -195,7 +197,7 @@ export function AddSubcategory({
                   htmlFor="future"
                   className="text-xs font-bold uppercase cursor-pointer select-none"
                 >
-                  Repeat for 2026
+                  Repeat for {year}
                 </label>
                 <p className="text-sm">Apply to all remaining months.</p>
               </div>

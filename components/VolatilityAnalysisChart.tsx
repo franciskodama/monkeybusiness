@@ -17,10 +17,12 @@ import { TransactionInput, SubcategoryWithCategory } from '@/lib/types';
 
 interface VolatilityAnalysisChartProps {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }
 
 export function VolatilityAnalysisChart({
-  subcategories
+  subcategories,
+  year
 }: VolatilityAnalysisChartProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -30,11 +32,7 @@ export function VolatilityAnalysisChart({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // 1. Identify years and the latest year with data
-  const years = Array.from(new Set(subcategories.map((s) => s.year))).sort(
-    (a, b) => b - a
-  );
-  const targetYear = years[0] || 2026;
+  const targetYear = year;
 
   // 2. Group data by Subcategory
   const subcategoryDataMap: Record<

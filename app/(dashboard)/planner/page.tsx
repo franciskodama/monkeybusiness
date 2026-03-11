@@ -9,7 +9,12 @@ import { getUser } from '@/lib/actions/auth';
 import Planner from './planner';
 import { Spinner } from '@/lib/icons';
 
-export default async function PlannerPage() {
+export default async function PlannerPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+  const currentYear = new Date().getFullYear();
+  const year = parseInt(searchParams.year?.toString() || currentYear.toString(), 10);
   const session = await auth();
   const user = await getUser(session?.user?.email ?? '');
   const householdId = user?.householdId;
@@ -19,7 +24,7 @@ export default async function PlannerPage() {
   }
 
   const categories = await getCategories(householdId);
-  const subcategories = await getSubcategories(householdId);
+  const subcategories = await getSubcategories(householdId, year);
 
   // Fetch currency data (BRL to CAD)
   const currencyData = await getCurrenciesFromApi();
@@ -51,6 +56,7 @@ export default async function PlannerPage() {
           brlRate={brlRate}
           person1Name={p1Name}
           person2Name={p2Name}
+          year={year}
         />
       ) : (
         <Spinner />

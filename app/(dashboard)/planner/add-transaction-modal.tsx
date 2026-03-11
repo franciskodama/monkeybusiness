@@ -37,7 +37,8 @@ export function AddTransactionModal({
   isIncome = false,
   person1Name = 'Partner 1',
   person2Name = 'Partner 2',
-  onSuccess
+  onSuccess,
+  year
 }: {
   subcategoryId: string;
   householdId: string;
@@ -48,6 +49,7 @@ export function AddTransactionModal({
   person1Name?: string;
   person2Name?: string;
   onSuccess: (updatedItems: SubcategoryWithCategory[]) => void;
+  year: number;
 }) {
   const [open, setOpen] = useState(false);
   const [amount, setAmount] = useState('');
@@ -58,9 +60,9 @@ export function AddTransactionModal({
   const today = new Date();
   const currentMonth = today.getMonth() + 1;
   const initialDate =
-    selectedMonth === currentMonth
+    selectedMonth === currentMonth && year === today.getFullYear()
       ? today.toISOString().split('T')[0]
-      : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
+      : `${year}-${selectedMonth.toString().padStart(2, '0')}-01`;
 
   const [date, setDate] = useState(initialDate);
 
@@ -69,9 +71,9 @@ export function AddTransactionModal({
     if (newOpen) {
       const today = new Date();
       const initialDate =
-        selectedMonth === today.getMonth() + 1
+        selectedMonth === today.getMonth() + 1 && year === today.getFullYear()
           ? today.toISOString().split('T')[0]
-          : `2026-${selectedMonth.toString().padStart(2, '0')}-01`;
+          : `${year}-${selectedMonth.toString().padStart(2, '0')}-01`;
       setDate(initialDate);
       setDescription(itemName);
     }

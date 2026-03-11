@@ -25,10 +25,12 @@ import { SubcategoryWithCategory } from '@/lib/types';
 
 interface AnalyticsClientProps {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }
 
 export default function AnalyticsClient({
-  subcategories
+  subcategories,
+  year
 }: AnalyticsClientProps) {
   const [openAction, setOpenAction] = React.useState(false);
 
@@ -71,6 +73,7 @@ export default function AnalyticsClient({
               <CategoryShareChart
                 subcategories={subcategories}
                 showList={true}
+                year={year}
               />
             </div>
             <div className="mt-8 pt-8 border-t border-slate-50">
@@ -108,7 +111,7 @@ export default function AnalyticsClient({
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
               <div className="h-[350px]">
-                <VolatilityAnalysisChart subcategories={subcategories} />
+                <VolatilityAnalysisChart subcategories={subcategories} year={year} />
               </div>
               <div className="space-y-8">
                 <div className="p-6 border-2 border-slate-800 bg-slate-800/20">
@@ -183,7 +186,7 @@ export default function AnalyticsClient({
               </div>
             </div>
             <div className="h-[350px]">
-              <AnnualStrategicChart subcategories={subcategories} />
+              <AnnualStrategicChart subcategories={subcategories} year={year} />
             </div>
           </div>
         </div>
@@ -205,7 +208,7 @@ export default function AnalyticsClient({
           </div>
         </div>
         <div className="h-[450px]">
-          <CategoryTrendChart subcategories={subcategories} />
+          <CategoryTrendChart subcategories={subcategories} year={year} />
         </div>
       </div>
 
@@ -225,7 +228,7 @@ export default function AnalyticsClient({
           </div>
         </div>
         <div>
-          <SubcategoryTrendChart subcategories={subcategories} />
+          <SubcategoryTrendChart subcategories={subcategories} year={year} />
         </div>
       </div>
 

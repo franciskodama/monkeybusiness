@@ -7,10 +7,12 @@ import { SubcategoryWithCategory } from '@/lib/types';
 
 export function CategoryShareChart({
   subcategories,
-  showList = false
+  showList = false,
+  year
 }: {
   subcategories: SubcategoryWithCategory[];
   showList?: boolean;
+  year: number;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -19,8 +21,13 @@ export function CategoryShareChart({
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = 2026;
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
+  const currentYear = year;
 
   // 1. Group transactions by category (EXCLUDING income and savings categories)
   const categoryTotals: Record<string, { amount: number; color: string }> = {};

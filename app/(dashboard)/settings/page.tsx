@@ -5,7 +5,16 @@ import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
 import SettingsClient from './settings-client';
 
-export default async function SettingsPage() {
+export default async function SettingsPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+  const currentYear = new Date().getFullYear();
+  const year = parseInt(
+    searchParams.year?.toString() || currentYear.toString(),
+    10
+  );
+
   const session = await auth();
   const user = await getUser(session?.user?.email || '');
 
@@ -17,7 +26,7 @@ export default async function SettingsPage() {
 
   const [rules, subcategories] = await Promise.all([
     getTransactionRules(householdId),
-    getSubcategories(householdId)
+    getSubcategories(householdId, year)
   ]);
 
   const automationCoverage =
@@ -36,6 +45,7 @@ export default async function SettingsPage() {
       subcategories={subcategories}
       automationCoverage={automationCoverage}
       householdId={householdId}
+      year={year}
     />
   );
 }

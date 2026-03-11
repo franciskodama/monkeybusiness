@@ -10,10 +10,12 @@ import { SubcategoryWithCategory, BudgetTemplateCategory } from '@/lib/types';
 
 export function BackupRestore({
   householdId,
-  currentSubcategories
+  currentSubcategories,
+  year
 }: {
   householdId: string;
   currentSubcategories: SubcategoryWithCategory[];
+  year: number;
 }) {
   const [isRestoring, setIsRestoring] = useState(false);
   const [isExportingFull, setIsExportingFull] = useState(false);
@@ -107,10 +109,10 @@ export function BackupRestore({
         const template = JSON.parse(content);
 
         // This calls the upsert/createMany logic we fixed
-        const res = await seedHouseholdBudget(householdId, template);
+        const res = await seedHouseholdBudget(householdId, template, year);
 
         if (res.success) {
-          toast.success('Budget structure successfully restored for 2026!');
+          toast.success(`Budget structure successfully restored for ${year}!`);
           setTimeout(() => window.location.reload(), 1500);
         } else {
           toast.error('Database error during restoration.');
@@ -167,7 +169,7 @@ export function BackupRestore({
             </h4>
             <p className="text-sm text-emerald-700/70 lowercase">
               <span className="uppercase">U</span>pload your config backup to
-              rebuild all 12 months for 2026.
+              rebuild all 12 months for {year}.
             </p>
           </div>
         </div>
