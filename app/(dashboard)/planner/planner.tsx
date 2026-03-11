@@ -172,13 +172,13 @@ export default function Planner({
   const stats = allTransactions.reduce(
     (acc, tx) => {
       const amount = getAmount(tx.amount);
-      // Current Effort = All transactions from His & Her (Contribution Model)
+      // Current Effort = All transactions from PERSON1 & PERSON2 (Contribution Model)
       const s = tx.source?.toUpperCase();
-      if (s === 'PERSON1' || s === 'HIS') {
+      if (s === 'PERSON1') {
         acc.p1Actual += amount;
         acc.actualContribution += amount;
       }
-      if (s === 'PERSON2' || s === 'HER') {
+      if (s === 'PERSON2') {
         acc.p2Actual += amount;
         acc.actualContribution += amount;
       }
@@ -199,31 +199,29 @@ export default function Planner({
   );
 
   // Targets (Planned Values) - Categorizing by both Subcategory and Parent Category name
-  const isHisIdentifier = (sub: SubcategoryWithCategory) => {
+  const isP1Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
     if (
-      nameStr.includes('HIS') ||
       nameStr.includes('PERSON1') ||
       nameStr.includes(p1Name.toUpperCase())
     )
       return true;
-    // Fallback: check if the actual transactions already arrived are from 'His'
+    // Fallback: check if the actual transactions already arrived are from 'PERSON1'
     return sub.transactions?.some(
-      (tx) => tx.source === 'PERSON1' || tx.source === 'His'
+      (tx) => tx.source === 'PERSON1'
     );
   };
 
-  const isHerIdentifier = (sub: SubcategoryWithCategory) => {
+  const isP2Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
     if (
-      nameStr.includes('HER') ||
       nameStr.includes('PERSON2') ||
       nameStr.includes(p2Name.toUpperCase())
     )
       return true;
-    // Fallback: check if the actual transactions already arrived are from 'Her'
+    // Fallback: check if the actual transactions already arrived are from 'PERSON2'
     return sub.transactions?.some(
-      (tx) => tx.source === 'PERSON2' || tx.source === 'Her'
+      (tx) => tx.source === 'PERSON2'
     );
   };
 
@@ -233,11 +231,11 @@ export default function Planner({
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const p1PlannedIncome = currentMonthSubs
-    .filter((sub) => sub.category.isIncome && isHisIdentifier(sub))
+    .filter((sub) => sub.category.isIncome && isP1Identifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const p2PlannedIncome = currentMonthSubs
-    .filter((sub) => sub.category.isIncome && isHerIdentifier(sub))
+    .filter((sub) => sub.category.isIncome && isP2Identifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
   const totalPlannedExpenses = currentMonthSubs

@@ -253,10 +253,10 @@ export function YearlyTable({
 
           // Individual actuals (Person 1 vs Person 2)
           const person1 = (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           const person2 = (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
 
           reality.p1Actual += person1;
@@ -317,30 +317,30 @@ export function YearlyTable({
         credits += amount;
         if (status !== 'FUTURE') {
           p1Effort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           p2Effort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else if (isSavings) {
         investments += amount;
         if (status !== 'FUTURE') {
           p1Effort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           p2Effort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       } else {
         livingExpenses += amount;
         if (status !== 'FUTURE') {
           p1Effort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON1' || tx.source === 'His')
+            .filter((tx) => tx.source === 'PERSON1')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
           p2Effort += (sub.transactions || [])
-            .filter((tx) => tx.source === 'PERSON2' || tx.source === 'Her')
+            .filter((tx) => tx.source === 'PERSON2')
             .reduce((sum: number, tx) => sum + getAmount(tx.amount), 0);
         }
       }
@@ -1306,9 +1306,9 @@ export function YearlyTable({
                     </span>
                     <div className="flex items-center gap-2">
                       <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
-                        {tx.source === 'PERSON1' || tx.source === 'His'
+                        {tx.source === 'PERSON1'
                           ? person1Name
-                          : tx.source === 'PERSON2' || tx.source === 'Her'
+                          : tx.source === 'PERSON2'
                             ? person2Name
                             : tx.source}
                       </span>

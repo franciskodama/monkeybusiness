@@ -93,8 +93,6 @@ export function MonthSettlement({
 
   transactions.forEach((tx) => {
     let s = tx.source?.toUpperCase();
-    if (s === 'HIS') s = 'PERSON1';
-    if (s === 'HER') s = 'PERSON2';
 
     if (s && data[s]) {
       if (tx.isIncome) {
