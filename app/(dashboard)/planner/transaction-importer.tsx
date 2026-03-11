@@ -61,8 +61,7 @@ export function TransactionImporter({
         // Send to AI
         const result = await processStatementWithAI(
           base64,
-          householdId,
-          subcategoriesForCurrentMonth
+          householdId
         );
 
         if (result.success && result.transactions) {
