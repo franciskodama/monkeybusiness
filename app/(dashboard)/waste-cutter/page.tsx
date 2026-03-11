@@ -6,7 +6,12 @@ import { getUser } from '@/lib/actions/auth';
 import { Spinner } from '@/lib/icons';
 import WasteCutter from './waste-cutter';
 
-export default async function WasteCutterPage() {
+export default async function WasteCutterPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+  const currentYear = new Date().getFullYear();
+  const year = parseInt(searchParams.year?.toString() || currentYear.toString(), 10);
   const session = await auth();
 
   if (!session || !session.user) {
@@ -21,7 +26,7 @@ export default async function WasteCutterPage() {
 
   return (
     <>
-      <div>{dbUser ? <WasteCutter user={dbUser} /> : <Spinner />} </div>
+      <div>{dbUser ? <WasteCutter user={dbUser} year={year} /> : <Spinner />} </div>
     </>
   );
 }

@@ -109,12 +109,13 @@ export async function reorderCategories(orderedIds: string[]) {
   }
 }
 
-export const getSubcategories = async (householdId: string) => {
+export const getSubcategories = async (householdId: string, year?: number) => {
+  const targetYear = year || new Date().getFullYear();
   try {
     const subcategories = await prisma.subcategory.findMany({
       where: {
         householdId,
-        year: 2026
+        year: targetYear
       },
       include: {
         category: true,
@@ -327,9 +328,11 @@ export async function deleteSubcategory(
 
 export async function seedHouseholdBudget(
   householdId: string,
-  template: BudgetTemplateCategory[]
+  template: BudgetTemplateCategory[],
+  year?: number
 ) {
   try {
+    const targetYear = year || new Date().getFullYear();
     for (const cat of template) {
       const category = await prisma.category.upsert({
         where: {
@@ -361,7 +364,7 @@ export async function seedHouseholdBudget(
           name: sub.name,
           amount: sub.amount,
           month: i + 1,
-          year: 2026,
+          year: targetYear,
           categoryId: category.id,
           householdId
         }));

@@ -9,12 +9,14 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
 export async function matchTransactionsWithRules(
   txList: TransactionInput[],
-  householdId: string
+  householdId: string,
+  year?: number
 ) {
+  const targetYear = year || new Date().getFullYear();
   const [savedRules, allSubcategories] = await Promise.all([
     getTransactionRules(householdId),
     prisma.subcategory.findMany({
-      where: { householdId, year: 2026 },
+      where: { householdId, year: targetYear },
       include: { category: true }
     })
   ]);
@@ -70,13 +72,15 @@ export async function matchTransactionsWithRules(
 
 export async function processStatementWithAI(
   base64File: string,
-  householdId: string
+  householdId: string,
+  year?: number
 ) {
+  const targetYear = year || new Date().getFullYear();
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
 
     const allSubcategories = await prisma.subcategory.findMany({
-      where: { householdId, year: 2026 }
+      where: { householdId, year: targetYear }
     });
 
     const uniqueNames = Array.from(
@@ -124,7 +128,8 @@ export async function processStatementWithAI(
 
     const processedTransactions = await matchTransactionsWithRules(
       aiTransactions,
-      householdId
+      householdId,
+      targetYear
     );
 
     return {

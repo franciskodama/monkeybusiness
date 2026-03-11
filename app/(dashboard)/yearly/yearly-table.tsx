@@ -40,13 +40,15 @@ interface YearlyTableProps {
   initialSubcategories: SubcategoryWithCategory[];
   person1Name?: string;
   person2Name?: string;
+  year: number;
 }
 
 export function YearlyTable({
   categories,
   initialSubcategories,
   person1Name = 'Partner 1',
-  person2Name = 'Partner 2'
+  person2Name = 'Partner 2',
+  year
 }: YearlyTableProps) {
   const [openAction, setOpenAction] = useState(false);
   const [subcategories] =
@@ -100,7 +102,7 @@ export function YearlyTable({
       });
 
       pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
-      pdf.save(`family-audit-2026.pdf`);
+      pdf.save(`family-audit-${year}.pdf`);
     } catch (err) {
       console.error('Export failed:', err);
     } finally {
@@ -177,7 +179,7 @@ export function YearlyTable({
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
-  const currentYear = 2026; // Hardcoded to match the project's current scope
+  const currentYear = year;
 
   const getAmount = (amount: number | string | null | undefined): number => {
     if (amount === null || amount === undefined) return 0;
@@ -1124,7 +1126,7 @@ export function YearlyTable({
                       Annual Settlement
                     </span>
                     <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
-                      2026
+                      {currentYear}
                     </h2>
                   </div>
 
@@ -1360,7 +1362,7 @@ export function YearlyTable({
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
               <span className="text-sm font-mono opacity-50 leading-none">
-                {selectedDetails ? months[selectedDetails.month - 1] : ''} 2026
+                {selectedDetails ? months[selectedDetails.month - 1] : ''} {currentYear}
               </span>
             </DialogTitle>
           </DialogHeader>

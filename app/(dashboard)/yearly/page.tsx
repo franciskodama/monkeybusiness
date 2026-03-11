@@ -3,13 +3,18 @@ import { getCategories, getSubcategories } from '@/lib/actions/budget';
 import { auth } from '@/lib/auth';
 import { YearlyTable } from './yearly-table';
 
-export default async function YearlyPage() {
+export default async function YearlyPage(props: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const searchParams = await props.searchParams;
+  const currentYear = new Date().getFullYear();
+  const year = parseInt(searchParams.year?.toString() || currentYear.toString(), 10);
   const session = await auth();
   const user = await getUser(session?.user?.email || '');
   const householdId = user?.householdId || '';
 
   const categories = await getCategories(householdId);
-  const allSubcategories = await getSubcategories(householdId);
+  const allSubcategories = await getSubcategories(householdId, year);
 
   const householdUsers = user?.household?.users || [];
   const p1Name =
@@ -27,6 +32,7 @@ export default async function YearlyPage() {
       initialSubcategories={allSubcategories || []}
       person1Name={p1Name}
       person2Name={p2Name}
+      year={year}
     />
   );
 }

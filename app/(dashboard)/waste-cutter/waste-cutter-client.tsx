@@ -19,18 +19,24 @@ interface WasteCutterClientProps {
   user: User;
   subcategories: SubcategoryWithCategory[];
   householdId: string;
+  year: number;
 }
 
 export default function WasteCutterClient({
-  subcategories
+  subcategories,
+  year
 }: WasteCutterClientProps) {
   const [showCreepInfo, setShowCreepInfo] = React.useState(false);
   const [showFatInfo, setShowFatInfo] = React.useState(false);
   const [showProtocolInfo, setShowProtocolInfo] = React.useState(false);
   const [showOptimizationInfo, setShowOptimizationInfo] = React.useState(false);
 
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
 
   // --- COMPUTE TOP 10 VILLAIN RANKINGS ---
 
@@ -169,7 +175,7 @@ export default function WasteCutterClient({
               Waste Cutter
             </h1>
             <p className="text-slate-500 text-[10px] font-bold uppercase tracking-[0.2em] mt-3">
-              Optimization Lab / Expense Audit / 2026 Strategy
+              Optimization Lab / Expense Audit / {year} Strategy
             </p>
           </div>
         </div>
@@ -374,7 +380,7 @@ export default function WasteCutterClient({
 
             {/* FORECAST */}
             <RankingsList
-              title="2026 Forecast"
+              title={`${year} Forecast`}
               subtitle="Budgeted Weight"
               items={top10Forecast}
               valueKey="fullYearForecast"
@@ -416,7 +422,7 @@ export default function WasteCutterClient({
                   <div className="p-6 bg-emerald-50 border-2 border-emerald-100 text-emerald-900 shadow-sm leading-relaxed">
                     <p className="text-sm font-bold">
                       This analysis projects your YTD actuals to a full 12-month
-                      period and compares it to your 2026 Forecast.
+                      period and compares it to your {year} Forecast.
                     </p>
                     <p className="text-sm font-semibold mt-2">
                       Actionable Insight: This is a list of the top 10

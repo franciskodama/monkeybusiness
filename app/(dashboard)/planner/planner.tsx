@@ -54,7 +54,8 @@ export default function Planner({
   subcategories,
   brlRate,
   person1Name,
-  person2Name
+  person2Name,
+  year
 }: {
   householdId: string;
   categories: Category[];
@@ -62,6 +63,7 @@ export default function Planner({
   brlRate: number;
   person1Name?: string | null;
   person2Name?: string | null;
+  year: number;
 }) {
   const p1Name = person1Name || 'Partner 1';
   const p2Name = person2Name || 'Partner 2';
@@ -72,6 +74,7 @@ export default function Planner({
   const [currentCategories, setCurrentCategoriesAction] =
     useState<Category[]>(categories);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const currentYear = year;
   const [reviewData, setReviewData] = useState<
     (TransactionInput & { ignored?: boolean })[] | null
   >(null);
@@ -355,6 +358,7 @@ export default function Planner({
                 setReviewDataAction={setReviewData}
                 person1Name={p1Name}
                 person2Name={p2Name}
+                year={currentYear}
               />
               <DirectCodeImporter
                 householdId={householdId}
@@ -740,7 +744,7 @@ export default function Planner({
                           <EditableSubcategoryName
                             initialName={item.name}
                             householdId={householdId}
-                            year={2026}
+                            year={currentYear}
                             categoryId={item.categoryId}
                             onUpdateSuccess={(newName) =>
                               handleRenameSubcategory(item.name, newName)
@@ -840,6 +844,7 @@ export default function Planner({
                                 onSuccess={(updatedItems) =>
                                   setCurrentSubcategoriesAction(updatedItems)
                                 }
+                                year={currentYear}
                               />
                               {/* Delete Action */}
                               <AlertDialog>
@@ -918,6 +923,7 @@ export default function Planner({
                       }
                       defaultCategoryId={category.id}
                       selectedMonth={selectedMonth}
+                      year={currentYear}
                     />
                   </div>
                 </div>
@@ -971,7 +977,7 @@ export default function Planner({
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
               <span className="text-sm font-mono leading-none bg-accent text-primary py-2 px-4">
-                {selectedDetails ? months[selectedDetails.month - 1] : ''} 2026
+                {selectedDetails ? months[selectedDetails.month - 1] : ''} {currentYear}
               </span>
             </DialogTitle>
           </DialogHeader>

@@ -16,9 +16,13 @@ import { SubcategoryWithCategory } from '@/lib/types';
 
 interface CategoryTrendChartProps {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }
 
-export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
+export function CategoryTrendChart({ 
+  subcategories,
+  year 
+}: CategoryTrendChartProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -26,9 +30,13 @@ export function CategoryTrendChart({ subcategories }: CategoryTrendChartProps) {
     return () => cancelAnimationFrame(frameId);
   }, []);
 
-  const currentYear = 2026;
-  const now = new Date();
-  const currentMonth = now.getMonth() + 1;
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
+  const currentYear = year;
 
   // 1. Identify all unique expense/savings categories
   const categoriesMap = new Map<string, string>();

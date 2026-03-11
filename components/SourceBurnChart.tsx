@@ -17,11 +17,13 @@ import { TransactionInput, SubcategoryWithCategory } from '@/lib/types';
 export function SourceBurnChart({
   subcategories,
   person1Name = 'Partner 1',
-  person2Name = 'Partner 2'
+  person2Name = 'Partner 2',
+  year
 }: {
   subcategories: SubcategoryWithCategory[];
   person1Name?: string;
   person2Name?: string;
+  year: number;
 }) {
   const [mounted, setMounted] = useState(false);
 
@@ -31,8 +33,13 @@ export function SourceBurnChart({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  const currentMonth = new Date().getMonth() + 1;
-  const currentYear = new Date().getFullYear();
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
+  const currentYear = year;
 
   // 1. Extract transactions for the YEAR-TO-DATE (EXCLUDING income categories)
   const transactions = subcategories

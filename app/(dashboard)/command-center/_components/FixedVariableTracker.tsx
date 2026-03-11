@@ -5,9 +5,11 @@ import { formatCurrencyRounded } from '@/lib/utils';
 import { SubcategoryWithCategory } from '@/lib/types';
 
 export function FixedVariableTracker({
-  subcategories
+  subcategories,
+  year
 }: {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }) {
   // 1. Group items across the FULL YEAR
   const yearItems = subcategories.filter(
@@ -36,7 +38,7 @@ export function FixedVariableTracker({
             {fixedPercent.toFixed(0)}%
           </span>
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
-            Fixed Costs (2026)
+            Fixed Costs ({year})
           </span>
         </div>
       </div>

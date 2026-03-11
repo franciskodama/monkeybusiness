@@ -99,7 +99,7 @@ export function DirectCodeImporter({
             </Select>
           </div>
           <Textarea
-            placeholder='[{"date": "2026-01-27", "description": "Example", "amount": 10.00}]'
+            placeholder='[{"date": "2024-01-27", "description": "Example", "amount": 10.00}]'
             className="font-mono text-[10px] min-h-[250px] bg-slate-950 text-slate-50"
             value={code}
             onChange={(e) => setCode(e.target.value)}

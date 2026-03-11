@@ -5,11 +5,18 @@ import { formatCurrencyRounded } from '@/lib/utils';
 import { SubcategoryWithCategory } from '@/lib/types';
 
 export function OutlierAlerts({
-  subcategories
+  subcategories,
+  year
 }: {
   subcategories: SubcategoryWithCategory[];
+  year: number;
 }) {
-  const currentMonth = new Date().getMonth() + 1;
+  const today = new Date();
+  const currentMonth = year < today.getFullYear() 
+    ? 12 
+    : year > today.getFullYear() 
+      ? 0 
+      : today.getMonth() + 1;
 
   // 1. Calculate Average Spending per Subcategory (excluding current month and INCOME)
   const historicalSubcategories = subcategories.filter(

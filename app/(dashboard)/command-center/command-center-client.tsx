@@ -32,6 +32,7 @@ interface CommandCenterClientProps {
   reminders: Reminder[];
   householdUsers: User[];
   householdId: string;
+  year: number;
 }
 
 export default function CommandCenterClient({
@@ -39,14 +40,19 @@ export default function CommandCenterClient({
   subcategories,
   reminders,
   householdUsers,
-  householdId
+  householdId,
+  year
 }: CommandCenterClientProps) {
   const [openAction, setOpenAction] = useState(false);
   const [showDiagnostics, setShowDiagnostics] = useState(false);
   const [showLogic, setShowLogic] = useState(false);
 
   const now = new Date();
-  const currentMonth = now.getMonth() + 1;
+  const currentMonth = year < now.getFullYear() 
+    ? 12 
+    : year > now.getFullYear() 
+      ? 0 
+      : now.getMonth() + 1;
 
   const p1Name =
     user?.household?.person1Name ||
@@ -226,7 +232,7 @@ export default function CommandCenterClient({
   if (fullYearPlannedExpenses > fullYearPlannedContribution) {
     frictionPoints.push({
       type: 'forecast',
-      message: 'Forecast Risk: Total 2026 Budget is Negative'
+      message: `Forecast Risk: Total ${year} Budget is Negative`
     });
   }
 
@@ -431,7 +437,7 @@ export default function CommandCenterClient({
                                     Protocol 03: Forecast Risk
                                   </span>
                                   <p className="text-xs font-bold text-slate-600">
-                                    2026 Planned Deficit &gt; 0
+                                    {year} Planned Deficit &gt; 0
                                   </p>
                                 </div>
                                 <div className="space-y-1">
@@ -446,7 +452,7 @@ export default function CommandCenterClient({
                             </div>
                             <p className="text-xs text-slate-500 leading-relaxed italic px-4">
                               These protocols ensure real-time technical
-                              compliance with your 2026 Strategic Plan.
+                              compliance with your {year} Strategic Plan.
                             </p>
                           </div>
                         </motion.div>
@@ -494,9 +500,8 @@ export default function CommandCenterClient({
             <p className="text-slate-500 text-xs font-bold uppercase tracking-[0.2em] mt-2">
               Strategic Financial Intelligence /{' '}
               {now.toLocaleString('default', {
-                month: 'long',
-                year: 'numeric'
-              })}
+                month: 'long'
+              })} {year}
             </p>
           </div>
         </div>
@@ -621,11 +626,11 @@ export default function CommandCenterClient({
             </div>
 
             <div className="h-[400px]">
-              <AnnualStrategicChart subcategories={subcategories} />
+              <AnnualStrategicChart subcategories={subcategories} year={year} />
             </div>
 
             <div className="mt-8 pt-8 border-t border-slate-100 flex justify-end items-center italic text-slate-400 text-[10px] font-bold uppercase tracking-widest">
-              Jan 2026 - Dec 2026
+              Jan {year} - Dec {year}
             </div>
           </div>
         </div>
@@ -640,7 +645,7 @@ export default function CommandCenterClient({
 
             <div className="space-y-12">
               <div className="group">
-                <OutlierAlerts subcategories={subcategories} />
+                <OutlierAlerts subcategories={subcategories} year={year} />
               </div>
 
               <div className="pt-8 border-t border-slate-800">
@@ -652,12 +657,13 @@ export default function CommandCenterClient({
                     subcategories={subcategories}
                     person1Name={p1Name}
                     person2Name={p2Name}
+                    year={year}
                   />
                 </div>
               </div>
 
               <div className="pt-8 border-t border-slate-800">
-                <FixedVariableTracker subcategories={subcategories} />
+                <FixedVariableTracker subcategories={subcategories} year={year} />
               </div>
             </div>
           </div>
