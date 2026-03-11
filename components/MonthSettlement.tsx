@@ -108,11 +108,11 @@ export function MonthSettlement({
     }
   });
 
-  const hisTotalContribution =
+  const p1TotalContribution =
     data.PERSON1.livingExpenses + data.PERSON1.investments + data.PERSON1.deposits;
-  const herTotalContribution =
+  const p2TotalContribution =
     data.PERSON2.livingExpenses + data.PERSON2.investments + data.PERSON2.deposits;
-  const grandTotalContribution = hisTotalContribution + herTotalContribution;
+  const grandTotalContribution = p1TotalContribution + p2TotalContribution;
 
   const totalLivingExpenses =
     data.PERSON1.livingExpenses +
@@ -137,14 +137,14 @@ export function MonthSettlement({
 
   const dailyBurn = totalLivingExpenses / 30;
 
-  const hisSplit =
+  const p1Split =
     grandTotalContribution > 0
-      ? (hisTotalContribution / grandTotalContribution) * 100
+      ? (p1TotalContribution / grandTotalContribution) * 100
       : 0;
 
-  const herSplit =
+  const p2Split =
     grandTotalContribution > 0
-      ? (herTotalContribution / grandTotalContribution) * 100
+      ? (p2TotalContribution / grandTotalContribution) * 100
       : 0;
 
   if (transactions.length === 0) return null;
@@ -291,7 +291,7 @@ export function MonthSettlement({
                 <div className="w-full md:col-span-3">
                   <EquationBox
                     title={`${person1Name} Contribution`}
-                    value={hisTotalContribution}
+                    value={p1TotalContribution}
                     color="cyan"
                     onClick={() => onSourceClick?.('PERSON1', data.PERSON1.txs)}
                   />
@@ -303,7 +303,7 @@ export function MonthSettlement({
                 <div className="w-full md:col-span-3">
                   <EquationBox
                     title={`${person2Name} Contribution`}
-                    value={herTotalContribution}
+                    value={p2TotalContribution}
                     color="orange"
                     onClick={() => onSourceClick?.('PERSON2', data.PERSON2.txs)}
                   />
@@ -417,20 +417,20 @@ export function MonthSettlement({
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
                   <span>
-                    {person1Name} {Math.round(hisSplit)}%
+                    {person1Name} {Math.round(p1Split)}%
                   </span>
                   <span>
-                    {person2Name} {Math.round(herSplit)}%
+                    {person2Name} {Math.round(p2Split)}%
                   </span>
                 </div>
                 <div className="h-1.5 w-full bg-slate-800 flex rounded-none overflow-hidden">
                   <div
                     className="h-full bg-cyan-500 transition-all duration-1000"
-                    style={{ width: `${hisSplit}%` }}
+                    style={{ width: `${p1Split}%` }}
                   />
                   <div
                     className="h-full bg-orange-500 transition-all duration-1000"
-                    style={{ width: `${herSplit}%` }}
+                    style={{ width: `${p2Split}%` }}
                   />
                 </div>
               </div>

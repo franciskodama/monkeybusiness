@@ -297,7 +297,11 @@ export async function sendRadarAlertEmail(commitmentId: string) {
             <div style="text-align: center; margin-bottom: 30px;">
               ${avatarSection}
               <p style="font-size: 10px; font-weight: 800; text-transform: uppercase; color: #64748b; margin-top: 10px;">
-                Responsibility: ${commitment.responsibility}
+                Responsibility: ${commitment.responsibility === Responsibility.PERSON1 
+                  ? (commitment.household.person1Name || 'Francis') 
+                  : commitment.responsibility === Responsibility.PERSON2 
+                    ? (commitment.household.person2Name || 'Mariana') 
+                    : 'FAMILY'}
               </p>
             </div>
             <div style="background-color: #f8fafc; border-left: 4px solid #0f172a; padding: 30px; margin-bottom: 30px;">

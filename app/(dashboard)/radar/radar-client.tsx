@@ -276,11 +276,11 @@ export default function RadarClient({
 
                     {/* Interaction Dot */}
                     <div
-                      className={`w-3 h-3 rounded-full border-2 absolute left-[3.85rem] z-20 transition-transform group-hover:scale-150 ${isToday ? 'bg-rose-500 border-rose-200' : dayCommitments.length > 0 ? 'bg-slate-900 border-slate-300' : 'bg-white border-slate-100'}`}
+                      className={`w-3 h-3 rounded-full border-2 absolute left-[2.5rem] z-20 transition-transform group-hover:scale-150 ${isToday ? 'bg-rose-500 border-rose-200' : dayCommitments.length > 0 ? 'bg-slate-900 border-slate-300' : 'bg-white border-slate-100'}`}
                     />
 
                     {/* Commitments on this day */}
-                    <div className="ml-12 flex-1 flex gap-2 overflow-x-auto no-scrollbar py-2">
+                    <div className="ml-16 flex-1 flex gap-2 overflow-x-auto no-scrollbar py-2">
                       {dayCommitments.map((c) => (
                         <motion.div
                           key={c.id}

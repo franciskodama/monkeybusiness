@@ -175,11 +175,11 @@ export default function Planner({
       // Current Effort = All transactions from His & Her (Contribution Model)
       const s = tx.source?.toUpperCase();
       if (s === 'PERSON1' || s === 'HIS') {
-        acc.hisActual += amount;
+        acc.p1Actual += amount;
         acc.actualContribution += amount;
       }
       if (s === 'PERSON2' || s === 'HER') {
-        acc.herActual += amount;
+        acc.p2Actual += amount;
         acc.actualContribution += amount;
       }
 
@@ -191,8 +191,8 @@ export default function Planner({
       return acc;
     },
     {
-      hisActual: 0,
-      herActual: 0,
+      p1Actual: 0,
+      p2Actual: 0,
       actualContribution: 0,
       actualLivingExpenses: 0
     }
@@ -232,11 +232,11 @@ export default function Planner({
     .filter((sub) => sub.category.isIncome)
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
-  const hisPlannedIncome = currentMonthSubs
+  const p1PlannedIncome = currentMonthSubs
     .filter((sub) => sub.category.isIncome && isHisIdentifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
-  const herPlannedIncome = currentMonthSubs
+  const p2PlannedIncome = currentMonthSubs
     .filter((sub) => sub.category.isIncome && isHerIdentifier(sub))
     .reduce((sum, sub) => sum + (sub.amount || 0), 0);
 
@@ -462,14 +462,14 @@ export default function Planner({
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-cyan-50 group-hover:text-cyan-600 group-hover:border-cyan-100 transition-all">
                           {Math.round(
-                            (hisPlannedIncome / (totalPlannedFunding || 1)) *
+                            (p1PlannedIncome / (totalPlannedFunding || 1)) *
                               100
                           )}
                           %
                         </span>
                       </div>
                       <span className="font-mono font-black text-slate-900">
-                        ${formatCurrency(hisPlannedIncome)}
+                        ${formatCurrency(p1PlannedIncome)}
                       </span>
                     </div>
                     <div className="flex justify-between items-center group">
@@ -479,18 +479,18 @@ export default function Planner({
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-all">
                           {Math.round(
-                            (herPlannedIncome / (totalPlannedFunding || 1)) *
+                            (p2PlannedIncome / (totalPlannedFunding || 1)) *
                               100
                           )}
                           %
                         </span>
                       </div>
                       <span className="font-mono font-black text-slate-900">
-                        ${formatCurrency(herPlannedIncome)}
+                        ${formatCurrency(p2PlannedIncome)}
                       </span>
                     </div>
                     {totalPlannedFunding >
-                      hisPlannedIncome + herPlannedIncome && (
+                      p1PlannedIncome + p2PlannedIncome && (
                       <div className="flex justify-between items-center group">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-slate-400 group-hover:text-slate-600 transition-colors italic">
@@ -499,7 +499,7 @@ export default function Planner({
                           <span className="text-[9px] font-mono font-black text-slate-300 bg-slate-50/50 border border-slate-100/50 px-1.5 py-0.5 rounded-sm">
                             {Math.round(
                               ((totalPlannedFunding -
-                                (hisPlannedIncome + herPlannedIncome)) /
+                                (p1PlannedIncome + p2PlannedIncome)) /
                                 (totalPlannedFunding || 1)) *
                                 100
                             )}
@@ -510,7 +510,7 @@ export default function Planner({
                           $
                           {formatCurrency(
                             totalPlannedFunding -
-                              (hisPlannedIncome + herPlannedIncome)
+                              (p1PlannedIncome + p2PlannedIncome)
                           )}
                         </span>
                       </div>
@@ -545,13 +545,13 @@ export default function Planner({
                           </span>
                           <span className="text-[8px] font-mono font-black text-white bg-cyan-500 px-1 py-0.5 rounded-sm">
                             {Math.round(
-                              (stats.hisActual / (displayFunding || 1)) * 100
+                              (stats.p1Actual / (displayFunding || 1)) * 100
                             )}
                             %
                           </span>
                         </div>
                         <span className="font-mono font-black text-emerald-900 text-xs">
-                          ${formatCurrency(stats.hisActual)}
+                          ${formatCurrency(stats.p1Actual)}
                         </span>
                       </div>
                       <div className="flex justify-between items-center">
@@ -562,13 +562,13 @@ export default function Planner({
                           </span>
                           <span className="text-[8px] font-mono font-black text-white bg-orange-500 px-1 py-0.5 rounded-sm">
                             {Math.round(
-                              (stats.herActual / (displayFunding || 1)) * 100
+                              (stats.p2Actual / (displayFunding || 1)) * 100
                             )}
                             %
                           </span>
                         </div>
                         <span className="font-mono font-black text-emerald-900 text-xs">
-                          ${formatCurrency(stats.herActual)}
+                          ${formatCurrency(stats.p2Actual)}
                         </span>
                       </div>
                     </div>
