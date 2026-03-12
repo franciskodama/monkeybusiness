@@ -5,12 +5,24 @@ import * as path from 'path';
 import { encrypt } from './utils/encryption';
 import { uploadToGCS } from './utils/gcs';
 
-const connectionString = process.env.DATABASE_URL!;
-const adapter = new PrismaNeon({ connectionString });
-const prisma = new PrismaClient({ adapter });
+// Prisma initialization moved inside main
 
 async function main() {
   console.log('🚀 Starting system-wide backup (encrypted + cloud)...');
+
+  if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL environment variable is not set.');
+    process.exit(1);
+  }
+
+  if (!process.env.BACKUP_SECRET) {
+    console.error('❌ BACKUP_SECRET environment variable is not set.');
+    process.exit(1);
+  }
+
+  const connectionString = process.env.DATABASE_URL;
+  const adapter = new PrismaNeon({ connectionString });
+  const prisma = new PrismaClient({ adapter });
 
   try {
     const households = await prisma.household.findMany({

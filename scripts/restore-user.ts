@@ -4,11 +4,23 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { decrypt } from './utils/encryption';
 
-const connectionString = process.env.DATABASE_URL!;
-const adapter = new PrismaNeon({ connectionString });
-const prisma = new PrismaClient({ adapter });
+// Prisma initialization moved inside restoreHousehold
 
 async function restoreHousehold(filePath: string, targetHouseholdId: string) {
+  if (!process.env.DATABASE_URL) {
+    console.error('❌ DATABASE_URL environment variable is not set.');
+    return;
+  }
+
+  if (!process.env.BACKUP_SECRET) {
+    console.error('❌ BACKUP_SECRET environment variable is not set.');
+    return;
+  }
+
+  const connectionString = process.env.DATABASE_URL;
+  const adapter = new PrismaNeon({ connectionString });
+  const prisma = new PrismaClient({ adapter });
+
   if (!fs.existsSync(filePath)) {
     console.error(`❌ File not found: ${filePath}`);
     return;
@@ -42,7 +54,18 @@ async function restoreHousehold(filePath: string, targetHouseholdId: string) {
   console.log(`✨ Restoring household: ${household.name} (${household.id})`);
 
   try {
-    // 1. Clean up existing data for this household to avoid conflicts
+    // 1. Update Household details (names, etc.)
+    console.log('📝 Updating household details...');
+    await prisma.household.update({
+      where: { id: targetHouseholdId },
+      data: {
+        name: household.name,
+        person1Name: household.person1Name,
+        person2Name: household.person2Name,
+      },
+    });
+
+    // 2. Clean up existing data for this household to avoid conflicts
     // We do this in a specific order to respect foreign keys
     console.log('🧹 Cleaning old data...');
     
@@ -53,10 +76,7 @@ async function restoreHousehold(filePath: string, targetHouseholdId: string) {
     await prisma.subcategory.deleteMany({ where: { householdId: targetHouseholdId } });
     await prisma.category.deleteMany({ where: { householdId: targetHouseholdId } });
     
-    // We don't delete the household or users generally, just update/reconnect
-    // but the script could be expanded to recreate them if missing.
-
-    // 2. Restore Categories and Subcategories
+    // 3. Restore Categories and Subcategories
     console.log('📂 Restoring categories and subcategories...');
     for (const cat of household.categories) {
       const { subcategories, ...catData } = cat;
@@ -78,7 +98,7 @@ async function restoreHousehold(filePath: string, targetHouseholdId: string) {
       });
     }
 
-    // 3. Restore Transactions
+    // 4. Restore Transactions
     console.log('💸 Restoring transactions...');
     if (household.transactions.length > 0) {
       await prisma.transaction.createMany({
@@ -86,7 +106,7 @@ async function restoreHousehold(filePath: string, targetHouseholdId: string) {
       });
     }
 
-    // 4. Restore Reminders
+    // 5. Restore Reminders
     console.log('🔔 Restoring reminders...');
     if (household.reminders.length > 0) {
       await prisma.reminder.createMany({
@@ -94,7 +114,7 @@ async function restoreHousehold(filePath: string, targetHouseholdId: string) {
       });
     }
 
-    // 5. Restore Commitments
+    // 6. Restore Commitments
     console.log('📅 Restoring financial commitments...');
     if (household.commitments.length > 0) {
       await prisma.financialCommitment.createMany({
@@ -116,7 +136,7 @@ const fileArg = args.find(a => a.startsWith('--file='))?.split('=')[1];
 const idArg = args.find(a => a.startsWith('--id='))?.split('=')[1];
 
 if (!fileArg || !idArg) {
-  console.log('Usage: npx ts-node scripts/restore-user.ts --file=backups/backup_xyz.json.enc --id=household-uuid-here');
+  console.log('Usage: yarn db:restore --file=backups/backup_xyz.json.enc --id=household-uuid-here');
 } else {
   restoreHousehold(path.resolve(fileArg), idArg);
 }

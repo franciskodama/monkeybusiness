@@ -1,33 +1,44 @@
 import * as crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-cbc';
-// Use BACKUP_SECRET or fallback to a derivation of AUTH_SECRET or a fixed key
-const ENCRYPTION_KEY = process.env.BACKUP_SECRET || 'a-very-secret-key-for-backups-32'; 
 const IV_LENGTH = 16; 
 
 export function encrypt(text: string): string {
+  if (!process.env.BACKUP_SECRET) {
+    throw new Error('BACKUP_SECRET environment variable is not set');
+  }
+  
   const iv = crypto.randomBytes(IV_LENGTH);
-  const key = Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32));
-  const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-  let encrypted = cipher.update(text);
-  encrypted = Buffer.concat([encrypted, cipher.final()]);
-  return iv.toString('hex') + ':' + encrypted.toString('hex');
+  const key = crypto.scryptSync(process.env.BACKUP_SECRET, 'salt', 32);
+  const cipher = crypto.createCipheriv(ALGORITHM, new Uint8Array(key), new Uint8Array(iv));
+  
+  let encrypted = cipher.update(text, 'utf8', 'hex');
+  encrypted += cipher.final('hex');
+  
+  return iv.toString('hex') + ':' + encrypted;
 }
 
 export function decrypt(text: string): string {
   try {
+    if (!process.env.BACKUP_SECRET) {
+      console.warn('⚠️ BACKUP_SECRET not set, returning raw text.');
+      return text;
+    }
+
     const textParts = text.split(':');
     if (textParts.length !== 2) return text; // Probably not encrypted
 
     const iv = Buffer.from(textParts.shift()!, 'hex');
-    const encryptedText = Buffer.from(textParts.shift()!, 'hex');
-    const key = Buffer.from(ENCRYPTION_KEY.padEnd(32).slice(0, 32));
-    const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+    const encryptedText = textParts.shift()!;
+    const key = crypto.scryptSync(process.env.BACKUP_SECRET, 'salt', 32);
+    const decipher = crypto.createDecipheriv(ALGORITHM, new Uint8Array(key), new Uint8Array(iv));
+    
+    let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
+    decrypted += decipher.final('utf8');
+    
+    return decrypted;
   } catch (error) {
-    console.error('Decryption failed:', error);
-    return text; // Return raw if decryption fails (might be an old unencrypted file)
+    console.error('❌ Decryption failed. The secret might be wrong or the data is corrupted.');
+    return text;
   }
 }
