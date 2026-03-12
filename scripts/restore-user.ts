@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import * as fs from 'fs';
 import * as path from 'path';
+import { decrypt } from './utils/encryption';
 
 const connectionString = process.env.DATABASE_URL!;
 const adapter = new PrismaNeon({ connectionString });
@@ -14,9 +15,24 @@ async function restoreHousehold(filePath: string, targetHouseholdId: string) {
   }
 
   const rawData = fs.readFileSync(filePath, 'utf-8');
-  const backup = JSON.parse(rawData);
+  
+  let backup;
+  try {
+    // Try to decrypt first
+    const decryptedData = decrypt(rawData);
+    backup = JSON.parse(decryptedData);
+  } catch (error) {
+    console.log('⚠️ Failed to parse as encrypted data, trying raw JSON...');
+    try {
+      backup = JSON.parse(rawData);
+    } catch (innerError) {
+      console.error('❌ Failed to parse backup file. It might be corrupted or using a different encryption key.');
+      return;
+    }
+  }
 
   const household = backup.households.find((h: any) => h.id === targetHouseholdId);
+
 
   if (!household) {
     console.error(`❌ Household with ID ${targetHouseholdId} not found in backup.`);
@@ -100,7 +116,7 @@ const fileArg = args.find(a => a.startsWith('--file='))?.split('=')[1];
 const idArg = args.find(a => a.startsWith('--id='))?.split('=')[1];
 
 if (!fileArg || !idArg) {
-  console.log('Usage: npx ts-node scripts/restore-user.ts --file=backups/backup_xyz.json --id=household-uuid-here');
+  console.log('Usage: npx ts-node scripts/restore-user.ts --file=backups/backup_xyz.json.enc --id=household-uuid-here');
 } else {
   restoreHousehold(path.resolve(fileArg), idArg);
 }

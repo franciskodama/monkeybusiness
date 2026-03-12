@@ -1,0 +1,32 @@
+name: Daily Database Backup
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Every day at midnight UTC
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run Backup Script
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          BACKUP_SECRET: ${{ secrets.BACKUP_SECRET }}
+          GCS_PROJECT_ID: ${{ secrets.GCS_PROJECT_ID }}
+          GCS_CLIENT_EMAIL: ${{ secrets.GCS_CLIENT_EMAIL }}
+          GCS_PRIVATE_KEY: ${{ secrets.GCS_PRIVATE_KEY }}
+          GCS_BUCKET_NAME: ${{ secrets.GCS_BUCKET_NAME }}
+        run: yarn db:backup
