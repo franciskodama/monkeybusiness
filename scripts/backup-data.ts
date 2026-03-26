@@ -75,12 +75,14 @@ async function main() {
       await uploadToGCS(filePath, fileName);
       await uploadToGCS(latestPath, 'automated_latest.json.enc');
     } catch (cloudError) {
-      console.error('⚠️ Cloud upload failed, but local backups were saved.');
+      console.error('⚠️ Cloud upload failed, but local backups were saved.', cloudError);
+      process.exitCode = 1;
     }
 
     console.log(`📊 Exported ${households.length} households.`);
   } catch (error) {
     console.error('❌ Backup failed:', error);
+    process.exitCode = 1;
   } finally {
     await prisma.$disconnect();
   }
