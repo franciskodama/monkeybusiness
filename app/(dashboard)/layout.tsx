@@ -13,7 +13,6 @@ import {
   TooltipContent,
   TooltipTrigger
 } from '@/components/ui/tooltip';
-import { Settings } from 'lucide-react';
 import { YearSelector } from '@/components/YearSelector';
 import { Suspense } from 'react';
 
@@ -32,7 +31,11 @@ export default function DashboardLayout({
             <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
               <div className="flex items-center gap-4">
                 <CommandCenterBreadcrumb />
-                <Suspense fallback={<div className="w-24 h-8 animate-pulse bg-muted rounded-md" />}>
+                <Suspense
+                  fallback={
+                    <div className="w-24 h-8 animate-pulse bg-muted rounded-md" />
+                  }
+                >
                   <YearSelector />
                 </Suspense>
               </div>
@@ -90,7 +93,7 @@ export function DesktopNav() {
           </TooltipTrigger>
           <TooltipContent side="right">Need a hand?</TooltipContent>
         </Tooltip>
-        <Tooltip>
+        {/* <Tooltip>
           <TooltipTrigger asChild>
             <Link
               href="/settings"
@@ -101,7 +104,7 @@ export function DesktopNav() {
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">Settings</TooltipContent>
-        </Tooltip>
+        </Tooltip> */}
       </nav>
     </aside>
   );

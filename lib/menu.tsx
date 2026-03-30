@@ -4,7 +4,8 @@ import {
   NotebookPen,
   ChartScatter,
   Flag,
-  Radar
+  Radar,
+  Settings
 } from 'lucide-react';
 
 export const menuItems = [
@@ -37,5 +38,10 @@ export const menuItems = [
     label: 'Analytics',
     href: '/analytics',
     icon: <ChartScatter className="h-5 w-5" />
+  },
+  {
+    label: 'Settings',
+    href: '/settings',
+    icon: <Settings className="h-5 w-5" />
   }
 ];
