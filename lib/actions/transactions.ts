@@ -172,3 +172,22 @@ export async function getTransactionRules(householdId: string): Promise<Transact
     return [];
   }
 }
+
+export async function getRecentTransactions(householdId: string) {
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: { householdId },
+      orderBy: { createdAt: 'desc' },
+      take: 10,
+      include: {
+        subcategory: {
+          include: { category: true }
+        }
+      }
+    });
+    return transactions;
+  } catch (error) {
+    console.error('❌ Error fetching recent transactions:', error);
+    return [];
+  }
+}

@@ -8,6 +8,7 @@ import {
 import { getUser } from '@/lib/actions/auth';
 import Planner from './planner';
 import { Spinner } from '@/lib/icons';
+import { getRecentTransactions } from '@/lib/actions/transactions';
 
 export default async function PlannerPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -25,6 +26,7 @@ export default async function PlannerPage(props: {
 
   const categories = await getCategories(householdId);
   const subcategories = await getSubcategories(householdId, year);
+  const recentTransactions = await getRecentTransactions(householdId);
 
   // Fetch currency data (BRL to CAD)
   const currencyData = await getCurrenciesFromApi();
@@ -57,6 +59,7 @@ export default async function PlannerPage(props: {
           person1Name={p1Name}
           person2Name={p2Name}
           year={year}
+          recentTransactions={recentTransactions}
         />
       ) : (
         <Spinner />
