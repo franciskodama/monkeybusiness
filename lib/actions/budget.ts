@@ -154,47 +154,27 @@ export async function addSubcategory(data: {
   applyToFuture: boolean;
 }) {
   try {
-    if (data.applyToFuture) {
-      for (let m = data.month; m <= 12; m++) {
-        await prisma.subcategory.upsert({
-          where: {
-            subcategory_unique_auth: {
-              name: data.name,
-              month: m,
-              year: data.year,
-              householdId: data.householdId,
-              categoryId: data.categoryId
-            }
-          },
-          update: { amount: data.amount },
-          create: {
-            name: data.name,
-            amount: data.amount,
-            categoryId: data.categoryId,
-            householdId: data.householdId,
-            month: m,
-            year: data.year
-          }
-        });
-      }
-    } else {
+    for (let m = 1; m <= 12; m++) {
+      const isTarget = m === data.month || (m > data.month && data.applyToFuture);
+      const targetAmount = isTarget ? data.amount : 0;
+
       await prisma.subcategory.upsert({
         where: {
           subcategory_unique_auth: {
             name: data.name,
-            month: data.month,
+            month: m,
             year: data.year,
             householdId: data.householdId,
             categoryId: data.categoryId
           }
         },
-        update: { amount: data.amount },
+        update: isTarget ? { amount: targetAmount } : {},
         create: {
           name: data.name,
-          amount: data.amount,
+          amount: targetAmount,
           categoryId: data.categoryId,
           householdId: data.householdId,
-          month: data.month,
+          month: m,
           year: data.year
         }
       });

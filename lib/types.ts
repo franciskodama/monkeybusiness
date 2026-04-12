@@ -61,3 +61,13 @@ export interface TransactionRuleWithSubcategory {
   subcategoryId: string;
   subcategory: SubcategoryWithCategory;
 }
+
+export interface TransactionWithSubcategory {
+  id: string;
+  description: string;
+  amount: number;
+  date: Date | string;
+  source: string;
+  createdAt: Date;
+  subcategory: SubcategoryWithCategory | null;
+}

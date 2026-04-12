@@ -1,7 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Trash2, Award } from 'lucide-react';
+import {
+  Download,
+  Trash2,
+  Award,
+  History,
+  Info,
+  Calendar,
+  Tag,
+  CreditCard,
+  ChevronLeft,
+  ChevronRight
+} from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { AddCategory } from './add-category';
 import { Button } from '@/components/ui/button';
@@ -13,7 +24,6 @@ import {
   formatDate
 } from '@/lib/utils';
 import { Category } from '@prisma/client';
-import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 import { barlow, kumbh_sans } from '@/lib/fonts';
 import { EditableAmount } from './edit-amount-subcategory';
 import { EditableSubcategoryName } from './edit-name-subcategory';
@@ -43,6 +53,16 @@ import { AddTransactionModal } from './add-transaction-modal';
 import { TransactionImporter } from './transaction-importer';
 import { DirectCodeImporter } from './transaction-direct-code-importer';
 import { TransactionReviewModal } from './transaction-review-modal';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from '@/components/ui/popover';
+import {
+  TransactionWithSubcategory,
+  SubcategoryWithCategory,
+  TransactionInput
+} from '@/lib/types';
 import { deleteSubcategory } from '@/lib/actions/budget';
 import { deleteTransaction } from '@/lib/actions/transactions';
 import { AddSubcategory } from './add-subcategory';
@@ -55,7 +75,8 @@ export default function Planner({
   brlRate,
   person1Name,
   person2Name,
-  year
+  year,
+  recentTransactions
 }: {
   householdId: string;
   categories: Category[];
@@ -64,6 +85,7 @@ export default function Planner({
   person1Name?: string | null;
   person2Name?: string | null;
   year: number;
+  recentTransactions: TransactionWithSubcategory[];
 }) {
   const p1Name = person1Name || 'Partner 1';
   const p2Name = person2Name || 'Partner 2';
@@ -74,6 +96,7 @@ export default function Planner({
   const [currentCategories, setCurrentCategoriesAction] =
     useState<Category[]>(categories);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+  const [historyIndex, setHistoryIndex] = useState(0);
   const currentYear = year;
   const [reviewData, setReviewData] = useState<
     (TransactionInput & { ignored?: boolean })[] | null
@@ -204,28 +227,18 @@ export default function Planner({
   // Targets (Planned Values) - Categorizing by both Subcategory and Parent Category name
   const isP1Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
-    if (
-      nameStr.includes('PERSON1') ||
-      nameStr.includes(p1Name.toUpperCase())
-    )
+    if (nameStr.includes('PERSON1') || nameStr.includes(p1Name.toUpperCase()))
       return true;
     // Fallback: check if the actual transactions already arrived are from 'PERSON1'
-    return sub.transactions?.some(
-      (tx) => tx.source === 'PERSON1'
-    );
+    return sub.transactions?.some((tx) => tx.source === 'PERSON1');
   };
 
   const isP2Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
-    if (
-      nameStr.includes('PERSON2') ||
-      nameStr.includes(p2Name.toUpperCase())
-    )
+    if (nameStr.includes('PERSON2') || nameStr.includes(p2Name.toUpperCase()))
       return true;
     // Fallback: check if the actual transactions already arrived are from 'PERSON2'
-    return sub.transactions?.some(
-      (tx) => tx.source === 'PERSON2'
-    );
+    return sub.transactions?.some((tx) => tx.source === 'PERSON2');
   };
 
   // Total Forecast Pool = ALL income items
@@ -348,8 +361,147 @@ export default function Planner({
           </div>
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-end flex-1 w-full gap-4 mt-8 lg:mt-0">
             <div
-              className={`${barlow.className} p-1 flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto overflow-hidden`}
+              className={`${barlow.className} p-1 flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-3 w-full lg:w-auto overflow-hidden items-center`}
             >
+              {recentTransactions.length > 0 && (
+                <Popover onOpenChange={(open) => !open && setHistoryIndex(0)}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="gap-2 hover:border-slate-400  h-10 px-4 group transition-all"
+                    >
+                      <History
+                        size={14}
+                        className="group-hover:text-slate-600 transition-colors"
+                      />
+                      Last Entry
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0 rounded-none border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+                    <div className="bg-slate-900 p-3 flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <Info size={14} className="text-cyan-400" />
+                        <span className="text-white text-[10px] uppercase font-black tracking-widest">
+                          Recent Activity Log
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[9px] font-mono text-slate-400 mr-2 uppercase tracking-tighter">
+                          {historyIndex + 1} / {recentTransactions.length}
+                        </span>
+                        <div className="flex items-center gap-0.5">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-white hover:bg-slate-800 disabled:opacity-30 p-0 rounded-none"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setHistoryIndex((prev) =>
+                                Math.min(
+                                  prev + 1,
+                                  recentTransactions.length - 1
+                                )
+                              );
+                            }}
+                            disabled={
+                              historyIndex === recentTransactions.length - 1
+                            }
+                          >
+                            <ChevronLeft size={16} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-white hover:bg-slate-800 disabled:opacity-30 p-0 rounded-none"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setHistoryIndex((prev) => Math.max(prev - 1, 0));
+                            }}
+                            disabled={historyIndex === 0}
+                          >
+                            <ChevronRight size={16} />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="p-4 space-y-4 bg-white">
+                      <div className="space-y-3">
+                        {/* Transaction Content */}
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 p-1.5 bg-slate-100 rounded-sm">
+                            <Calendar size={14} className="text-slate-500" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
+                              Transaction Date
+                            </span>
+                            <span className="text-sm font-bold text-slate-900">
+                              {formatDate(
+                                recentTransactions[historyIndex].date
+                              )}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 p-1.5 bg-emerald-50 rounded-sm">
+                            <Tag size={14} className="text-emerald-600" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
+                              Details
+                            </span>
+                            <span className="text-sm font-bold text-slate-900 leading-tight">
+                              {recentTransactions[historyIndex].description}
+                            </span>
+                            <span className="text-[10px] font-medium text-slate-500 mt-0.5">
+                              {
+                                recentTransactions[historyIndex].subcategory
+                                  ?.category?.name
+                              }{' '}
+                              &rarr;{' '}
+                              {
+                                recentTransactions[historyIndex].subcategory
+                                  ?.name
+                              }
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                          <div className="mt-0.5 p-1.5 bg-cyan-50 rounded-sm">
+                            <CreditCard size={14} className="text-cyan-600" />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
+                              Amount & When
+                            </span>
+                            <div className="flex items-baseline gap-2">
+                              <span className="text-lg font-mono font-black text-slate-900">
+                                $
+                                {formatCurrency(
+                                  recentTransactions[historyIndex].amount
+                                )}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-slate-800 italic">
+                              Entered on{' '}
+                              {new Date(
+                                recentTransactions[historyIndex].createdAt
+                              ).toLocaleDateString('en-US', {
+                                weekday: 'long',
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric'
+                              })}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
               <TransactionImporter
                 householdId={householdId}
                 subcategoriesForCurrentMonth={currentSubcategories.filter(
@@ -464,8 +616,7 @@ export default function Planner({
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-cyan-50 group-hover:text-cyan-600 group-hover:border-cyan-100 transition-all">
                           {Math.round(
-                            (p1PlannedIncome / (totalPlannedFunding || 1)) *
-                              100
+                            (p1PlannedIncome / (totalPlannedFunding || 1)) * 100
                           )}
                           %
                         </span>
@@ -481,8 +632,7 @@ export default function Planner({
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-all">
                           {Math.round(
-                            (p2PlannedIncome / (totalPlannedFunding || 1)) *
-                              100
+                            (p2PlannedIncome / (totalPlannedFunding || 1)) * 100
                           )}
                           %
                         </span>
@@ -583,8 +733,7 @@ export default function Planner({
                     </p>
                     <p className="text-[10px] font-bold text-emerald-600/70 mt-2 italic leading-relaxed">
                       Combined effort from &quot;{p1Name}&quot; and &quot;
-                      {p2Name}&quot; already registered in current
-                      transactions.
+                      {p2Name}&quot; already registered in current transactions.
                     </p>
                   </div>
                 </div>
@@ -977,7 +1126,8 @@ export default function Planner({
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
               <span className="text-sm font-mono leading-none bg-accent text-primary py-2 px-4">
-                {selectedDetails ? months[selectedDetails.month - 1] : ''} {currentYear}
+                {selectedDetails ? months[selectedDetails.month - 1] : ''}{' '}
+                {currentYear}
               </span>
             </DialogTitle>
           </DialogHeader>
