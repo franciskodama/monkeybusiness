@@ -4,11 +4,10 @@ import { NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const secret = searchParams.get('secret');
+  const authHeader = request.headers.get('Authorization');
 
-  // Simple security check (should be matched in Vercel Cron settings)
-  if (process.env.CRON_SECRET && secret !== process.env.CRON_SECRET) {
+  // Vercel Cron automatically sends the CRON_SECRET in the Authorization header
+  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return new NextResponse('Unauthorized', { status: 401 });
   }
 
