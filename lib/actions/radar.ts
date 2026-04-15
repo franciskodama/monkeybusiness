@@ -344,3 +344,63 @@ export async function sendRadarAlertEmail(commitmentId: string) {
     return { success: false };
   }
 }
+
+export async function processRadarAlerts() {
+  try {
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonth = today.getMonth();
+    const currentYear = today.getFullYear();
+
+    console.log(`📡 [RADAR] Processing alerts for Day ${currentDay}...`);
+
+    const commitments = await prisma.financialCommitment.findMany({
+      where: { sendEmailAlert: true },
+      include: { household: { include: { users: true } } }
+    });
+
+    let sentCount = 0;
+
+    for (const commitment of commitments) {
+      // Logic: If commitment is on day 5 and daysBeforeAlert is 2, send on day 3.
+      // We also handle the month wrap-around (e.g., day 1 commitment, 2 days before = day 29/30 of previous month)
+      const targetSendDay = commitment.dayOfMonth - commitment.daysBeforeAlert;
+      
+      // Handle wrap around for early-month commitments
+      let isTodayTheDay = false;
+      if (targetSendDay > 0) {
+        isTodayTheDay = currentDay === targetSendDay;
+      } else {
+        const lastDayOfPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+        const wrappedTargetDay = lastDayOfPrevMonth + targetSendDay;
+        isTodayTheDay = currentDay === wrappedTargetDay;
+      }
+
+      if (isTodayTheDay) {
+        // Avoid sending twice in the same month cycle for this commitment
+        const lastAlert = commitment.lastAlertSent;
+        const alreadySentRecently = lastAlert && (
+          (today.getTime() - lastAlert.getTime()) < 20 * 24 * 60 * 60 * 1000 // Sent in the last 20 days
+        );
+
+        if (!alreadySentRecently) {
+          console.log(`📧 Sending alert for: ${commitment.title}`);
+          const res = await sendRadarAlertEmail(commitment.id);
+          
+          if (res.success) {
+            await prisma.financialCommitment.update({
+              where: { id: commitment.id },
+              data: { lastAlertSent: new Date() }
+            });
+            sentCount++;
+          }
+        }
+      }
+    }
+
+    return { success: true, processed: commitments.length, sent: sentCount };
+  } catch (error) {
+    console.error('❌ Error processing Radar alerts:', error);
+    return { success: false };
+  }
+}
