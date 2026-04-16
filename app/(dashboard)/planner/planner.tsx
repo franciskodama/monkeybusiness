@@ -917,12 +917,8 @@ export default function Planner({
                                 key={`${item.id}-${selectedMonth}`}
                                 id={item.id}
                                 initialAmount={targetAmount}
-                                onUpdateSuccess={(amount, updateFuture) =>
-                                  handleUpdateAmount(
-                                    item.id,
-                                    amount,
-                                    updateFuture
-                                  )
+                                onUpdateSuccess={(amount, mode) =>
+                                  handleUpdateAmount(item.id, amount, mode)
                                 }
                               />
                             </div>
