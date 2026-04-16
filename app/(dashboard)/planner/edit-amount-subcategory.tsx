@@ -78,6 +78,7 @@ export function EditableAmount({
           onBlur={handleBlur}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
+              e.preventDefault();
               e.currentTarget.blur();
             }
             if (e.key === 'Escape') {
@@ -103,7 +104,10 @@ export function EditableAmount({
           if (!open) handleCancelChange();
         }}
       >
-        <AlertDialogContent className="max-w-md">
+        <AlertDialogContent
+          className="max-w-md"
+          onOpenAutoFocus={(e) => e.preventDefault()}
+        >
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <CalendarRange className="w-5 h-5 text-primary" />
