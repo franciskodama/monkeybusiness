@@ -24,13 +24,10 @@ export function EditableAmount({
 }: {
   id: string;
   initialAmount: number;
-  onUpdateSuccess: (
-    amount: number,
-    mode: 'SINGLE' | 'FUTURE' | 'ALL'
-  ) => void;
+  onUpdateSuccess: (amount: number, mode: 'SINGLE' | 'FUTURE' | 'ALL') => void;
 }) {
   const [isEditing, setIsEditing] = useState(false);
-  const [amount, setAmount] = useState(initialAmount);
+  const [amount, setAmount] = useState<number | string>(initialAmount);
   const [showConfirm, setShowConfirm] = useState(false);
 
   useEffect(() => {
@@ -39,18 +36,20 @@ export function EditableAmount({
 
   const handleBlur = () => {
     if (showConfirm) return;
-    if (amount !== initialAmount) {
+    if (amount !== '' && Number(amount) !== initialAmount) {
       setShowConfirm(true);
     } else {
       setIsEditing(false);
+      setAmount(initialAmount);
     }
   };
 
   const handleUpdate = async (mode: 'SINGLE' | 'FUTURE' | 'ALL') => {
-    const result = await updateSubcategoryAmount(id, amount, mode);
+    const numericAmount = Number(amount);
+    const result = await updateSubcategoryAmount(id, numericAmount, mode);
 
     if (result.success) {
-      onUpdateSuccess(amount, mode);
+      onUpdateSuccess(numericAmount, mode);
       toast.success('Updated successfully!');
     } else {
       toast.error('Failed to update amount');
@@ -74,7 +73,8 @@ export function EditableAmount({
           autoFocus
           className="w-24 h-8 font-mono text-right"
           value={amount}
-          onChange={(e) => setAmount(Number(e.target.value))}
+          onFocus={(e) => e.target.select()}
+          onChange={(e) => setAmount(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
@@ -94,7 +94,7 @@ export function EditableAmount({
           {new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: 'USD'
-          }).format(amount)}
+          }).format(Number(amount))}
         </span>
       )}
 
@@ -119,7 +119,7 @@ export function EditableAmount({
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD'
-                }).format(amount)}
+                }).format(Number(amount))}
               </span>
               . How would you like to apply this budget adjustment?
             </AlertDialogDescription>
@@ -175,7 +175,7 @@ export function EditableAmount({
           </div>
           <AlertDialogFooter>
             <AlertDialogCancel
-              className="w-full sm:w-auto border-none bg-transparent hover:bg-secondary ghost"
+              className="w-full sm:w-auto border-none hover:bg-accent outline"
               onClick={handleCancelChange}
             >
               <X className="w-4 h-4 mr-2" />
