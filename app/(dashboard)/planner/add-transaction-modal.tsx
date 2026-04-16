@@ -165,7 +165,9 @@ export function AddTransactionModal({
 
     const counts: Record<string, number> = {};
     history.forEach((tx) => {
-      counts[tx.source] = (counts[tx.source] || 0) + 1;
+      if (typeof tx.source === 'string') {
+        counts[tx.source] = (counts[tx.source] || 0) + 1;
+      }
     });
 
     const sortedByCount = Object.entries(counts).sort((a, b) => b[1] - a[1]);

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle, Lightbulb } from 'lucide-react';
+import { AlertCircle, Lightbulb, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -22,23 +22,29 @@ import { bulkAddTransactions, addTransactionRule } from '@/lib/actions/transacti
 import { formatCurrency } from '@/lib/utils';
 import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 
+type ReviewItem = TransactionInput & { ignored?: boolean };
+
 export function TransactionReviewModal({
   reviewData,
   setReviewData,
   householdId,
   allAvailableSubcategories,
-  setCurrentSubcategoriesAction // Ensure this is added here
+  setCurrentSubcategoriesAction,
+  person1Name = 'Partner 1',
+  person2Name = 'Partner 2'
 }: {
-  reviewData: (TransactionInput & { ignored?: boolean })[];
-  setReviewData: (
-    data: (TransactionInput & { ignored?: boolean })[] | null
-  ) => void;
+  reviewData: ReviewItem[];
+  setReviewData: (data: ReviewItem[] | null) => void;
   householdId: string;
   allAvailableSubcategories: SubcategoryWithCategory[];
-  setCurrentSubcategoriesAction: (items: SubcategoryWithCategory[]) => void; // Add this line
+  setCurrentSubcategoriesAction: (items: SubcategoryWithCategory[]) => void;
+  person1Name?: string;
+  person2Name?: string;
 }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [rulesToSave, setRulesToSave] = useState<Record<number, boolean>>({});
+
+  if (!reviewData) return null;
 
   const getAmount = (amount: number | string | null | undefined): number => {
     if (amount === null || amount === undefined) return 0;
@@ -126,11 +132,13 @@ export function TransactionReviewModal({
               const dateStr =
                 typeof tx.date === 'string'
                   ? tx.date
-                  : [
-                      tx.date.getFullYear(),
-                      String(tx.date.getMonth() + 1).padStart(2, '0'),
-                      String(tx.date.getDate()).padStart(2, '0')
-                    ].join('-');
+                  : tx.date instanceof Date
+                    ? [
+                        tx.date.getFullYear(),
+                        String(tx.date.getMonth() + 1).padStart(2, '0'),
+                        String(tx.date.getDate()).padStart(2, '0')
+                      ].join('-')
+                    : String(tx.date);
               const dateParts = dateStr.split('-');
               const txYear = parseInt(dateParts[0], 10);
               const txMonth = parseInt(dateParts[1], 10);
@@ -168,7 +176,9 @@ export function TransactionReviewModal({
 
                 const counts: Record<string, number> = {};
                 history.forEach((h) => {
-                  counts[h.source] = (counts[h.source] || 0) + 1;
+                  if (typeof h.source === 'string') {
+                    counts[h.source] = (counts[h.source] || 0) + 1;
+                  }
                 });
 
                 const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
@@ -179,6 +189,9 @@ export function TransactionReviewModal({
               };
 
               const usualSource = getUsualSource();
+              const p1 = person1Name || 'Partner 1';
+              const p2 = person2Name || 'Partner 2';
+
               const isSourceMatch =
                 usualSource && tx.source && tx.source === usualSource;
               const isSourceMismatch =
@@ -315,7 +328,12 @@ export function TransactionReviewModal({
                       <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50/30 border-l-2 border-emerald-500 animate-in fade-in slide-in-from-left-2 duration-300">
                         <Sparkles size={10} className="text-emerald-600" />
                         <p className="text-[8px] font-bold uppercase text-emerald-700 tracking-widest">
-                          Habit Match: Usually paid by {usualSource === 'PERSON1' ? person1Name : usualSource === 'PERSON2' ? person2Name : 'Family'}
+                          Habit Match: Usually paid by{' '}
+                          {usualSource === 'PERSON1'
+                            ? p1
+                            : usualSource === 'PERSON2'
+                              ? p2
+                              : 'Family'}
                         </p>
                       </div>
                     )}
@@ -324,7 +342,12 @@ export function TransactionReviewModal({
                       <div className="flex items-center gap-2 px-3 py-2 bg-cyan-50/50 border-l-2 border-cyan-500 animate-in fade-in slide-in-from-left-2 duration-300">
                         <Lightbulb size={10} className="text-cyan-600" />
                         <p className="text-[8px] font-bold uppercase text-cyan-700 tracking-widest">
-                          Source Note: Usually paid by {usualSource === 'PERSON1' ? person1Name : usualSource === 'PERSON2' ? person2Name : 'Family'}
+                          Source Note: Usually paid by{' '}
+                          {usualSource === 'PERSON1'
+                            ? p1
+                            : usualSource === 'PERSON2'
+                              ? p2
+                              : 'Family'}
                         </p>
                       </div>
                     )}
