@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -154,6 +154,36 @@ export function TransactionReviewModal({
                     !(existing as any).ignored // If existing system has ignoring, check it
                 );
 
+              // --- SMART SOURCE DETECTION ---
+              const getUsualSource = () => {
+                if (!tx.subcategoryId) return null;
+                const subName = selectedSub?.name;
+                if (!subName) return null;
+
+                const history = allAvailableSubcategories
+                  .filter((s) => s.name === subName)
+                  .flatMap((s) => s.transactions || []);
+
+                if (history.length < 2) return null;
+
+                const counts: Record<string, number> = {};
+                history.forEach((h) => {
+                  counts[h.source] = (counts[h.source] || 0) + 1;
+                });
+
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const [freqSource, count] = sorted[0];
+
+                if (count / history.length > 0.7) return freqSource;
+                return null;
+              };
+
+              const usualSource = getUsualSource();
+              const isSourceMatch =
+                usualSource && tx.source && tx.source === usualSource;
+              const isSourceMismatch =
+                usualSource && tx.source && tx.source !== usualSource;
+
               return (
                 <div
                   key={index}
@@ -280,6 +310,24 @@ export function TransactionReviewModal({
                         </SelectContent>
                       </Select>
                     </div>
+
+                    {isSourceMatch && !tx.ignored && (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50/30 border-l-2 border-emerald-500 animate-in fade-in slide-in-from-left-2 duration-300">
+                        <Sparkles size={10} className="text-emerald-600" />
+                        <p className="text-[8px] font-bold uppercase text-emerald-700 tracking-widest">
+                          Habit Match: Usually paid by {usualSource === 'PERSON1' ? person1Name : usualSource === 'PERSON2' ? person2Name : 'Family'}
+                        </p>
+                      </div>
+                    )}
+
+                    {isSourceMismatch && !tx.ignored && (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-cyan-50/50 border-l-2 border-cyan-500 animate-in fade-in slide-in-from-left-2 duration-300">
+                        <Lightbulb size={10} className="text-cyan-600" />
+                        <p className="text-[8px] font-bold uppercase text-cyan-700 tracking-widest">
+                          Source Note: Usually paid by {usualSource === 'PERSON1' ? person1Name : usualSource === 'PERSON2' ? person2Name : 'Family'}
+                        </p>
+                      </div>
+                    )}
 
                     {!tx.ignored && (
                       <div
