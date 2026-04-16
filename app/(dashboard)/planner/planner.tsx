@@ -119,22 +119,29 @@ export default function Planner({
   const handleUpdateAmount = (
     itemId: string,
     newAmount: number,
-    updateFuture: boolean
+    mode: 'SINGLE' | 'FUTURE' | 'ALL'
   ) => {
-    setCurrentSubcategoriesAction((prev) =>
-      prev.map((item) => {
-        const sourceItem = prev.find((i) => i.id === itemId);
-        const isTargetItem = item.id === itemId;
-        const isFutureMatch =
-          updateFuture &&
-          item.name === sourceItem?.name &&
-          item.month >= (sourceItem?.month ?? 0);
+    setCurrentSubcategoriesAction((prev) => {
+      const sourceItem = prev.find((i) => i.id === itemId);
+      if (!sourceItem) return prev;
 
-        if (isTargetItem || isFutureMatch)
-          return { ...item, amount: newAmount };
+      return prev.map((item) => {
+        const isSameSubcategory =
+          item.name === sourceItem.name &&
+          item.categoryId === sourceItem.categoryId &&
+          item.year === sourceItem.year;
+
+        const isTarget =
+          (mode === 'SINGLE' && item.id === itemId) ||
+          (mode === 'FUTURE' &&
+            isSameSubcategory &&
+            item.month >= sourceItem.month) ||
+          (mode === 'ALL' && isSameSubcategory);
+
+        if (isTarget) return { ...item, amount: newAmount };
         return item;
-      })
-    );
+      });
+    });
   };
 
   const handleRenameSubcategory = (oldName: string, newName: string) => {

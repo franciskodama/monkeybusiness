@@ -199,7 +199,7 @@ export function AddSubcategory({
                 >
                   Repeat for {year}
                 </label>
-                <p className="text-sm">Apply to all remaining months.</p>
+                <p className="text-sm">Apply to the whole year.</p>
               </div>
             </div>
             <Input
