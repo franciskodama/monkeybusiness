@@ -280,10 +280,6 @@ export default function Planner({
   // Export Budget Data
   //--------------------------------------------------
 
-  //--------------------------------------------------
-  // Export Budget Data
-  //--------------------------------------------------
-
   const exportBudgetData = () => {
     const categoriesMap: Record<
       string,
