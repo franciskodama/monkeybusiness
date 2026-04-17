@@ -295,7 +295,7 @@ export function AddCategory({
                   type="button"
                   size="xs"
                   variant={!editIsIncome ? 'default' : 'outline'}
-                  className="flex-1 rounded-none uppercase font-black tracking-widest text-[9px]"
+                  className="flex-1 text-xs"
                   onClick={() => setEditIsIncome(false)}
                 >
                   Expense
@@ -304,7 +304,7 @@ export function AddCategory({
                   type="button"
                   size="xs"
                   variant={editIsIncome ? 'default' : 'outline'}
-                  className={`flex-1 rounded-none uppercase font-black tracking-widest text-[9px] ${editIsIncome ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                  className={`flex-1 text-xs ${editIsIncome ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
                   onClick={() => {
                     setEditIsIncome(true);
                     setEditIsFixed(false);

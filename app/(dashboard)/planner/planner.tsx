@@ -369,10 +369,7 @@ export default function Planner({
               {recentTransactions.length > 0 && (
                 <Popover onOpenChange={(open) => !open && setHistoryIndex(0)}>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="gap-2 hover:border-slate-400  h-10 px-4 group transition-all"
-                    >
+                    <Button variant="outline" className="gap-2">
                       <History
                         size={14}
                         className="group-hover:text-slate-600 transition-colors"
