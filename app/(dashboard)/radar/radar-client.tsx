@@ -604,7 +604,7 @@ export default function RadarClient({
                     <button
                       key={resp}
                       onClick={() => setResponsibility(resp)}
-                      className="h-12 border-2 font-black text-[10px] uppercase transition-all"
+                      className="h-12 border-2 font-black text-sm uppercase transition-all"
                       style={{
                         backgroundColor: isActive ? config.bg : '#FFFFFF',
                         color: isActive ? config.text : '#64748B',
