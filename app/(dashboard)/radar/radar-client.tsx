@@ -219,7 +219,6 @@ export default function RadarClient({
             resetForm();
             setIsAddModalOpen(true);
           }}
-          className="bg-slate-900 text-white rounded-none font-bold uppercase tracking-widest text-sm h-12 px-6 hover:translate-x-1 hover:-translate-y-1 transition-transform shadow-[6px_6px_0px_rgba(0,0,0,0.1)] active:shadow-none active:translate-x-0 active:translate-y-0"
         >
           <Plus size={16} className="mr-2" /> New Commitment
         </Button>

@@ -21,7 +21,11 @@ export default function Help({
               setOpenAction(true);
             }}
           >
-            <HelpCircle size={24} strokeWidth={1} className="text-slate-800" />
+            <HelpCircle
+              size={26}
+              strokeWidth={1.2}
+              className="text-slate-800"
+            />
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-white capitalize">Learn more</p>
