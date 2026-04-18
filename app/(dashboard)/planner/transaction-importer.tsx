@@ -19,18 +19,16 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { processStatementWithAI } from '@/lib/actions/ai';
-import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
+import { TransactionInput } from '@/lib/types';
 
 export function TransactionImporter({
   householdId,
-  subcategoriesForCurrentMonth,
   setReviewDataAction,
   person1Name = 'Partner 1',
   person2Name = 'Partner 2',
   year
 }: {
   householdId: string;
-  subcategoriesForCurrentMonth: SubcategoryWithCategory[];
   setReviewDataAction: React.Dispatch<
     React.SetStateAction<(TransactionInput & { ignored?: boolean })[] | null>
   >;

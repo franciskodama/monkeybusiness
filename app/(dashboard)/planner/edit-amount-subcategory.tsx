@@ -6,7 +6,6 @@ import { updateSubcategoryAmount } from '@/lib/actions/budget';
 import { toast } from 'sonner';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -114,7 +113,7 @@ export function EditableAmount({
               Apply changes?
             </AlertDialogTitle>
             <AlertDialogDescription>
-              You've changed the amount to{' '}
+              You&apos;ve changed the amount to{' '}
               <span className="font-bold text-foreground">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',

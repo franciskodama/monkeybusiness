@@ -504,9 +504,6 @@ export default function Planner({
               )}
               <TransactionImporter
                 householdId={householdId}
-                subcategoriesForCurrentMonth={currentSubcategories.filter(
-                  (i) => i.month === selectedMonth
-                )}
                 setReviewDataAction={setReviewData}
                 person1Name={p1Name}
                 person2Name={p2Name}
