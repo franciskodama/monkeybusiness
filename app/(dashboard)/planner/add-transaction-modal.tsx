@@ -380,14 +380,14 @@ export function AddTransactionModal({
             </Select>
 
             {isAutoSelected && usualSource === source && (
-              <div className="bg-cyan-50 border-l-4 border-cyan-500 p-3 animate-in fade-in zoom-in-95 duration-300">
-                <div className="flex items-start gap-3">
+              <div className="bg-cyan-50 border-l-4 border-cyan-500 p-4 animate-in fade-in zoom-in-95 duration-300">
+                <div className="flex items-start gap-4">
                   <Sparkles className="text-cyan-600 shrink-0" size={14} />
                   <div className="space-y-0.5">
-                    <p className="text-[9px] font-black uppercase tracking-tight text-cyan-800">
+                    <p className="text-xs font-black uppercase tracking-tight text-cyan-800">
                       Smart Selection
                     </p>
-                    <p className="text-[10px] text-cyan-700 leading-tight">
+                    <p className="text-xs text-cyan-700 leading-tight">
                       Source selected based on your spending habits.
                     </p>
                   </div>
