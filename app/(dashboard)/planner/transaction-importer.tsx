@@ -61,11 +61,7 @@ export function TransactionImporter({
         );
 
         // Send to AI
-        const result = await processStatementWithAI(
-          base64,
-          householdId,
-          year
-        );
+        const result = await processStatementWithAI(base64, householdId, year);
 
         if (result.success && result.transactions) {
           // Use the transactions array from the result
@@ -99,17 +95,22 @@ export function TransactionImporter({
           <DialogTitle>AI Transaction Importer</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          <Select onValueChange={setSource}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select the Source" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="FAMILY">Family</SelectItem>
-              <SelectItem value="PERSON1">{person1Name}</SelectItem>
-              <SelectItem value="PERSON2">{person2Name}</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold uppercase text-muted-foreground">
+              Select the source:
+            </label>
+            <Select onValueChange={setSource}>
+              <SelectTrigger>
+                <SelectValue placeholder="Who paid this statement?" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="FAMILY">Family</SelectItem>
+                <SelectItem value="PERSON1">{person1Name}</SelectItem>
+                <SelectItem value="PERSON2">{person2Name}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <div
             className="border-2 border-dashed p-8 flex flex-col items-center justify-center cursor-pointer bg-secondary/10"

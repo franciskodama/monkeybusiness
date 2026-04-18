@@ -381,12 +381,12 @@ export default function Planner({
                     <div className="bg-slate-900 p-3 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Info size={14} className="text-cyan-400" />
-                        <span className="text-white text-[10px] uppercase font-black tracking-widest">
+                        <span className="text-white text-xs uppercase font-black tracking-widest">
                           Recent Activity Log
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-[9px] font-mono text-slate-400 mr-2 uppercase tracking-tighter">
+                        <span className="text-[11px] font-mono text-slate-300 mr-2 uppercase tracking-tighter">
                           {historyIndex + 1} / {recentTransactions.length}
                         </span>
                         <div className="flex items-center gap-0.5">
@@ -425,11 +425,11 @@ export default function Planner({
                       </div>
                     </div>
                     <div className="p-4 space-y-4 bg-white">
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         {/* Transaction Content */}
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 p-1.5 bg-slate-100 rounded-sm">
-                            <Calendar size={14} className="text-slate-500" />
+                            <Calendar size={18} className="text-slate-500" />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
@@ -445,7 +445,7 @@ export default function Planner({
 
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 p-1.5 bg-emerald-50 rounded-sm">
-                            <Tag size={14} className="text-emerald-600" />
+                            <Tag size={18} className="text-emerald-600" />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
@@ -454,7 +454,7 @@ export default function Planner({
                             <span className="text-sm font-bold text-slate-900 leading-tight">
                               {recentTransactions[historyIndex].description}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-500 mt-0.5">
+                            <span className="text-xs font-medium text-slate-500 mt-0.5">
                               {
                                 recentTransactions[historyIndex].subcategory
                                   ?.category?.name
@@ -470,7 +470,7 @@ export default function Planner({
 
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 p-1.5 bg-cyan-50 rounded-sm">
-                            <CreditCard size={14} className="text-cyan-600" />
+                            <CreditCard size={18} className="text-cyan-600" />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
@@ -484,7 +484,7 @@ export default function Planner({
                                 )}
                               </span>
                             </div>
-                            <span className="text-[10px] text-slate-800 italic">
+                            <span className="text-xs text-slate-800">
                               Entered on{' '}
                               {new Date(
                                 recentTransactions[historyIndex].createdAt
