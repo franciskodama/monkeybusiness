@@ -84,8 +84,8 @@ export function DirectCodeImporter({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-bold uppercase text-muted-foreground">
-              Statement Owner
+            <label className="text-xs font-bold uppercase text-muted-foreground">
+              Select the source:
             </label>
             <Select onValueChange={setSource} value={source}>
               <SelectTrigger>

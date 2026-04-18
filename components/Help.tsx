@@ -22,15 +22,13 @@ export default function Help({
             }}
           >
             <HelpCircle
-              size={14}
-              strokeWidth={2}
-              className="text-slate-400 hover:text-white transition-colors"
+              size={26}
+              strokeWidth={1.2}
+              className="text-slate-800"
             />
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-primary ml-2 capitalize font-light">
-              Learn more
-            </p>
+            <p className="text-white capitalize">Learn more</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

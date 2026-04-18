@@ -242,7 +242,7 @@ export function AddCategory({
           </div>
         </SheetHeader>
 
-        <form action={action} className="flex flex-col items-start gap-8">
+        <form action={action} className="flex flex-col items-start gap-4">
           <div className="flex flex-col gap-1 w-full">
             <Input
               placeholder="Category Name (e.g. Housing)"
@@ -287,7 +287,7 @@ export function AddCategory({
 
           <div className="flex flex-col gap-6 w-full">
             <div className="flex flex-col gap-2">
-              <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+              <label className="mb-2 mt-8 text-xs font-black uppercase tracking-widest text-slate-400">
                 Category Type
               </label>
               <div className="flex gap-2">
@@ -295,7 +295,7 @@ export function AddCategory({
                   type="button"
                   size="xs"
                   variant={!editIsIncome ? 'default' : 'outline'}
-                  className="flex-1 rounded-none uppercase font-black tracking-widest text-[9px]"
+                  className="flex-1 text-xs"
                   onClick={() => setEditIsIncome(false)}
                 >
                   Expense
@@ -304,7 +304,7 @@ export function AddCategory({
                   type="button"
                   size="xs"
                   variant={editIsIncome ? 'default' : 'outline'}
-                  className={`flex-1 rounded-none uppercase font-black tracking-widest text-[9px] ${editIsIncome ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
+                  className={`flex-1 text-xs ${editIsIncome ? 'bg-emerald-600 hover:bg-emerald-700' : ''}`}
                   onClick={() => {
                     setEditIsIncome(true);
                     setEditIsFixed(false);
@@ -376,15 +376,17 @@ export function AddCategory({
           <Button
             type="submit"
             disabled={isPending}
-            className="w-full rounded-none tracking-widest"
+            className="w-full rounded-none tracking-widest mt-4"
           >
             {isPending ? 'Saving...' : 'Create Category'}
           </Button>
         </form>
 
-        <div className="flex flex-col gap-2 my-12">
-          <p className="text-sm font-semibold mb-4">Current Categories:</p>
-          <p className="text-[10px] text-muted-foreground uppercase mb-4 italic">
+        <div className="flex flex-col gap-2 mt-14">
+          <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+            Current Categories:
+          </p>
+          <p className="text-xs text-foreground uppercase mt-4 mb-2 italic">
             Drag handle to reorder
           </p>
           {currentCategories.length > 0 ? (

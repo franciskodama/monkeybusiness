@@ -219,7 +219,6 @@ export default function RadarClient({
             resetForm();
             setIsAddModalOpen(true);
           }}
-          className="bg-slate-900 text-white rounded-none font-black uppercase tracking-widest text-xs h-12 px-6 hover:translate-x-1 hover:-translate-y-1 transition-transform shadow-[6px_6px_0px_rgba(0,0,0,0.1)] active:shadow-none active:translate-x-0 active:translate-y-0"
         >
           <Plus size={16} className="mr-2" /> New Commitment
         </Button>
@@ -560,7 +559,7 @@ export default function RadarClient({
 
       {/* ADD/EDIT DIALOG */}
       <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-        <DialogContent className="max-w-md rounded-none border-4 border-slate-900 p-0 shadow-[15px_15px_0px_rgba(0,0,0,0.1)] overflow-hidden">
+        <DialogContent className="max-w-md rounded-none p-0 shadow-[15px_15px_0px_rgba(0,0,0,0.1)] overflow-hidden">
           <DialogHeader className="bg-slate-900 p-6 border-b border-slate-800">
             <DialogTitle className="text-white text-xl font-black uppercase tracking-tighter flex items-center gap-3">
               <Plus className="text-emerald-400" />
@@ -577,7 +576,7 @@ export default function RadarClient({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. CREDIT CARD BILL"
-                className="rounded-none border-2 border-slate-900 font-bold uppercase text-xs h-12 focus-visible:ring-0 focus-visible:translate-x-1 focus-visible:-translate-y-1 transition-transform"
+                className="text-xs h-12 focus-visible:ring-0 focus-visible:translate-x-1 focus-visible:-translate-y-1 transition-transform"
               />
             </div>
 
@@ -589,7 +588,7 @@ export default function RadarClient({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="e.g. Monthly cloud storage payment"
-                className="rounded-none border-2 border-slate-900 font-bold uppercase text-xs h-12 focus-visible:ring-0 focus-visible:translate-x-1 focus-visible:-translate-y-1 transition-transform"
+                className="text-xs h-12 focus-visible:ring-0 focus-visible:translate-x-1 focus-visible:-translate-y-1 transition-transform"
               />
             </div>
 
@@ -605,7 +604,7 @@ export default function RadarClient({
                     <button
                       key={resp}
                       onClick={() => setResponsibility(resp)}
-                      className="h-12 border-2 font-black text-[10px] uppercase transition-all"
+                      className="h-12 border-2 font-black text-sm uppercase transition-all"
                       style={{
                         backgroundColor: isActive ? config.bg : '#FFFFFF',
                         color: isActive ? config.text : '#64748B',
@@ -630,7 +629,7 @@ export default function RadarClient({
                   max="31"
                   value={dayOfMonth}
                   onChange={(e) => setDayOfMonth(e.target.value)}
-                  className="rounded-none border-2 border-slate-900 font-black text-sm h-12"
+                  className="text-sm h-12"
                 />
               </div>
               <div className="space-y-2">
@@ -642,7 +641,7 @@ export default function RadarClient({
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   placeholder="0.00"
-                  className="rounded-none border-2 border-slate-900 font-mono text-sm h-12"
+                  className="font-mono text-sm h-12"
                 />
               </div>
             </div>
@@ -673,7 +672,7 @@ export default function RadarClient({
                   <select
                     value={daysBeforeAlert}
                     onChange={(e) => setDaysBeforeAlert(e.target.value)}
-                    className="bg-white border-2 border-slate-900 text-xs font-black uppercase p-1 rounded-none outline-none"
+                    className="bg-white border border-slate-300 h-8 text-xs font-black uppercase p-1 rounded-none outline-none"
                   >
                     <option value="1">1 Day Before</option>
                     <option value="2">2 Days Before</option>
@@ -687,17 +686,10 @@ export default function RadarClient({
           </div>
 
           <DialogFooter className="p-6 bg-slate-50 border-t-2 border-slate-200">
-            <Button
-              variant="outline"
-              onClick={() => setIsAddModalOpen(false)}
-              className="rounded-none border-2 border-slate-400 font-black uppercase px-8 h-12"
-            >
+            <Button variant="outline" onClick={() => setIsAddModalOpen(false)}>
               Cancel
             </Button>
-            <Button
-              onClick={handleAddOrUpdate}
-              className="bg-slate-900 text-white rounded-none font-black uppercase px-8 h-12 shadow-[4px_4px_0px_rgba(0,0,0,0.1)] hover:translate-x-1 hover:-translate-y-1 transition-transform"
-            >
+            <Button onClick={handleAddOrUpdate}>
               {editingCommitment ? 'Save Changes' : 'Create Commitment'}{' '}
               <ArrowRight size={14} className="ml-2" />
             </Button>

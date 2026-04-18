@@ -12,11 +12,12 @@ export function OutlierAlerts({
   year: number;
 }) {
   const today = new Date();
-  const currentMonth = year < today.getFullYear() 
-    ? 12 
-    : year > today.getFullYear() 
-      ? 0 
-      : today.getMonth() + 1;
+  const currentMonth =
+    year < today.getFullYear()
+      ? 12
+      : year > today.getFullYear()
+        ? 0
+        : today.getMonth() + 1;
 
   // 1. Calculate Average Spending per Subcategory (excluding current month and INCOME)
   const historicalSubcategories = subcategories.filter(
@@ -79,10 +80,10 @@ export function OutlierAlerts({
   if (anomalies.length === 0) return null;
 
   return (
-    <div className="italic font-medium">
+    <div className="font-medium">
       <div className="flex items-center gap-2 mb-6 text-rose-500">
         <AlertCircle className="w-4 h-4" />
-        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+        <h4 className="text-xs text-rose-500 font-black uppercase tracking-widest">
           Habit Anomaly Detected
         </h4>
       </div>
@@ -91,15 +92,15 @@ export function OutlierAlerts({
         {anomalies.map((a, i) => (
           <div key={i} className="flex justify-between items-start gap-4">
             <div className="flex flex-col">
-              <span className="text-xs font-black uppercase text-white">
+              <span className="text-sm font-black uppercase text-white">
                 {a.name}
               </span>
-              <p className="text-[9px] text-slate-400 uppercase leading-normal">
+              <p className="text-xs text-slate-400 uppercase leading-normal">
                 Spending is {a.diff.toFixed(0)}% above normal habit ($
                 {formatCurrencyRounded(a.avg)})
               </p>
             </div>
-            <div className="flex items-center text-rose-500 font-mono font-bold text-xs ring-1 ring-rose-500/30 px-2 py-0.5 bg-rose-500/10">
+            <div className="flex items-center text-rose-500 font-mono font-bold text-sm ring-1 ring-rose-500/30 px-2 py-0.5 bg-rose-500/10">
               <ArrowUpRight className="w-3 h-3 mr-1" />$
               {formatCurrencyRounded(a.current)}
             </div>

@@ -34,11 +34,12 @@ export function SourceBurnChart({
   }, []);
 
   const today = new Date();
-  const currentMonth = year < today.getFullYear() 
-    ? 12 
-    : year > today.getFullYear() 
-      ? 0 
-      : today.getMonth() + 1;
+  const currentMonth =
+    year < today.getFullYear()
+      ? 12
+      : year > today.getFullYear()
+        ? 0
+        : today.getMonth() + 1;
   const currentYear = year;
 
   // 1. Extract transactions for the YEAR-TO-DATE (EXCLUDING income categories)
@@ -99,7 +100,7 @@ export function SourceBurnChart({
   if (!mounted) return <div className="w-full h-[250px]" />;
 
   return (
-    <div className="w-full h-[250px] min-h-[250px] mt-4 overflow-hidden">
+    <div className="w-full h-[250px] min-h-[250px] mt-2 overflow-hidden">
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -119,7 +120,7 @@ export function SourceBurnChart({
             tickLine={false}
             width={70}
             tick={{
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: 900,
               fill: '#94A3B8',
               letterSpacing: '0.05em'
@@ -164,7 +165,7 @@ export function SourceBurnChart({
                 `${Number(val ?? 0).toFixed(0)}%`
               }
               style={{
-                fontSize: '10px',
+                fontSize: '11px',
                 fontWeight: 'bold',
                 fill: '#FFFFFF',
                 fontFamily: 'monospace',

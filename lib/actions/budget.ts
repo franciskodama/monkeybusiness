@@ -201,29 +201,32 @@ export async function addSubcategory(data: {
 export async function updateSubcategoryAmount(
   id: string,
   amount: number,
-  updateFutureMonths: boolean = false
+  mode: 'SINGLE' | 'FUTURE' | 'ALL' = 'SINGLE'
 ) {
   try {
     const currentItem = await prisma.subcategory.findUnique({ where: { id } });
     if (!currentItem) return { success: false };
 
-    if (updateFutureMonths) {
+    if (mode === 'SINGLE') {
+      await prisma.subcategory.update({
+        where: { id },
+        data: { amount }
+      });
+    } else {
       await prisma.subcategory.updateMany({
         where: {
           name: currentItem.name,
           householdId: currentItem.householdId,
           year: currentItem.year,
-          month: { gte: currentItem.month },
-          categoryId: currentItem.categoryId
+          categoryId: currentItem.categoryId,
+          ...(mode === 'FUTURE' && { month: { gte: currentItem.month } })
         },
         data: { amount }
       });
-    } else {
-      await prisma.subcategory.update({
-        where: { id },
-        data: { amount }
-      });
     }
+
+    revalidatePath('/planner');
+    revalidatePath('/analytics');
     return { success: true };
   } catch (error) {
     console.error('Failed to update subcategory:', error);

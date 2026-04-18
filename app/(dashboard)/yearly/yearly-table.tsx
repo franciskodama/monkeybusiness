@@ -165,7 +165,7 @@ export function YearlyTable({
               size: 10,
               className: 'text-slate-400'
             })}
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
               Annual Definition / {metricExplanations[metric].label}
             </span>
           </div>
@@ -273,8 +273,8 @@ export function YearlyTable({
     // Mathematical Surplus: (Total Funding) - (Expenses already in that funding) - (Expenses to pool) = Surplus
     // Since Effort = Income + Payments + InvestmentMoves, we must subtract the non-income parts twice:
     // Once to offset their inclusion in Effort, and once to account for the real cost.
-    const balanceBeforeInvestments = reality.effort - (reality.expenses * 2);
-    const finalBalance = balanceBeforeInvestments - (reality.investments * 2);
+    const balanceBeforeInvestments = reality.effort - reality.expenses * 2;
+    const finalBalance = balanceBeforeInvestments - reality.investments * 2;
 
     return {
       forecast,
@@ -354,8 +354,8 @@ export function YearlyTable({
     // The contribution includes money already paid out for expenses AND investments.
     // To find the net cash surplus, we must subtract the living expenses and investments twice:
     // Once to offset the "transaction contribution" and once to account for the "pool cost".
-    const balanceBeforeInvestments = (p1Effort + p2Effort) - (livingExpenses * 2);
-    const finalBalance = balanceBeforeInvestments - (investments * 2);
+    const balanceBeforeInvestments = p1Effort + p2Effort - livingExpenses * 2;
+    const finalBalance = balanceBeforeInvestments - investments * 2;
 
     return {
       p1Effort,
@@ -388,7 +388,7 @@ export function YearlyTable({
               variant="outline"
             >
               {isExporting ? (
-                <Loader2 className="animate-spin" size={14} />
+                <Loader2 className="animate-spin mr-2" size={14} />
               ) : (
                 <FileText size={14} className="mr-2" />
               )}
@@ -580,9 +580,11 @@ export function YearlyTable({
                             );
                           })}
                           <td className="p-3 text-center font-bold bg-slate-50 border-r font-mono">
-                            ${formatCurrency(
+                            $
+                            {formatCurrency(
                               months.reduce((acc, _, i) => {
-                                if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                                if (getMonthStatus(i + 1) === 'FUTURE')
+                                  return acc;
                                 return acc + getDisplayValue(name, i + 1);
                               }, 0)
                             )}
@@ -610,7 +612,8 @@ export function YearlyTable({
                               return (
                                 sum +
                                 (s.transactions?.reduce(
-                                  (tsum: number, t) => tsum + getAmount(t.amount),
+                                  (tsum: number, t) =>
+                                    tsum + getAmount(t.amount),
                                   0
                                 ) || 0)
                               );
@@ -632,40 +635,62 @@ export function YearlyTable({
                           </td>
                         );
                       })}
-                          <td className="p-3 text-center bg-slate-100/60 border-r font-mono font-black">
-                            $
-                            {formatCurrency(
-                              months.reduce((msum, _, i) => {
-                                if (getMonthStatus(i + 1) === 'FUTURE') return msum;
-                                return msum + subcategories
-                                  .filter(
-                                    (s) =>
-                                      s.categoryId === category.id && s.month === i + 1
-                                  )
-                                  .reduce((tsum, s) => {
-                                    return tsum + (s.transactions?.reduce((innerSum, t) => innerSum + getAmount(t.amount), 0) || 0);
-                                  }, 0);
-                              }, 0)
-                            )}
-                          </td>
-                          <td className="p-3 text-center bg-primary/10 font-mono text-primary font-black">
-                            $
-                            {formatCurrency(
-                              months.reduce((msum, _, i) => {
-                                const status = getMonthStatus(i + 1);
-                                const monthSum = subcategories
-                                  .filter((s) => s.categoryId === category.id && s.month === i + 1)
-                                  .reduce((tsum, s) => {
-                                    if (status !== 'FUTURE') {
-                                      return tsum + (s.transactions?.reduce((innerSum, t) => innerSum + getAmount(t.amount), 0) || 0);
-                                    }
-                                    return tsum + (s.amount || 0);
-                                  }, 0);
-                                return msum + monthSum;
-                              }, 0)
-                            )}
-                          </td>
-                        </tr>
+                      <td className="p-3 text-center bg-slate-100/60 border-r font-mono font-black">
+                        $
+                        {formatCurrency(
+                          months.reduce((msum, _, i) => {
+                            if (getMonthStatus(i + 1) === 'FUTURE') return msum;
+                            return (
+                              msum +
+                              subcategories
+                                .filter(
+                                  (s) =>
+                                    s.categoryId === category.id &&
+                                    s.month === i + 1
+                                )
+                                .reduce((tsum, s) => {
+                                  return (
+                                    tsum +
+                                    (s.transactions?.reduce(
+                                      (innerSum, t) =>
+                                        innerSum + getAmount(t.amount),
+                                      0
+                                    ) || 0)
+                                  );
+                                }, 0)
+                            );
+                          }, 0)
+                        )}
+                      </td>
+                      <td className="p-3 text-center bg-primary/10 font-mono text-primary font-black">
+                        $
+                        {formatCurrency(
+                          months.reduce((msum, _, i) => {
+                            const status = getMonthStatus(i + 1);
+                            const monthSum = subcategories
+                              .filter(
+                                (s) =>
+                                  s.categoryId === category.id &&
+                                  s.month === i + 1
+                              )
+                              .reduce((tsum, s) => {
+                                if (status !== 'FUTURE') {
+                                  return (
+                                    tsum +
+                                    (s.transactions?.reduce(
+                                      (innerSum, t) =>
+                                        innerSum + getAmount(t.amount),
+                                      0
+                                    ) || 0)
+                                  );
+                                }
+                                return tsum + (s.amount || 0);
+                              }, 0);
+                            return msum + monthSum;
+                          }, 0)
+                        )}
+                      </td>
+                    </tr>
                   </React.Fragment>
                 );
               })}
@@ -718,7 +743,7 @@ export function YearlyTable({
                       borderLeft: `4px solid ${row.color}`,
                       backgroundColor: 'white'
                     }}
-                    className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                    className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[11px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                   >
                     {row.label}
                   </td>
@@ -750,15 +775,17 @@ export function YearlyTable({
                   >
                     $
                     {formatCurrency(
-                      months.reduce(
-                        (acc, _, i) => {
-                          if (getMonthStatus(i + 1) === 'FUTURE') return acc;
-                          return acc + calculateMonthlySettlement(i + 1)[
-                            row.key as keyof ReturnType<typeof calculateMonthlySettlement>
-                          ];
-                        },
-                        0
-                      )
+                      months.reduce((acc, _, i) => {
+                        if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                        return (
+                          acc +
+                          calculateMonthlySettlement(i + 1)[
+                            row.key as keyof ReturnType<
+                              typeof calculateMonthlySettlement
+                            >
+                          ]
+                        );
+                      }, 0)
                     )}
                   </td>
                   <td
@@ -814,16 +841,15 @@ export function YearlyTable({
                   );
                 })}
                 <td className="p-4 text-center bg-slate-800 font-mono text-sm border-r">
-                   $
-                   {formatCurrency(
-                     months.reduce(
-                       (acc, _, i) => {
-                         if (getMonthStatus(i + 1) === 'FUTURE') return acc;
-                         return acc + calculateMonthlySettlement(i + 1).finalBalance;
-                       },
-                       0
-                     )
-                   )}
+                  $
+                  {formatCurrency(
+                    months.reduce((acc, _, i) => {
+                      if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                      return (
+                        acc + calculateMonthlySettlement(i + 1).finalBalance
+                      );
+                    }, 0)
+                  )}
                 </td>
                 <td className="p-4 text-center bg-slate-800 font-mono text-sm">
                   $
@@ -868,9 +894,9 @@ export function YearlyTable({
                 })}
                 <td className="p-3 text-center bg-emerald-800 font-mono text-xs border-r">
                   {(() => {
-                    const monthsData = months.filter((_, i) => getMonthStatus(i + 1) !== 'FUTURE').map((_, i) =>
-                      calculateMonthlySettlement(i + 1)
-                    );
+                    const monthsData = months
+                      .filter((_, i) => getMonthStatus(i + 1) !== 'FUTURE')
+                      .map((_, i) => calculateMonthlySettlement(i + 1));
                     const totalIncome = monthsData.reduce(
                       (msum, d) => msum + d.totalEffort,
                       0
@@ -920,7 +946,7 @@ export function YearlyTable({
                   <h3 className="text-lg font-black uppercase tracking-tight">
                     Yearly Settlement
                   </h3>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                  <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-widest">
                     Aggregated Financial Logic (YTD + Forecast)
                   </p>
                 </div>
@@ -930,16 +956,16 @@ export function YearlyTable({
                 {/* 1 - FORECAST */}
                 <section>
                   <div className="flex items-center gap-2 mb-6">
-                    <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                    <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[11px]">
                       1
                     </div>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
                       Forecast / Annual Plan
                     </h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                         Total Effort
                       </span>
                       <span className="text-xl font-mono font-black text-slate-900">
@@ -957,7 +983,7 @@ export function YearlyTable({
                       >
                         <div className="flex items-center justify-between">
                           <span
-                            className={`text-[9px] font-black uppercase tracking-widest ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-600' : 'text-slate-400'}`}
+                            className={`text-[11px] font-black uppercase tracking-widest ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-600' : 'text-slate-400'}`}
                           >
                             Total Expenses
                           </span>
@@ -976,14 +1002,14 @@ export function YearlyTable({
                         settlement.forecast.effort && (
                         <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
                           <AlertCircle size={10} className="text-white" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          <span className="text-xs font-black uppercase tracking-widest text-white">
                             Plan Deficit Warning
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                         Total Investments
                       </span>
                       <span className="text-xl font-mono font-black text-slate-900">
@@ -996,10 +1022,10 @@ export function YearlyTable({
                 {/* 2 - REALITY */}
                 <section>
                   <div className="flex items-center gap-2 mb-6">
-                    <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                    <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[11px]">
                       2
                     </div>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">
+                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">
                       Reality / Year-To-Date
                     </h4>
                   </div>
@@ -1007,7 +1033,7 @@ export function YearlyTable({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
                       <div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
                           {person1Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-cyan-900">
@@ -1027,7 +1053,7 @@ export function YearlyTable({
                     </div>
                     <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
                       <div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-orange-600 block mb-1">
                           {person2Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-orange-900">
@@ -1051,7 +1077,7 @@ export function YearlyTable({
                     <div className="p-6 bg-emerald-50 border-2 border-emerald-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(209,250,229,1)]">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-1.5 h-1.5 bg-emerald-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-emerald-700">
                           Total Effort
                         </span>
                       </div>
@@ -1074,7 +1100,7 @@ export function YearlyTable({
                               className={`w-1.5 h-1.5 ${settlement.reality.expenses > settlement.reality.effort ? 'bg-rose-400' : 'bg-slate-300'}`}
                             />
                             <span
-                              className={`text-[9px] font-black uppercase tracking-widest ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-700' : 'text-slate-400'}`}
+                              className={`text-[11px] font-black uppercase tracking-widest ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-700' : 'text-slate-400'}`}
                             >
                               Total Expenses
                             </span>
@@ -1094,7 +1120,7 @@ export function YearlyTable({
                         settlement.reality.effort && (
                         <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
                           <AlertCircle size={10} className="text-white" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          <span className="text-xs font-black uppercase tracking-widest text-white">
                             Reality Deficit Warning
                           </span>
                         </div>
@@ -1103,7 +1129,7 @@ export function YearlyTable({
                     <div className="p-6 bg-blue-50 border-2 border-blue-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(239,246,255,1)]">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-1.5 h-1.5 bg-blue-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-blue-700">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-blue-700">
                           Total Investments
                         </span>
                       </div>
@@ -1152,7 +1178,7 @@ export function YearlyTable({
 
                   {/* 2. Annual Funding Split Bar */}
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
+                    <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest text-slate-500 px-1">
                       <span>
                         {person1Name}{' '}
                         {Math.round(
@@ -1190,7 +1216,7 @@ export function YearlyTable({
 
                   {/* 3. Annual Performance Index Table */}
                   <div className="space-y-4 pt-4 border-t border-slate-800/50">
-                    <span className="text-[9px] uppercase font-black tracking-widest text-slate-600">
+                    <span className="text-[11px] uppercase font-black tracking-widest text-slate-600">
                       Performance Index
                     </span>
                     <div className="space-y-4">
@@ -1307,7 +1333,7 @@ export function YearlyTable({
                       >
                         ${formatCurrency(settlement.finalBalance)}
                       </span>
-                      <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
+                      <p className="text-[11px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
                         {settlement.finalBalance < 0
                           ? 'Deficit Year Projection'
                           : 'Positive Year Projection'}
@@ -1362,7 +1388,8 @@ export function YearlyTable({
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
               <span className="text-sm font-mono opacity-50 leading-none">
-                {selectedDetails ? months[selectedDetails.month - 1] : ''} {currentYear}
+                {selectedDetails ? months[selectedDetails.month - 1] : ''}{' '}
+                {currentYear}
               </span>
             </DialogTitle>
           </DialogHeader>
@@ -1379,14 +1406,14 @@ export function YearlyTable({
                       {tx.description}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
+                      <span className="text-[11px] text-primary font-bold uppercase tracking-tighter">
                         {tx.source === 'PERSON1'
                           ? person1Name
                           : tx.source === 'PERSON2'
                             ? person2Name
                             : tx.source}
                       </span>
-                      <span className="text-[9px] text-muted-foreground font-mono">
+                      <span className="text-[11px] text-muted-foreground font-mono">
                         {tx.date ? formatDate(tx.date) : ''}
                       </span>
                     </div>

@@ -185,7 +185,7 @@ export function BackupRestore({
           <Button
             onClick={() => document.getElementById('restore-file')?.click()}
             disabled={isRestoring}
-            className="w-full md:w-auto bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="w-full md:w-auto border-[1.6px] border-emerald-700 bg-emerald-600 hover:bg-emerald-700 text-white"
           >
             {isRestoring ? 'Processing...' : 'Upload Structure'}
           </Button>

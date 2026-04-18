@@ -119,22 +119,29 @@ export default function Planner({
   const handleUpdateAmount = (
     itemId: string,
     newAmount: number,
-    updateFuture: boolean
+    mode: 'SINGLE' | 'FUTURE' | 'ALL'
   ) => {
-    setCurrentSubcategoriesAction((prev) =>
-      prev.map((item) => {
-        const sourceItem = prev.find((i) => i.id === itemId);
-        const isTargetItem = item.id === itemId;
-        const isFutureMatch =
-          updateFuture &&
-          item.name === sourceItem?.name &&
-          item.month >= (sourceItem?.month ?? 0);
+    setCurrentSubcategoriesAction((prev) => {
+      const sourceItem = prev.find((i) => i.id === itemId);
+      if (!sourceItem) return prev;
 
-        if (isTargetItem || isFutureMatch)
-          return { ...item, amount: newAmount };
+      return prev.map((item) => {
+        const isSameSubcategory =
+          item.name === sourceItem.name &&
+          item.categoryId === sourceItem.categoryId &&
+          item.year === sourceItem.year;
+
+        const isTarget =
+          (mode === 'SINGLE' && item.id === itemId) ||
+          (mode === 'FUTURE' &&
+            isSameSubcategory &&
+            item.month >= sourceItem.month) ||
+          (mode === 'ALL' && isSameSubcategory);
+
+        if (isTarget) return { ...item, amount: newAmount };
         return item;
-      })
-    );
+      });
+    });
   };
 
   const handleRenameSubcategory = (oldName: string, newName: string) => {
@@ -273,10 +280,6 @@ export default function Planner({
   // Export Budget Data
   //--------------------------------------------------
 
-  //--------------------------------------------------
-  // Export Budget Data
-  //--------------------------------------------------
-
   const exportBudgetData = () => {
     const categoriesMap: Record<
       string,
@@ -366,10 +369,7 @@ export default function Planner({
               {recentTransactions.length > 0 && (
                 <Popover onOpenChange={(open) => !open && setHistoryIndex(0)}>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="gap-2 hover:border-slate-400  h-10 px-4 group transition-all"
-                    >
+                    <Button variant="outline" className="gap-2">
                       <History
                         size={14}
                         className="group-hover:text-slate-600 transition-colors"
@@ -377,16 +377,16 @@ export default function Planner({
                       Last Entry
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 p-0 rounded-none border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+                  <PopoverContent className="w-80 p-0 rounded-none border-2 border-slate-900 shadow-[6px_6px_0px_rgba(0,0,0,0.1)]">
                     <div className="bg-slate-900 p-3 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Info size={14} className="text-cyan-400" />
-                        <span className="text-white text-[10px] uppercase font-black tracking-widest">
+                        <span className="text-white text-xs uppercase font-black tracking-widest">
                           Recent Activity Log
                         </span>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className="text-[9px] font-mono text-slate-400 mr-2 uppercase tracking-tighter">
+                        <span className="text-[11px] font-mono text-slate-300 mr-2 uppercase tracking-tighter">
                           {historyIndex + 1} / {recentTransactions.length}
                         </span>
                         <div className="flex items-center gap-0.5">
@@ -425,11 +425,11 @@ export default function Planner({
                       </div>
                     </div>
                     <div className="p-4 space-y-4 bg-white">
-                      <div className="space-y-3">
+                      <div className="space-y-6">
                         {/* Transaction Content */}
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 p-1.5 bg-slate-100 rounded-sm">
-                            <Calendar size={14} className="text-slate-500" />
+                            <Calendar size={18} className="text-slate-500" />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
@@ -445,7 +445,7 @@ export default function Planner({
 
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 p-1.5 bg-emerald-50 rounded-sm">
-                            <Tag size={14} className="text-emerald-600" />
+                            <Tag size={18} className="text-emerald-600" />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
@@ -454,7 +454,7 @@ export default function Planner({
                             <span className="text-sm font-bold text-slate-900 leading-tight">
                               {recentTransactions[historyIndex].description}
                             </span>
-                            <span className="text-[10px] font-medium text-slate-500 mt-0.5">
+                            <span className="text-xs font-medium text-slate-500 mt-0.5">
                               {
                                 recentTransactions[historyIndex].subcategory
                                   ?.category?.name
@@ -470,7 +470,7 @@ export default function Planner({
 
                         <div className="flex items-start gap-3">
                           <div className="mt-0.5 p-1.5 bg-cyan-50 rounded-sm">
-                            <CreditCard size={14} className="text-cyan-600" />
+                            <CreditCard size={18} className="text-cyan-600" />
                           </div>
                           <div className="flex flex-col">
                             <span className="text-[9px] uppercase font-black text-slate-400 tracking-wider">
@@ -484,7 +484,7 @@ export default function Planner({
                                 )}
                               </span>
                             </div>
-                            <span className="text-[10px] text-slate-800 italic">
+                            <span className="text-xs text-slate-800">
                               Entered on{' '}
                               {new Date(
                                 recentTransactions[historyIndex].createdAt
@@ -504,9 +504,6 @@ export default function Planner({
               )}
               <TransactionImporter
                 householdId={householdId}
-                subcategoriesForCurrentMonth={currentSubcategories.filter(
-                  (i) => i.month === selectedMonth
-                )}
                 setReviewDataAction={setReviewData}
                 person1Name={p1Name}
                 person2Name={p2Name}
@@ -910,12 +907,8 @@ export default function Planner({
                                 key={`${item.id}-${selectedMonth}`}
                                 id={item.id}
                                 initialAmount={targetAmount}
-                                onUpdateSuccess={(amount, updateFuture) =>
-                                  handleUpdateAmount(
-                                    item.id,
-                                    amount,
-                                    updateFuture
-                                  )
+                                onUpdateSuccess={(amount, mode) =>
+                                  handleUpdateAmount(item.id, amount, mode)
                                 }
                               />
                             </div>

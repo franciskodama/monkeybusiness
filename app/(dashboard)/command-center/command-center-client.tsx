@@ -48,11 +48,12 @@ export default function CommandCenterClient({
   const [showLogic, setShowLogic] = useState(false);
 
   const now = new Date();
-  const currentMonth = year < now.getFullYear() 
-    ? 12 
-    : year > now.getFullYear() 
-      ? 0 
-      : now.getMonth() + 1;
+  const currentMonth =
+    year < now.getFullYear()
+      ? 12
+      : year > now.getFullYear()
+        ? 0
+        : now.getMonth() + 1;
 
   const p1Name =
     user?.household?.person1Name ||
@@ -501,7 +502,8 @@ export default function CommandCenterClient({
               Strategic Financial Intelligence /{' '}
               {now.toLocaleString('default', {
                 month: 'long'
-              })} {year}
+              })}{' '}
+              {year}
             </p>
           </div>
         </div>
@@ -638,7 +640,7 @@ export default function CommandCenterClient({
         {/* SIDE BAR: DRILL DOWN INSIGHTS */}
         <div className="lg:col-span-4 space-y-8">
           <div className="bg-slate-900 p-8 text-white shadow-[10px_10px_0px_rgba(15,23,42,0.1)] h-full">
-            <h3 className="text-lg font-black uppercase tracking-tighter mb-8 flex items-center gap-2 text-white">
+            <h3 className="text-lg font-black uppercase tracking-wider mb-12 flex items-center gap-2 text-white">
               <ArrowUpRight className="text-emerald-400" size={20} />
               Strategic Drill-Down
             </h3>
@@ -649,7 +651,7 @@ export default function CommandCenterClient({
               </div>
 
               <div className="pt-8 border-t border-slate-800">
-                <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-6">
+                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-2">
                   Source Analytics
                 </h4>
                 <div className="h-[250px] -mx-4">
@@ -663,7 +665,10 @@ export default function CommandCenterClient({
               </div>
 
               <div className="pt-8 border-t border-slate-800">
-                <FixedVariableTracker subcategories={subcategories} year={year} />
+                <FixedVariableTracker
+                  subcategories={subcategories}
+                  year={year}
+                />
               </div>
             </div>
           </div>

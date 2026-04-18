@@ -5,7 +5,9 @@ import {
   Plus,
   Calendar as CalendarIcon,
   AlertTriangle,
-  AlertCircle
+  AlertCircle,
+  Lightbulb,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -55,6 +57,7 @@ export function AddTransactionModal({
   const [amount, setAmount] = useState('');
   const [description, setDescription] = useState(itemName);
   const [source, setSource] = useState('FAMILY');
+  const [isAutoSelected, setIsAutoSelected] = useState(false);
 
   // Initialize date based on selected month
   const today = new Date();
@@ -76,6 +79,16 @@ export function AddTransactionModal({
           : `${year}-${selectedMonth.toString().padStart(2, '0')}-01`;
       setDate(initialDate);
       setDescription(itemName);
+
+      // Proactive Auto-selection
+      const usual = getUsualSource();
+      if (usual) {
+        setSource(usual);
+        setIsAutoSelected(true);
+      } else {
+        setSource('FAMILY');
+        setIsAutoSelected(false);
+      }
     }
   };
 
@@ -140,6 +153,34 @@ export function AddTransactionModal({
       setAmount('');
     }
   };
+
+  // Intelligent source detection
+  const getUsualSource = () => {
+    // Find all transactions across the year for this specific item name
+    const history = allAvailableSubcategories
+      .filter((s) => s.name === itemName)
+      .flatMap((s) => s.transactions || []);
+
+    if (history.length < 2) return null;
+
+    const counts: Record<string, number> = {};
+    history.forEach((tx) => {
+      if (typeof tx.source === 'string') {
+        counts[tx.source] = (counts[tx.source] || 0) + 1;
+      }
+    });
+
+    const sortedByCount = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+    const [mostFrequentSource, count] = sortedByCount[0];
+
+    // If a source is used > 70% of the time, consider it the "usual" source
+    if (count / history.length > 0.7) {
+      return mostFrequentSource;
+    }
+    return null;
+  };
+
+  const usualSource = getUsualSource();
 
   // Duplicate detection
   // If month mismatch, we're looking at a different subcategory ID potentially
@@ -297,7 +338,13 @@ export function AddTransactionModal({
             <label className="text-[10px] font-black uppercase tracking-widest text-slate-500">
               Source
             </label>
-            <Select onValueChange={setSource} value={source}>
+            <Select
+              onValueChange={(val) => {
+                setSource(val);
+                setIsAutoSelected(false);
+              }}
+              value={source}
+            >
               <SelectTrigger
                 className="h-12 border-slate-200 focus:ring-0 rounded-none text-sm font-black uppercase tracking-widest transition-all"
                 style={{
@@ -331,6 +378,46 @@ export function AddTransactionModal({
                 </SelectItem>
               </SelectContent>
             </Select>
+
+            {isAutoSelected && usualSource === source && (
+              <div className="bg-cyan-50 border-l-4 border-cyan-500 p-3 animate-in fade-in zoom-in-95 duration-300">
+                <div className="flex items-start gap-3">
+                  <Sparkles className="text-cyan-600 shrink-0" size={14} />
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-black uppercase tracking-tight text-cyan-800">
+                      Smart Selection
+                    </p>
+                    <p className="text-[10px] text-cyan-700 leading-tight">
+                      Source selected based on your spending habits.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {usualSource && !isAutoSelected && usualSource !== source && (
+              <div className="bg-amber-50 border-l-4 border-amber-500 p-3 animate-in fade-in zoom-in-95 duration-300">
+                <div className="flex items-start gap-3">
+                  <Lightbulb className="text-amber-600 shrink-0" size={14} />
+                  <div className="space-y-0.5">
+                    <p className="text-[9px] font-black uppercase tracking-tight text-amber-800">
+                      Different Source
+                    </p>
+                    <p className="text-[10px] text-amber-700 leading-tight">
+                      This is usually paid by{' '}
+                      <span className="uppercase font-bold">
+                        {usualSource === 'PERSON1'
+                          ? person1Name
+                          : usualSource === 'PERSON2'
+                            ? person2Name
+                            : 'Family'}
+                      </span>
+                      .
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <Button
