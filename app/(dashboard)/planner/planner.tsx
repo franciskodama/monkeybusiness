@@ -377,7 +377,7 @@ export default function Planner({
                       Last Entry
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-80 p-0 rounded-none border-2 border-slate-900 shadow-[4px_4px_0px_0px_rgba(15,23,42,1)]">
+                  <PopoverContent className="w-80 p-0 rounded-none border-2 border-slate-900 shadow-[6px_6px_0px_rgba(0,0,0,0.1)]">
                     <div className="bg-slate-900 p-3 flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <Info size={14} className="text-cyan-400" />
