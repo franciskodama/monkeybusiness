@@ -167,7 +167,7 @@ export function MonthSettlement({
               >
                 Month Settlement
               </h3>
-              <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+              <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">
                 Detailed Financial Flow & Balance Logic
               </p>
             </div>
@@ -180,7 +180,7 @@ export function MonthSettlement({
                 <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                   1
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                   Step 1: Living Expenses
                 </span>
               </div>
@@ -247,7 +247,7 @@ export function MonthSettlement({
                 <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                   2
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                   Step 2: Pool Funding (Credits)
                 </span>
               </div>
@@ -291,7 +291,7 @@ export function MonthSettlement({
                 <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
                   3
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                   Step 3: Individual Effort (Spending + Funding)
                 </span>
               </div>
@@ -325,14 +325,14 @@ export function MonthSettlement({
                 <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
                   4
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">
+                <span className="text-[11px] font-black uppercase tracking-widest text-emerald-600">
                   Step 4: Calculating Surplus
                 </span>
               </div>
               <div className="flex flex-col md:grid md:grid-cols-10 items-center gap-0.5 bg-white p-2 rounded-none">
                 <div className="w-full md:col-span-2">
                   <div className="p-4 rounded-none border border-emerald-100 bg-emerald-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(209,250,229,0.5)]">
-                    <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
+                    <span className="text-[11px] uppercase font-black tracking-widest opacity-60 mb-1">
                       Total Effort
                     </span>
                     <span className="font-mono font-black text-emerald-800 text-base sm:text-lg">
@@ -350,7 +350,7 @@ export function MonthSettlement({
                     className={`rounded-none border border-rose-100 bg-rose-50/50 flex flex-col items-center justify-center text-center shadow-[4px_4px_0px_rgba(255,241,242,0.8)] 
   ${totalLivingExpenses > grandTotalContribution ? 'p-2 mb-1' : 'p-4'}`}
                   >
-                    <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
+                    <span className="text-[11px] uppercase font-black tracking-widest opacity-60 mb-1">
                       Total Expenses
                     </span>
                     <span className="font-mono font-black text-rose-800 text-base sm:text-lg">
@@ -388,7 +388,7 @@ export function MonthSettlement({
             <div className="flex-1 space-y-8">
               {/* Month Header */}
               <div className="border-b-2 border-slate-700 pb-6 -mx-2">
-                <span className="text-[10px] uppercase font-black tracking-[0.4em] text-emerald-500 block mb-1">
+                <span className="text-[11px] uppercase font-black tracking-[0.4em] text-emerald-500 block mb-1">
                   Settlement
                 </span>
                 <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
@@ -398,7 +398,7 @@ export function MonthSettlement({
 
               {/* 1. Score: Grand Total */}
               <div>
-                <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-3">
+                <span className="text-[11px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-3">
                   Monthly Effort
                 </span>
                 <div className="space-y-1">
@@ -414,7 +414,7 @@ export function MonthSettlement({
                     <span className="text-base font-mono font-black text-slate-400">
                       R$ {formatCurrency(grandTotalContribution * brlRate)}
                     </span>
-                    <span className="text-[10px] font-bold text-slate-400 mb-0.5">
+                    <span className="text-[11px] font-bold text-slate-400 mb-0.5">
                       BRL
                     </span>
                   </div>
@@ -461,7 +461,7 @@ export function MonthSettlement({
                       <div
                         className={`w-1 h-1 transition-all ${activeMetric === 'savingsRate' ? 'bg-emerald-400 scale-150' : 'bg-emerald-500'}`}
                       />
-                      <span className="text-[10px] font-bold uppercase transition-all">
+                      <span className="text-[11px] font-bold uppercase transition-all">
                         Savings Rate
                       </span>
                     </div>
@@ -488,7 +488,7 @@ export function MonthSettlement({
                       <div
                         className={`w-1 h-1 transition-all ${activeMetric === 'efficiency' ? 'bg-blue-400 scale-150' : 'bg-blue-500'}`}
                       />
-                      <span className="text-[10px] font-bold uppercase transition-all">
+                      <span className="text-[11px] font-bold uppercase transition-all">
                         Living Efficiency
                       </span>
                     </div>
@@ -513,7 +513,7 @@ export function MonthSettlement({
                       <div
                         className={`w-1 h-1 transition-all ${activeMetric === 'burn' ? 'bg-slate-100 scale-150' : 'bg-slate-500'}`}
                       />
-                      <span className="text-[10px] font-bold uppercase transition-all">
+                      <span className="text-[11px] font-bold uppercase transition-all">
                         Daily Burn
                       </span>
                     </div>
@@ -564,7 +564,7 @@ export function MonthSettlement({
                 } ${activeMetric === 'settlement' ? 'ring-2 ring-slate-400 border-slate-400' : ''}`}
               >
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
+                  <span className="text-[11px] uppercase font-black tracking-widest text-slate-400">
                     Final Settlement
                   </span>
                   {Math.abs(finalBalance) < 0.01 && (
@@ -622,7 +622,7 @@ export function MonthSettlement({
                 ) : (
                   <TrendingUp size={14} className="text-slate-500" />
                 )}
-                <span className="text-[10px] uppercase font-black text-slate-300 tracking-[0.2em]">
+                <span className="text-[11px] uppercase font-black text-slate-300 tracking-[0.2em]">
                   {savingsRate > 30
                     ? 'High Wealth Velocity'
                     : savingsRate > 15
@@ -726,7 +726,7 @@ const EquationBox = ({
       onClick={onClick}
       className={`p-4 border-2 rounded-none flex flex-col justify-center items-center text-center transition-all ${onClick ? 'cursor-pointer hover:shadow-md' : ''} ${colors[color]}`}
     >
-      <span className="text-[10px] uppercase font-black tracking-widest opacity-60 mb-1">
+      <span className="text-[11px] uppercase font-black tracking-widest opacity-60 mb-1">
         {title}
       </span>
       <span

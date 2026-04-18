@@ -146,7 +146,7 @@ export function AddSubcategory({
             <SheetTitle className="text-lg uppercase font-bold text-left">
               Add Your Subcategory
             </SheetTitle>
-            <SheetDescription className="text-sm font-normal lowercase text-left">
+            <SheetDescription className="text-sm font-normal text-left">
               Set your budget and recurrence.
             </SheetDescription>
           </div>

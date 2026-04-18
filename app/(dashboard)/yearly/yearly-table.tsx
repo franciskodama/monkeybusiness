@@ -165,7 +165,7 @@ export function YearlyTable({
               size: 10,
               className: 'text-slate-400'
             })}
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+            <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
               Annual Definition / {metricExplanations[metric].label}
             </span>
           </div>
@@ -743,7 +743,7 @@ export function YearlyTable({
                       borderLeft: `4px solid ${row.color}`,
                       backgroundColor: 'white'
                     }}
-                    className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[9px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
+                    className="sticky left-0 z-10 p-3 border-r pl-8 uppercase tracking-widest text-[11px] font-black shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]"
                   >
                     {row.label}
                   </td>
@@ -946,7 +946,7 @@ export function YearlyTable({
                   <h3 className="text-lg font-black uppercase tracking-tight">
                     Yearly Settlement
                   </h3>
-                  <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">
+                  <p className="text-[11px] text-muted-foreground uppercase font-bold tracking-widest">
                     Aggregated Financial Logic (YTD + Forecast)
                   </p>
                 </div>
@@ -956,16 +956,16 @@ export function YearlyTable({
                 {/* 1 - FORECAST */}
                 <section>
                   <div className="flex items-center gap-2 mb-6">
-                    <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                    <div className="w-4 h-4 rounded-none bg-slate-400 border-2 border-slate-400 flex items-center justify-center font-mono font-black text-white text-[11px]">
                       1
                     </div>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
                       Forecast / Annual Plan
                     </h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                         Total Effort
                       </span>
                       <span className="text-xl font-mono font-black text-slate-900">
@@ -983,7 +983,7 @@ export function YearlyTable({
                       >
                         <div className="flex items-center justify-between">
                           <span
-                            className={`text-[9px] font-black uppercase tracking-widest ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-600' : 'text-slate-400'}`}
+                            className={`text-[11px] font-black uppercase tracking-widest ${settlement.forecast.expenses > settlement.forecast.effort ? 'text-rose-600' : 'text-slate-400'}`}
                           >
                             Total Expenses
                           </span>
@@ -1002,14 +1002,14 @@ export function YearlyTable({
                         settlement.forecast.effort && (
                         <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
                           <AlertCircle size={10} className="text-white" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          <span className="text-xs font-black uppercase tracking-widest text-white">
                             Plan Deficit Warning
                           </span>
                         </div>
                       )}
                     </div>
                     <div className="p-6 bg-white border-2 border-slate-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(241,245,249,1)]">
-                      <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">
                         Total Investments
                       </span>
                       <span className="text-xl font-mono font-black text-slate-900">
@@ -1022,10 +1022,10 @@ export function YearlyTable({
                 {/* 2 - REALITY */}
                 <section>
                   <div className="flex items-center gap-2 mb-6">
-                    <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[9px]">
+                    <div className="w-4 h-4 rounded-none bg-emerald-500 border-2 border-emerald-500 flex items-center justify-center font-mono font-black text-white text-[11px]">
                       2
                     </div>
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">
+                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-emerald-600">
                       Reality / Year-To-Date
                     </h4>
                   </div>
@@ -1033,7 +1033,7 @@ export function YearlyTable({
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <div className="p-6 bg-cyan-50/30 border-2 border-cyan-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(165,243,252,0.4)]">
                       <div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-cyan-600 block mb-1">
                           {person1Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-cyan-900">
@@ -1053,7 +1053,7 @@ export function YearlyTable({
                     </div>
                     <div className="p-6 bg-orange-50/30 border-2 border-orange-100 flex justify-between items-center group shadow-[4px_4px_0px_rgba(254,215,170,0.4)]">
                       <div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-orange-600 block mb-1">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-orange-600 block mb-1">
                           {person2Name} Contribution
                         </span>
                         <span className="text-2xl font-mono font-black text-orange-900">
@@ -1077,7 +1077,7 @@ export function YearlyTable({
                     <div className="p-6 bg-emerald-50 border-2 border-emerald-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(209,250,229,1)]">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-1.5 h-1.5 bg-emerald-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-emerald-700">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-emerald-700">
                           Total Effort
                         </span>
                       </div>
@@ -1100,7 +1100,7 @@ export function YearlyTable({
                               className={`w-1.5 h-1.5 ${settlement.reality.expenses > settlement.reality.effort ? 'bg-rose-400' : 'bg-slate-300'}`}
                             />
                             <span
-                              className={`text-[9px] font-black uppercase tracking-widest ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-700' : 'text-slate-400'}`}
+                              className={`text-[11px] font-black uppercase tracking-widest ${settlement.reality.expenses > settlement.reality.effort ? 'text-rose-700' : 'text-slate-400'}`}
                             >
                               Total Expenses
                             </span>
@@ -1120,7 +1120,7 @@ export function YearlyTable({
                         settlement.reality.effort && (
                         <div className="flex items-center justify-center gap-2 py-1.5 bg-rose-500 border-2 border-rose-500 shadow-[4px_4px_0px_rgba(251,113,133,0.2)]">
                           <AlertCircle size={10} className="text-white" />
-                          <span className="text-[8px] font-black uppercase tracking-widest text-white">
+                          <span className="text-xs font-black uppercase tracking-widest text-white">
                             Reality Deficit Warning
                           </span>
                         </div>
@@ -1129,7 +1129,7 @@ export function YearlyTable({
                     <div className="p-6 bg-blue-50 border-2 border-blue-100 flex flex-col gap-1 shadow-[4px_4px_0px_rgba(239,246,255,1)]">
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-1.5 h-1.5 bg-blue-400" />
-                        <span className="text-[9px] font-black uppercase tracking-widest text-blue-700">
+                        <span className="text-[11px] font-black uppercase tracking-widest text-blue-700">
                           Total Investments
                         </span>
                       </div>
@@ -1178,7 +1178,7 @@ export function YearlyTable({
 
                   {/* 2. Annual Funding Split Bar */}
                   <div className="space-y-2">
-                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-slate-500 px-1">
+                    <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest text-slate-500 px-1">
                       <span>
                         {person1Name}{' '}
                         {Math.round(
@@ -1216,7 +1216,7 @@ export function YearlyTable({
 
                   {/* 3. Annual Performance Index Table */}
                   <div className="space-y-4 pt-4 border-t border-slate-800/50">
-                    <span className="text-[9px] uppercase font-black tracking-widest text-slate-600">
+                    <span className="text-[11px] uppercase font-black tracking-widest text-slate-600">
                       Performance Index
                     </span>
                     <div className="space-y-4">
@@ -1333,7 +1333,7 @@ export function YearlyTable({
                       >
                         ${formatCurrency(settlement.finalBalance)}
                       </span>
-                      <p className="text-[9px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
+                      <p className="text-[11px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
                         {settlement.finalBalance < 0
                           ? 'Deficit Year Projection'
                           : 'Positive Year Projection'}
@@ -1406,14 +1406,14 @@ export function YearlyTable({
                       {tx.description}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
+                      <span className="text-[11px] text-primary font-bold uppercase tracking-tighter">
                         {tx.source === 'PERSON1'
                           ? person1Name
                           : tx.source === 'PERSON2'
                             ? person2Name
                             : tx.source}
                       </span>
-                      <span className="text-[9px] text-muted-foreground font-mono">
+                      <span className="text-[11px] text-muted-foreground font-mono">
                         {tx.date ? formatDate(tx.date) : ''}
                       </span>
                     </div>
