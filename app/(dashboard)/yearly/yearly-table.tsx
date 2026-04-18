@@ -273,8 +273,8 @@ export function YearlyTable({
     // Mathematical Surplus: (Total Funding) - (Expenses already in that funding) - (Expenses to pool) = Surplus
     // Since Effort = Income + Payments + InvestmentMoves, we must subtract the non-income parts twice:
     // Once to offset their inclusion in Effort, and once to account for the real cost.
-    const balanceBeforeInvestments = reality.effort - (reality.expenses * 2);
-    const finalBalance = balanceBeforeInvestments - (reality.investments * 2);
+    const balanceBeforeInvestments = reality.effort - reality.expenses * 2;
+    const finalBalance = balanceBeforeInvestments - reality.investments * 2;
 
     return {
       forecast,
@@ -354,8 +354,8 @@ export function YearlyTable({
     // The contribution includes money already paid out for expenses AND investments.
     // To find the net cash surplus, we must subtract the living expenses and investments twice:
     // Once to offset the "transaction contribution" and once to account for the "pool cost".
-    const balanceBeforeInvestments = (p1Effort + p2Effort) - (livingExpenses * 2);
-    const finalBalance = balanceBeforeInvestments - (investments * 2);
+    const balanceBeforeInvestments = p1Effort + p2Effort - livingExpenses * 2;
+    const finalBalance = balanceBeforeInvestments - investments * 2;
 
     return {
       p1Effort,
@@ -388,7 +388,7 @@ export function YearlyTable({
               variant="outline"
             >
               {isExporting ? (
-                <Loader2 className="animate-spin" size={14} />
+                <Loader2 className="animate-spin mr-2" size={14} />
               ) : (
                 <FileText size={14} className="mr-2" />
               )}
@@ -580,9 +580,11 @@ export function YearlyTable({
                             );
                           })}
                           <td className="p-3 text-center font-bold bg-slate-50 border-r font-mono">
-                            ${formatCurrency(
+                            $
+                            {formatCurrency(
                               months.reduce((acc, _, i) => {
-                                if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                                if (getMonthStatus(i + 1) === 'FUTURE')
+                                  return acc;
                                 return acc + getDisplayValue(name, i + 1);
                               }, 0)
                             )}
@@ -610,7 +612,8 @@ export function YearlyTable({
                               return (
                                 sum +
                                 (s.transactions?.reduce(
-                                  (tsum: number, t) => tsum + getAmount(t.amount),
+                                  (tsum: number, t) =>
+                                    tsum + getAmount(t.amount),
                                   0
                                 ) || 0)
                               );
@@ -632,40 +635,62 @@ export function YearlyTable({
                           </td>
                         );
                       })}
-                          <td className="p-3 text-center bg-slate-100/60 border-r font-mono font-black">
-                            $
-                            {formatCurrency(
-                              months.reduce((msum, _, i) => {
-                                if (getMonthStatus(i + 1) === 'FUTURE') return msum;
-                                return msum + subcategories
-                                  .filter(
-                                    (s) =>
-                                      s.categoryId === category.id && s.month === i + 1
-                                  )
-                                  .reduce((tsum, s) => {
-                                    return tsum + (s.transactions?.reduce((innerSum, t) => innerSum + getAmount(t.amount), 0) || 0);
-                                  }, 0);
-                              }, 0)
-                            )}
-                          </td>
-                          <td className="p-3 text-center bg-primary/10 font-mono text-primary font-black">
-                            $
-                            {formatCurrency(
-                              months.reduce((msum, _, i) => {
-                                const status = getMonthStatus(i + 1);
-                                const monthSum = subcategories
-                                  .filter((s) => s.categoryId === category.id && s.month === i + 1)
-                                  .reduce((tsum, s) => {
-                                    if (status !== 'FUTURE') {
-                                      return tsum + (s.transactions?.reduce((innerSum, t) => innerSum + getAmount(t.amount), 0) || 0);
-                                    }
-                                    return tsum + (s.amount || 0);
-                                  }, 0);
-                                return msum + monthSum;
-                              }, 0)
-                            )}
-                          </td>
-                        </tr>
+                      <td className="p-3 text-center bg-slate-100/60 border-r font-mono font-black">
+                        $
+                        {formatCurrency(
+                          months.reduce((msum, _, i) => {
+                            if (getMonthStatus(i + 1) === 'FUTURE') return msum;
+                            return (
+                              msum +
+                              subcategories
+                                .filter(
+                                  (s) =>
+                                    s.categoryId === category.id &&
+                                    s.month === i + 1
+                                )
+                                .reduce((tsum, s) => {
+                                  return (
+                                    tsum +
+                                    (s.transactions?.reduce(
+                                      (innerSum, t) =>
+                                        innerSum + getAmount(t.amount),
+                                      0
+                                    ) || 0)
+                                  );
+                                }, 0)
+                            );
+                          }, 0)
+                        )}
+                      </td>
+                      <td className="p-3 text-center bg-primary/10 font-mono text-primary font-black">
+                        $
+                        {formatCurrency(
+                          months.reduce((msum, _, i) => {
+                            const status = getMonthStatus(i + 1);
+                            const monthSum = subcategories
+                              .filter(
+                                (s) =>
+                                  s.categoryId === category.id &&
+                                  s.month === i + 1
+                              )
+                              .reduce((tsum, s) => {
+                                if (status !== 'FUTURE') {
+                                  return (
+                                    tsum +
+                                    (s.transactions?.reduce(
+                                      (innerSum, t) =>
+                                        innerSum + getAmount(t.amount),
+                                      0
+                                    ) || 0)
+                                  );
+                                }
+                                return tsum + (s.amount || 0);
+                              }, 0);
+                            return msum + monthSum;
+                          }, 0)
+                        )}
+                      </td>
+                    </tr>
                   </React.Fragment>
                 );
               })}
@@ -750,15 +775,17 @@ export function YearlyTable({
                   >
                     $
                     {formatCurrency(
-                      months.reduce(
-                        (acc, _, i) => {
-                          if (getMonthStatus(i + 1) === 'FUTURE') return acc;
-                          return acc + calculateMonthlySettlement(i + 1)[
-                            row.key as keyof ReturnType<typeof calculateMonthlySettlement>
-                          ];
-                        },
-                        0
-                      )
+                      months.reduce((acc, _, i) => {
+                        if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                        return (
+                          acc +
+                          calculateMonthlySettlement(i + 1)[
+                            row.key as keyof ReturnType<
+                              typeof calculateMonthlySettlement
+                            >
+                          ]
+                        );
+                      }, 0)
                     )}
                   </td>
                   <td
@@ -814,16 +841,15 @@ export function YearlyTable({
                   );
                 })}
                 <td className="p-4 text-center bg-slate-800 font-mono text-sm border-r">
-                   $
-                   {formatCurrency(
-                     months.reduce(
-                       (acc, _, i) => {
-                         if (getMonthStatus(i + 1) === 'FUTURE') return acc;
-                         return acc + calculateMonthlySettlement(i + 1).finalBalance;
-                       },
-                       0
-                     )
-                   )}
+                  $
+                  {formatCurrency(
+                    months.reduce((acc, _, i) => {
+                      if (getMonthStatus(i + 1) === 'FUTURE') return acc;
+                      return (
+                        acc + calculateMonthlySettlement(i + 1).finalBalance
+                      );
+                    }, 0)
+                  )}
                 </td>
                 <td className="p-4 text-center bg-slate-800 font-mono text-sm">
                   $
@@ -868,9 +894,9 @@ export function YearlyTable({
                 })}
                 <td className="p-3 text-center bg-emerald-800 font-mono text-xs border-r">
                   {(() => {
-                    const monthsData = months.filter((_, i) => getMonthStatus(i + 1) !== 'FUTURE').map((_, i) =>
-                      calculateMonthlySettlement(i + 1)
-                    );
+                    const monthsData = months
+                      .filter((_, i) => getMonthStatus(i + 1) !== 'FUTURE')
+                      .map((_, i) => calculateMonthlySettlement(i + 1));
                     const totalIncome = monthsData.reduce(
                       (msum, d) => msum + d.totalEffort,
                       0
@@ -1362,7 +1388,8 @@ export function YearlyTable({
             <DialogTitle className="uppercase tracking-widest font-black text-xl flex items-center justify-between pr-8">
               <span>{selectedDetails?.name}</span>
               <span className="text-sm font-mono opacity-50 leading-none">
-                {selectedDetails ? months[selectedDetails.month - 1] : ''} {currentYear}
+                {selectedDetails ? months[selectedDetails.month - 1] : ''}{' '}
+                {currentYear}
               </span>
             </DialogTitle>
           </DialogHeader>
