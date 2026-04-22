@@ -30,14 +30,14 @@ export function FixedVariableTracker({
   return (
     <div className="relative flex flex-col justify-between w-full h-full">
       <div className="flex flex-col gap-1">
-        <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+        <h4 className="text-sm font-black uppercase tracking-widest text-slate-500">
           Annual Strategic Commitment
         </h4>
         <div className="flex items-baseline gap-1">
           <span className="text-2xl font-black">
             {fixedPercent.toFixed(0)}%
           </span>
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-tighter">
             Fixed Costs ({year})
           </span>
         </div>
@@ -57,14 +57,14 @@ export function FixedVariableTracker({
         </div>
 
         <div className="flex flex-col gap-1">
-          <div className="flex justify-between items-center text-[10px]">
-            <div className="flex items-center gap-1 font-black uppercase tracking-tighter text-white">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-1 font-semibold text-white">
               <Lock className="w-3 h-3" /> Fixed: $
               {formatCurrencyRounded(fixedTotal)}
             </div>
           </div>
-          <div className="flex justify-between items-center text-[10px]">
-            <div className="flex items-center gap-1 font-bold italic text-slate-400 uppercase tracking-tighter">
+          <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center gap-1 font-semibold text-slate-400">
               <Shuffle className="w-3 h-3" /> Variable: $
               {formatCurrencyRounded(variableTotal)}
             </div>

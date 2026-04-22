@@ -651,10 +651,10 @@ export default function CommandCenterClient({
               </div>
 
               <div className="pt-8 border-t border-slate-800">
-                <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-500 mb-2">
+                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-500">
                   Source Analytics
                 </h4>
-                <div className="h-[250px] -mx-4">
+                <div className="h-[220px] -mx-4">
                   <SourceBurnChart
                     subcategories={subcategories}
                     person1Name={p1Name}
