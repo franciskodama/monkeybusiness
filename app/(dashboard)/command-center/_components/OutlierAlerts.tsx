@@ -83,7 +83,7 @@ export function OutlierAlerts({
     <div className="font-medium">
       <div className="flex items-center gap-2 mb-6 text-rose-500">
         <AlertCircle className="w-4 h-4" />
-        <h4 className="text-xs text-rose-500 font-black uppercase tracking-widest">
+        <h4 className="text-sm text-rose-500 font-black uppercase tracking-widest">
           Habit Anomaly Detected
         </h4>
       </div>
@@ -95,7 +95,7 @@ export function OutlierAlerts({
               <span className="text-sm font-black uppercase text-white">
                 {a.name}
               </span>
-              <p className="text-xs text-slate-400 uppercase leading-normal">
+              <p className="text-sm text-slate-400 leading-normal">
                 Spending is {a.diff.toFixed(0)}% above normal habit ($
                 {formatCurrencyRounded(a.avg)})
               </p>

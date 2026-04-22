@@ -80,7 +80,7 @@ export function CommandCenterMetric({
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <Icon size={18} className={style.icon} />
-          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">
+          <span className="text-xs font-black uppercase tracking-widest text-slate-500">
             {label}
           </span>
         </div>

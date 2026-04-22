@@ -1133,20 +1133,15 @@ export default function Planner({
                   className="p-4 flex justify-between items-center hover:bg-slate-50 transition-colors group"
                 >
                   <div className="flex flex-col gap-1">
-                    <span className="text-xs font-black uppercase tracking-widest">
+                    <span className="text-sm font-black uppercase tracking-widest">
                       {tx.description}
                     </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[9px] text-primary font-bold uppercase tracking-tighter">
-                        {tx.subcategoryName || tx.source}
-                      </span>
+                    <div className="flex items-center gap-2 text-[11px] text-primary font-bold uppercase tracking-tighter">
                       {tx.subcategoryName && (
-                        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-tighter">
-                          • {tx.source}
-                        </span>
+                        <span className="text-slate-400">{tx.source}</span>
                       )}
-                      <span className="text-[9px] text-muted-foreground font-mono">
-                        {tx.date ? formatDate(tx.date) : ''}
+                      <span className="text-muted-foreground font-mono">
+                        • {tx.date ? formatDate(tx.date) : ''}
                       </span>
                     </div>
                   </div>
@@ -1208,7 +1203,7 @@ export default function Planner({
 
           <div className="px-6 py-4 bg-slate-50 border-t space-y-2">
             {/* Split Breakdown */}
-            <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-slate-400">
+            <div className="flex justify-between items-center text-xs uppercase font-bold tracking-widest text-slate-400">
               <span>1st - 15th</span>
               <span className="font-mono">
                 $
@@ -1226,7 +1221,7 @@ export default function Planner({
                 )}
               </span>
             </div>
-            <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-widest text-slate-400">
+            <div className="flex justify-between items-center text-xs uppercase font-bold tracking-widest text-slate-400">
               <span>16th - End</span>
               <span className="font-mono">
                 $

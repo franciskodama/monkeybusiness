@@ -123,12 +123,12 @@ export function SignalsRibbon({
                   }}
                 >
                   <div className="flex flex-col max-w-[250px]">
-                    <p className="text-[10px] font-bold uppercase truncate">
+                    <p className="text-xs font-bold uppercase truncate">
                       {r.text}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <span
-                        className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded-[2px]"
+                        className="text-xs font-black uppercase px-1.5 py-0.5 rounded-[2px]"
                         style={{
                           backgroundColor: userColor,
                           color: userColor === '#00FFFF' ? '#000000' : '#ffffff'
@@ -136,7 +136,7 @@ export function SignalsRibbon({
                       >
                         {targetName}
                       </span>
-                      <span className="text-[10px] text-slate-700">
+                      <span className="text-xs text-slate-700">
                         {formatDate(r.createdAt)}
                       </span>
                     </div>
