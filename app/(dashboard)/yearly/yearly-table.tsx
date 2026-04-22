@@ -1148,7 +1148,7 @@ export function YearlyTable({
                 <div className="space-y-12">
                   {/* Yearly Header */}
                   <div className="border-b-2 border-slate-700 pb-8 -mx-2">
-                    <span className="text-[10px] uppercase font-black tracking-[0.4em] text-emerald-500 block mb-1">
+                    <span className="text-xs uppercase font-black tracking-[0.4em] text-emerald-500 block mb-1">
                       Annual Settlement
                     </span>
                     <h2 className="text-4xl font-black uppercase tracking-tighter leading-none">
@@ -1158,7 +1158,7 @@ export function YearlyTable({
 
                   {/* 1. Score: Yearly Effort */}
                   <div>
-                    <span className="text-[10px] uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
+                    <span className="text-sm uppercase font-black tracking-[0.2em] text-slate-500 block mb-4">
                       Yearly Effort
                     </span>
                     <div className="space-y-1">
@@ -1216,7 +1216,7 @@ export function YearlyTable({
 
                   {/* 3. Annual Performance Index Table */}
                   <div className="space-y-4 pt-4 border-t border-slate-800/50">
-                    <span className="text-[11px] uppercase font-black tracking-widest text-slate-600">
+                    <span className="text-sm uppercase font-black tracking-widest text-slate-600">
                       Performance Index
                     </span>
                     <div className="space-y-4">
@@ -1234,11 +1234,11 @@ export function YearlyTable({
                           <div
                             className={`w-1 h-1 transition-all ${activeMetric === 'savingsRate' ? 'bg-emerald-400 scale-150' : 'bg-emerald-500'}`}
                           />
-                          <span className="text-[10px] font-bold uppercase transition-all">
+                          <span className="text-xs font-bold uppercase transition-all">
                             Savings Rate
                           </span>
                         </div>
-                        <span className="font-mono text-sm font-black text-emerald-400">
+                        <span className="font-mono text-xs font-black text-emerald-400">
                           {settlement.reality.effort > 0
                             ? (
                                 (settlement.reality.investments /
@@ -1263,7 +1263,7 @@ export function YearlyTable({
                           <div
                             className={`w-1 h-1 transition-all ${activeMetric === 'efficiency' ? 'bg-blue-400 scale-150' : 'bg-blue-500'}`}
                           />
-                          <span className="text-[10px] font-bold uppercase transition-all">
+                          <span className="text-xs font-bold uppercase transition-all">
                             Living Efficiency
                           </span>
                         </div>
@@ -1293,7 +1293,7 @@ export function YearlyTable({
                           <div
                             className={`w-1 h-1 transition-all ${activeMetric === 'burn' ? 'bg-slate-100 scale-150' : 'bg-slate-500'}`}
                           />
-                          <span className="text-[10px] font-bold uppercase transition-all">
+                          <span className="text-xs font-bold uppercase transition-all">
                             YTD Burn
                           </span>
                         </div>
@@ -1319,7 +1319,7 @@ export function YearlyTable({
                     } ${activeMetric === 'settlement' ? 'ring-2 ring-slate-400 border-slate-400' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">
+                      <span className="text-xs uppercase font-black tracking-widest text-slate-400">
                         Final Settlement
                       </span>
                     </div>
@@ -1333,7 +1333,7 @@ export function YearlyTable({
                       >
                         ${formatCurrency(settlement.finalBalance)}
                       </span>
-                      <p className="text-[11px] uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
+                      <p className="text-xs uppercase font-bold text-slate-500 mt-2 leading-relaxed tracking-tight underline decoration-slate-500/20">
                         {settlement.finalBalance < 0
                           ? 'Deficit Year Projection'
                           : 'Positive Year Projection'}
@@ -1363,7 +1363,7 @@ export function YearlyTable({
                     ) : (
                       <TrendingUp size={14} className="text-slate-500" />
                     )}
-                    <span className="text-[10px] uppercase font-black text-slate-300 tracking-[0.2em]">
+                    <span className="text-xs uppercase font-black text-slate-300 tracking-[0.2em]">
                       {settlement.reality.investments /
                         (settlement.reality.effort || 1) >
                       0.3
