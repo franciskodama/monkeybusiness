@@ -40,13 +40,13 @@ export default async function PlannerPage(props: {
 
   const householdUsers = user.household?.users || [];
   const p1Name =
-    user.household?.person1Name ||
-    householdUsers[0]?.name?.split(' ')[0] ||
-    'Partner 1';
+    user.household?.person1Name && user.household.person1Name !== 'Partner 1'
+      ? user.household.person1Name
+      : householdUsers[0]?.name?.split(' ')[0] || 'Partner 1';
   const p2Name =
-    user.household?.person2Name ||
-    householdUsers[1]?.name?.split(' ')[0] ||
-    'Partner 2';
+    user.household?.person2Name && user.household.person2Name !== 'Partner 2'
+      ? user.household.person2Name
+      : householdUsers[1]?.name?.split(' ')[0] || 'Partner 2';
 
   return (
     <>

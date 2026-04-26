@@ -249,7 +249,11 @@ export function TransactionReviewModal({
                       <p className="text-[10px] text-muted-foreground uppercase font-mono tracking-tight">
                         {dateStr} •{' '}
                         <span className="text-primary font-bold">
-                          {tx.source}
+                          {tx.source === 'PERSON1'
+                            ? p1
+                            : tx.source === 'PERSON2'
+                              ? p2
+                              : tx.source}
                         </span>{' '}
                         • ${formatCurrency(Math.abs(getAmount(tx.amount)))}
                       </p>

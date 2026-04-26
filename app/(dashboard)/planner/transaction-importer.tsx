@@ -62,8 +62,12 @@ export function TransactionImporter({
         const result = await processStatementWithAI(base64, householdId, year);
 
         if (result.success && result.transactions) {
-          // Use the transactions array from the result
-          setReviewDataAction(result.transactions);
+          // Map the source to each transaction
+          const finalData = result.transactions.map((tx) => ({
+            ...tx,
+            source: source
+          }));
+          setReviewDataAction(finalData);
           toast.success(`Statement processed for ${source}`);
         } else {
           // If failed or undefined, explicitly set to null to avoid the type error

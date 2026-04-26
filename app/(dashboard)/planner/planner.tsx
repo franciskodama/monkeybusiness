@@ -1106,6 +1106,8 @@ export default function Planner({
             // Pass everything so Feb transactions can find Feb budget items
             allAvailableSubcategories={currentSubcategories}
             setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
+            person1Name={p1Name}
+            person2Name={p2Name}
           />
         )}
       </CardContent>
