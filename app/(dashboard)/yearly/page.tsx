@@ -2,6 +2,7 @@ import { getUser } from '@/lib/actions/auth';
 import { getCategories, getSubcategories } from '@/lib/actions/budget';
 import { auth } from '@/lib/auth';
 import { YearlyTable } from './yearly-table';
+import { DEFAULT_PERSON1_NAME, DEFAULT_PERSON2_NAME } from '@/lib/utils';
 
 export default async function YearlyPage(props: {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
@@ -17,21 +18,21 @@ export default async function YearlyPage(props: {
   const allSubcategories = await getSubcategories(householdId, year);
 
   const householdUsers = user?.household?.users || [];
-  const p1Name =
+  const person1Name =
     user?.household?.person1Name ||
     householdUsers[0]?.name?.split(' ')[0] ||
-    'Partner 1';
-  const p2Name =
+    DEFAULT_PERSON1_NAME;
+  const person2Name =
     user?.household?.person2Name ||
     householdUsers[1]?.name?.split(' ')[0] ||
-    'Partner 2';
+    DEFAULT_PERSON2_NAME;
 
   return (
     <YearlyTable
       categories={categories || []}
       initialSubcategories={allSubcategories || []}
-      person1Name={p1Name}
-      person2Name={p2Name}
+      person1Name={person1Name}
+      person2Name={person2Name}
       year={year}
     />
   );

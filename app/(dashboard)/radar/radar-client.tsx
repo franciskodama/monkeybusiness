@@ -31,7 +31,7 @@ import {
   DialogFooter
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, DEFAULT_PERSON1_NAME, DEFAULT_PERSON2_NAME } from '@/lib/utils';
 import { FinancialCommitment, Responsibility, User } from '@prisma/client';
 
 const RESPONSIBILITY_CONFIG = {
@@ -54,8 +54,8 @@ export default function RadarClient({
   initialCommitments,
   currentUser,
   householdUsers,
-  person1Name = 'Partner 1',
-  person2Name = 'Partner 2'
+  person1Name = DEFAULT_PERSON1_NAME,
+  person2Name = DEFAULT_PERSON2_NAME
 }: BillRadarClientProps) {
   const [commitments, setCommitments] =
     useState<FinancialCommitment[]>(initialCommitments);

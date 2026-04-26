@@ -19,7 +19,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
 import { bulkAddTransactions, addTransactionRule } from '@/lib/actions/transactions';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, DEFAULT_PERSON1_NAME, DEFAULT_PERSON2_NAME } from '@/lib/utils';
 import { SubcategoryWithCategory, TransactionInput } from '@/lib/types';
 
 type ReviewItem = TransactionInput & { ignored?: boolean };
@@ -30,8 +30,8 @@ export function TransactionReviewModal({
   householdId,
   allAvailableSubcategories,
   setCurrentSubcategoriesAction,
-  person1Name = 'Partner 1',
-  person2Name = 'Partner 2'
+  person1Name = DEFAULT_PERSON1_NAME,
+  person2Name = DEFAULT_PERSON2_NAME
 }: {
   reviewData: ReviewItem[];
   setReviewData: (data: ReviewItem[] | null) => void;
@@ -189,8 +189,8 @@ export function TransactionReviewModal({
               };
 
               const usualSource = getUsualSource();
-              const p1 = person1Name || 'Partner 1';
-              const p2 = person2Name || 'Partner 2';
+              const person1NameMapped = person1Name || DEFAULT_PERSON1_NAME;
+              const person2NameMapped = person2Name || DEFAULT_PERSON2_NAME;
 
               const isSourceMatch =
                 usualSource && tx.source && tx.source === usualSource;
@@ -250,9 +250,9 @@ export function TransactionReviewModal({
                         {dateStr} •{' '}
                         <span className="text-primary font-bold">
                           {tx.source === 'PERSON1'
-                            ? p1
+                            ? person1NameMapped
                             : tx.source === 'PERSON2'
-                              ? p2
+                              ? person2NameMapped
                               : tx.source}
                         </span>{' '}
                         • ${formatCurrency(Math.abs(getAmount(tx.amount)))}
@@ -334,9 +334,9 @@ export function TransactionReviewModal({
                         <p className="text-[8px] font-bold uppercase text-emerald-700 tracking-widest">
                           Habit Match: Usually paid by{' '}
                           {usualSource === 'PERSON1'
-                            ? p1
+                            ? person1NameMapped
                             : usualSource === 'PERSON2'
-                              ? p2
+                              ? person2NameMapped
                               : 'Family'}
                         </p>
                       </div>
@@ -348,9 +348,9 @@ export function TransactionReviewModal({
                         <p className="text-[8px] font-bold uppercase text-cyan-700 tracking-widest">
                           Source Note: Usually paid by{' '}
                           {usualSource === 'PERSON1'
-                            ? p1
+                            ? person1NameMapped
                             : usualSource === 'PERSON2'
-                              ? p2
+                              ? person2NameMapped
                               : 'Family'}
                         </p>
                       </div>

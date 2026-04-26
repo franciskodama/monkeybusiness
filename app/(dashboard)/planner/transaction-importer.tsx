@@ -20,12 +20,13 @@ import {
 import { toast } from 'sonner';
 import { processStatementWithAI } from '@/lib/actions/ai';
 import { TransactionInput } from '@/lib/types';
+import { DEFAULT_PERSON1_NAME, DEFAULT_PERSON2_NAME } from '@/lib/utils';
 
 export function TransactionImporter({
   householdId,
   setReviewDataAction,
-  person1Name = 'Partner 1',
-  person2Name = 'Partner 2',
+  person1Name = DEFAULT_PERSON1_NAME,
+  person2Name = DEFAULT_PERSON2_NAME,
   year
 }: {
   householdId: string;
