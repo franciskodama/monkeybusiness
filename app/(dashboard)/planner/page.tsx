@@ -5,6 +5,10 @@ import {
   getSubcategories,
   getCurrenciesFromApi
 } from '@/lib/actions/budget';
+import {
+  DEFAULT_PERSON1_NAME,
+  DEFAULT_PERSON2_NAME
+} from '@/lib/utils';
 import { getUser } from '@/lib/actions/auth';
 import Planner from './planner';
 import { Spinner } from '@/lib/icons';
@@ -39,14 +43,16 @@ export default async function PlannerPage(props: {
   }
 
   const householdUsers = user.household?.users || [];
-  const p1Name =
-    user.household?.person1Name ||
-    householdUsers[0]?.name?.split(' ')[0] ||
-    'Partner 1';
-  const p2Name =
-    user.household?.person2Name ||
-    householdUsers[1]?.name?.split(' ')[0] ||
-    'Partner 2';
+  const person1Name =
+    user.household?.person1Name &&
+    user.household.person1Name !== DEFAULT_PERSON1_NAME
+      ? user.household.person1Name
+      : householdUsers[0]?.name?.split(' ')[0] || DEFAULT_PERSON1_NAME;
+  const person2Name =
+    user.household?.person2Name &&
+    user.household.person2Name !== DEFAULT_PERSON2_NAME
+      ? user.household.person2Name
+      : householdUsers[1]?.name?.split(' ')[0] || DEFAULT_PERSON2_NAME;
 
   return (
     <>
@@ -56,8 +62,8 @@ export default async function PlannerPage(props: {
           categories={categories}
           subcategories={subcategories}
           brlRate={brlRate}
-          person1Name={p1Name}
-          person2Name={p2Name}
+          person1Name={person1Name}
+          person2Name={person2Name}
           year={year}
           recentTransactions={recentTransactions}
         />

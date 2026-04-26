@@ -20,12 +20,13 @@ import {
 import { toast } from 'sonner';
 import { processStatementWithAI } from '@/lib/actions/ai';
 import { TransactionInput } from '@/lib/types';
+import { DEFAULT_PERSON1_NAME, DEFAULT_PERSON2_NAME } from '@/lib/utils';
 
 export function TransactionImporter({
   householdId,
   setReviewDataAction,
-  person1Name = 'Partner 1',
-  person2Name = 'Partner 2',
+  person1Name = DEFAULT_PERSON1_NAME,
+  person2Name = DEFAULT_PERSON2_NAME,
   year
 }: {
   householdId: string;
@@ -62,8 +63,12 @@ export function TransactionImporter({
         const result = await processStatementWithAI(base64, householdId, year);
 
         if (result.success && result.transactions) {
-          // Use the transactions array from the result
-          setReviewDataAction(result.transactions);
+          // Map the source to each transaction
+          const finalData = result.transactions.map((tx) => ({
+            ...tx,
+            source: source
+          }));
+          setReviewDataAction(finalData);
           toast.success(`Statement processed for ${source}`);
         } else {
           // If failed or undefined, explicitly set to null to avoid the type error

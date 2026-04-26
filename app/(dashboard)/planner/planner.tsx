@@ -21,7 +21,9 @@ import {
   months,
   formatCurrency,
   formatCurrencyRounded,
-  formatDate
+  formatDate,
+  DEFAULT_PERSON1_NAME,
+  DEFAULT_PERSON2_NAME
 } from '@/lib/utils';
 import { Category } from '@prisma/client';
 import { barlow, kumbh_sans } from '@/lib/fonts';
@@ -73,8 +75,8 @@ export default function Planner({
   categories,
   subcategories,
   brlRate,
-  person1Name,
-  person2Name,
+  person1Name: p1Prop,
+  person2Name: p2Prop,
   year,
   recentTransactions
 }: {
@@ -87,8 +89,8 @@ export default function Planner({
   year: number;
   recentTransactions: TransactionWithSubcategory[];
 }) {
-  const p1Name = person1Name || 'Partner 1';
-  const p2Name = person2Name || 'Partner 2';
+  const person1Name = p1Prop || DEFAULT_PERSON1_NAME;
+  const person2Name = p2Prop || DEFAULT_PERSON2_NAME;
 
   const [openAction, setOpenAction] = useState(false);
   const [currentSubcategories, setCurrentSubcategoriesAction] =
@@ -234,7 +236,10 @@ export default function Planner({
   // Targets (Planned Values) - Categorizing by both Subcategory and Parent Category name
   const isP1Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
-    if (nameStr.includes('PERSON1') || nameStr.includes(p1Name.toUpperCase()))
+    if (
+      nameStr.includes('PERSON1') ||
+      nameStr.includes(person1Name.toUpperCase())
+    )
       return true;
     // Fallback: check if the actual transactions already arrived are from 'PERSON1'
     return sub.transactions?.some((tx) => tx.source === 'PERSON1');
@@ -242,7 +247,10 @@ export default function Planner({
 
   const isP2Identifier = (sub: SubcategoryWithCategory) => {
     const nameStr = (sub.name + ' ' + (sub.category?.name || '')).toUpperCase();
-    if (nameStr.includes('PERSON2') || nameStr.includes(p2Name.toUpperCase()))
+    if (
+      nameStr.includes('PERSON2') ||
+      nameStr.includes(person2Name.toUpperCase())
+    )
       return true;
     // Fallback: check if the actual transactions already arrived are from 'PERSON2'
     return sub.transactions?.some((tx) => tx.source === 'PERSON2');
@@ -505,15 +513,15 @@ export default function Planner({
               <TransactionImporter
                 householdId={householdId}
                 setReviewDataAction={setReviewData}
-                person1Name={p1Name}
-                person2Name={p2Name}
+                person1Name={person1Name}
+                person2Name={person2Name}
                 year={currentYear}
               />
               <DirectCodeImporter
                 householdId={householdId}
                 onDataLoaded={(data) => setReviewData(data)}
-                person1Name={p1Name}
-                person2Name={p2Name}
+                person1Name={person1Name}
+                person2Name={person2Name}
               />
               <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 w-full lg:w-auto">
                 <AddCategory
@@ -609,7 +617,7 @@ export default function Planner({
                     <div className="flex justify-between items-center group">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                          {p1Name.toUpperCase()} Target
+                          {person1Name.toUpperCase()} Target
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-cyan-50 group-hover:text-cyan-600 group-hover:border-cyan-100 transition-all">
                           {Math.round(
@@ -625,7 +633,7 @@ export default function Planner({
                     <div className="flex justify-between items-center group">
                       <div className="flex items-center gap-2">
                         <span className="text-xs font-bold text-slate-600 group-hover:text-slate-900 transition-colors">
-                          {p2Name.toUpperCase()} Target
+                          {person2Name.toUpperCase()} Target
                         </span>
                         <span className="text-[9px] font-mono font-black text-slate-400 bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded-sm group-hover:bg-orange-50 group-hover:text-orange-600 group-hover:border-orange-100 transition-all">
                           {Math.round(
@@ -690,7 +698,7 @@ export default function Planner({
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                           <span className="text-[10px] font-bold text-emerald-900/60 uppercase tracking-widest">
-                            {p1Name.toUpperCase()} Contribution
+                            {person1Name.toUpperCase()} Contribution
                           </span>
                           <span className="text-[8px] font-mono font-black text-white bg-cyan-500 px-1 py-0.5 rounded-sm">
                             {Math.round(
@@ -707,7 +715,7 @@ export default function Planner({
                         <div className="flex items-center gap-2">
                           <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
                           <span className="text-[10px] font-bold text-emerald-900/60 uppercase tracking-widest">
-                            {p2Name.toUpperCase()} Contribution
+                            {person2Name.toUpperCase()} Contribution
                           </span>
                           <span className="text-[8px] font-mono font-black text-white bg-orange-500 px-1 py-0.5 rounded-sm">
                             {Math.round(
@@ -729,8 +737,8 @@ export default function Planner({
                       Total Arrived to the pool
                     </p>
                     <p className="text-[10px] font-bold text-emerald-600/70 mt-2 italic leading-relaxed">
-                      Combined effort from &quot;{p1Name}&quot; and &quot;
-                      {p2Name}&quot; already registered in current transactions.
+                      Combined effort from &quot;{person1Name}&quot; and &quot;
+                      {person2Name}&quot; already registered in current transactions.
                     </p>
                   </div>
                 </div>
@@ -981,8 +989,8 @@ export default function Planner({
                                 selectedMonth={selectedMonth}
                                 allAvailableSubcategories={currentSubcategories}
                                 isIncome={item.category.isIncome}
-                                person1Name={p1Name}
-                                person2Name={p2Name}
+                                person1Name={person1Name}
+                                person2Name={person2Name}
                                 onSuccess={(updatedItems) =>
                                   setCurrentSubcategoriesAction(updatedItems)
                                 }
@@ -1087,11 +1095,11 @@ export default function Planner({
             }))}
             brlRate={brlRate}
             month={selectedMonth}
-            person1Name={p1Name}
-            person2Name={p2Name}
+            person1Name={person1Name}
+            person2Name={person2Name}
             onSourceClick={(source, txs) =>
               setSelectedDetails({
-                name: `${source === 'PERSON1' ? p1Name : source === 'PERSON2' ? p2Name : source} Activity`,
+                name: `${source === 'PERSON1' ? person1Name : source === 'PERSON2' ? person2Name : source} Activity`,
                 month: selectedMonth,
                 transactions: txs
               })
@@ -1106,6 +1114,8 @@ export default function Planner({
             // Pass everything so Feb transactions can find Feb budget items
             allAvailableSubcategories={currentSubcategories}
             setCurrentSubcategoriesAction={setCurrentSubcategoriesAction}
+            person1Name={person1Name}
+            person2Name={person2Name}
           />
         )}
       </CardContent>

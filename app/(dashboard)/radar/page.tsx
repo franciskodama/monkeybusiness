@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth';
 import { getUser } from '@/lib/actions/auth';
 import { getFinancialCommitments } from '@/lib/actions/radar';
 import { getHouseholdUsers } from '@/lib/actions/household';
+import { DEFAULT_PERSON1_NAME, DEFAULT_PERSON2_NAME } from '@/lib/utils';
 import RadarClient from './radar-client';
 
 export default async function RadarPage() {
@@ -24,14 +25,12 @@ export default async function RadarPage() {
     getHouseholdUsers(householdId)
   ]);
 
-  const p1Name =
+  const person1Name =
     currentUser.household?.person1Name ||
-    householdUsers[0]?.name?.split(' ')[0] ||
-    'Partner 1';
-  const p2Name =
+    DEFAULT_PERSON1_NAME;
+  const person2Name =
     currentUser.household?.person2Name ||
-    householdUsers[1]?.name?.split(' ')[0] ||
-    'Partner 2';
+    DEFAULT_PERSON2_NAME;
 
   return (
     <RadarClient
@@ -39,8 +38,8 @@ export default async function RadarPage() {
       initialCommitments={commitments}
       currentUser={currentUser}
       householdUsers={householdUsers}
-      person1Name={p1Name}
-      person2Name={p2Name}
+      person1Name={person1Name}
+      person2Name={person2Name}
     />
   );
 }

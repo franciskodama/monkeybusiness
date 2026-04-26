@@ -5,6 +5,9 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export const DEFAULT_PERSON1_NAME = 'Partner 1';
+export const DEFAULT_PERSON2_NAME = 'Partner 2';
+
 export const colors = [
   { name: 'BLUE', code: '#1E90FF', foreground: '#FFFFFF' },
   { name: 'GREEN', code: '#32CD32', foreground: '#FFFFFF' },
