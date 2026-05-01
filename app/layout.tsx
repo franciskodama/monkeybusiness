@@ -8,7 +8,17 @@ export const metadata: Metadata = {
   },
   title: 'Monkey Business',
   description:
-    'Your personal hub for your Family Budget! Configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, and Prettier.'
+    'Your personal hub for your Family Budget! Configured with Next.js, Postgres, NextAuth, Tailwind CSS, TypeScript, and Prettier.',
+  openGraph: {
+    images: [
+      {
+        url: 'https://monkeybusiness-olive.vercel.app/og-tags/prj-monkey-buss.webp',
+        width: 1200,
+        height: 630,
+        alt: 'Monkey Business'
+      }
+    ]
+  }
 };
 
 export default function RootLayout({
