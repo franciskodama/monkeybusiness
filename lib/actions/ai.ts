@@ -77,7 +77,7 @@ export async function processStatementWithAI(
 ) {
   const targetYear = year || new Date().getFullYear();
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
     const allSubcategories = await prisma.subcategory.findMany({
       where: { householdId, year: targetYear }
