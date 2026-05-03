@@ -178,7 +178,7 @@ export async function getRecentTransactions(householdId: string) {
     const transactions = await prisma.transaction.findMany({
       where: { householdId },
       orderBy: { createdAt: 'desc' },
-      take: 10,
+      take: 20,
       include: {
         subcategory: {
           include: { category: true }
